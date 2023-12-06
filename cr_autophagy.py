@@ -10,6 +10,8 @@ import pyvista as pv
 import matplotlib.pyplot as plt
 import tqdm
 import copy
+from scipy.spatial import distance
+
 
 
 def get_last_output_path(name = "autophagy"):
@@ -222,3 +224,141 @@ def save_all_scatter_snapshots(output_path: Path, threads=1, show_bar=True):
         list(tqdm.tqdm(mp.Pool(threads).imap(__save_scatter_snapshot_helper, output_iterations), total=len(output_iterations)))
     else:
         mp.Pool(threads).map(__save_scatter_snapshot_helper, output_iterations)
+
+
+def get_cluster_information(output_path: Path, iteration,connection_distance = 2.5):
+    simulation_settings = get_simulation_settings(output_path)
+    #max_iter = max(cra.get_all_iterations(output_path))
+    n_cells = simulation_settings.n_cells_r11
+    n_cargo = simulation_settings.n_cells_cargo
+    df = get_particles_at_iter(output_path, iteration)
+
+    # Initialize matrices
+    distance_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
+    cargo_distance = np.zeros(n_cells)
+    connection_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
+    cluster_size = np.zeros(n_cells).astype(int)
+    cluster_identity = np.zeros(n_cells).astype(int)
+    full_connection_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
+    cluster_identity_counter = 0
+
+    # Get particle positions
+    cargo_at_end = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_at_end = np.array([np.array(elem) for elem in cargo_at_end])
+    non_cargo_at_end = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_at_end = np.array([np.array(elem) for elem in non_cargo_at_end])
+
+
+    
+    for i in range(n_cells):
+        for j in range(n_cells):
+            dist = distance.euclidean(non_cargo_at_end[i],non_cargo_at_end[j])
+            distance_matrix[i][j] = dist
+            distance_matrix[j][i] = dist
+            connection_matrix[i][j] = dist < connection_distance
+            connection_matrix[j][i] = dist < connection_distance
+        for k in range(n_cargo):
+            cargo_dist = distance.euclidean(non_cargo_at_end[i],cargo_at_end[k])
+            if cargo_distance[i] > cargo_dist:
+                cargo_distance[i] = cargo_dist
+            elif cargo_distance[i] == 0:
+                cargo_distance[i] = cargo_dist    
+
+    full_connection_matrix = connection_matrix
+
+    # Go through all cells again and connect each with all its connections connections
+    for i in range(n_cells):
+        for p in range(n_cells):
+            # For connected cells
+            if connection_matrix[i][p] == 1:
+                # Check their connections as well 
+                for j in range(n_cells):
+                    # And if they are connected
+                    if connection_matrix[p][j] == 1:
+                        # connect initial cell as well
+                        full_connection_matrix[i][j] = 1
+                        full_connection_matrix[j][i] = 1
+
+
+    # Collect the cluster
+    for i in range(n_cells):
+        cluster_size[i] = np.sum(full_connection_matrix[i],0)
+        if cluster_identity[i] == 0:
+            cluster_identity[i] = cluster_identity_counter
+            cluster_identity_counter = cluster_identity_counter + 1
+        for j in range(n_cells):
+            if full_connection_matrix[i][j] == 1:
+                if cluster_identity[j] == 0:
+                    cluster_identity[j] = cluster_identity_counter
+
+
+    cI = np.unique(cluster_identity, return_index=True)
+    min_cluster_cargo_distance = np.zeros(len(cI[1]))
+
+    # Check min distance of cluster to cargo
+    for k in range(np.max(cluster_identity)):
+        for i in range(n_cells):
+            if cluster_identity[i] == k+1:
+                if min_cluster_cargo_distance[k] > cargo_distance[i]:
+                    min_cluster_cargo_distance[k] = cargo_distance[i]
+                elif min_cluster_cargo_distance[k] == 0:
+                    min_cluster_cargo_distance[k] = cargo_distance[i]
+    
+    clusters = [cluster_identity[cI[1]], cluster_size[cI[1]], min_cluster_cargo_distance]
+    return clusters
+
+
+def save_cluster_information_plots(output_path: Path, iteration,connection_distance = 2.5):
+    clusters = get_cluster_information(output_path,iteration,connection_distance)
+    
+    ofolder = output_path / "clusterplots"
+    ofolder.mkdir(parents=True, exist_ok=True)
+
+    osubfolder = output_path / "clusterplots" / "individual_plots"
+    osubfolder.mkdir(parents=True, exist_ok=True)
+
+    fig, (ax1,ax2,ax3) = plt.subplots(3,1,figsize=(8, 13))
+    #fig.suptitle('Cluster analysis plots')
+
+    ax1.set_title("Cluster sizes and distance to cargo")
+    ax1.scatter(clusters[2],clusters[1])
+    ax1.set(xlabel='# particles in cluster', ylabel='min distance of cluster to cargo')
+
+
+    ax2.set_title("Histogram of cluster sizes")
+    ax2.hist(clusters[1])
+    ax2.set(xlabel='# particles in cluster', ylabel='# of clusters')
+    # getting data of the histogram 
+    count, bins_count = np.histogram(clusters[1]) 
+
+    # finding the PDF of the histogram using count values 
+    pdf = count / sum(count) 
+
+    # using numpy np.cumsum to calculate the CDF 
+    # We can also find using the PDF values by looping and adding 
+    cdf = np.cumsum(pdf) 
+
+    # plotting PDF and CDF 
+    ax3.set_title("PDF and CDF of cluster sizes")
+    ax3.plot(bins_count[1:], pdf, color="red", label="PDF") 
+    ax3.plot(bins_count[1:], cdf, label="CDF") 
+    ax3.set(xlabel='# particles in cluster', ylabel='prob. density / cum. prob. density')
+    ax3.legend() 
+    fig.subplots_adjust(left=0.1,
+                        bottom=0.1, 
+                        right=0.9, 
+                        top=0.9, 
+                        wspace=0.4, 
+                        hspace=0.4)
+
+    fig.savefig(ofolder / f"cluster_plot_cd{connection_distance}_{iteration:08}.png")
+        
+    # Save just the portion _inside_ the second axis's boundaries
+    extent1 = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    extent2 = ax2.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    extent3 = ax3.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    # Pad the saved area by 10% in the x-direction and 20% in the y-direction
+    fig.savefig(osubfolder / f"cluster_sizes_distances_plot_cd{connection_distance}_{iteration:08}.png", bbox_inches=extent1.expanded(1.3, 1.4))
+    fig.savefig(osubfolder / f"hist_cluster_sizes_{connection_distance}_{iteration:08}.png", bbox_inches=extent2.expanded(1.3, 1.4))
+    fig.savefig(osubfolder / f"PDF_CDF_cluster_sizes_{connection_distance}_{iteration:08}.png", bbox_inches=extent3.expanded(1.3, 1.4))
+    plt.close(fig)
