@@ -1,5 +1,6 @@
 # python bindings for the autophagy simulation
-![Python Integration](https://github.com/jonaspleyer/2023-autophagy/actions/workflows/test_python.yml/badge.svg)
+![Python Integration](https://github.com/jonaspleyer/2023-autophagy/actions/workflows/python_integration.yml/badge.svg)
+![Stable](https://github.com/jonaspleyer/2023-autophagy/actions/workflows/test_stable.yml/badge.svg)
 ## Getting Started
 Create a new virtual environment and activate it.
 ```bash
