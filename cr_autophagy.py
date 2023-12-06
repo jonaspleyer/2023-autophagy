@@ -326,10 +326,10 @@ def save_cluster_information_plots(output_path: Path, iteration,connection_dista
 
 
     ax2.set_title("Histogram of cluster sizes")
-    ax2.hist(clusters[1])
+    ax2.hist(clusters[1],bins=50)
     ax2.set(xlabel='# particles in cluster', ylabel='# of clusters')
     # getting data of the histogram 
-    count, bins_count = np.histogram(clusters[1]) 
+    count, bins_count = np.histogram(clusters[1],bins=50) 
 
     # finding the PDF of the histogram using count values 
     pdf = count / sum(count) 
