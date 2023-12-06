@@ -4,12 +4,12 @@ import cr_autophagy as cra
 simulation_settings = SimulationSettings()
 
 # HIGH AFFINITY CONFIGURATION
-simulation_settings.potential_strength_cargo_r11 = 0.01
-simulation_settings.potential_strength_cargo_r11_avidity = 0.00
+#simulation_settings.potential_strength_cargo_r11 = 0.01
+#simulation_settings.potential_strength_cargo_r11_avidity = 0.00
 
 # HIGH AVIDITY CONFIGURATION
-# simulation_settings.potential_strength_cargo_r11 = 0.0
-# simulation_settings.potential_strength_cargo_r11_avidity = 0.01
+simulation_settings.potential_strength_cargo_r11 = 0.0
+simulation_settings.potential_strength_cargo_r11_avidity = 0.01
 
 if __name__ == "__main__":
     from pathlib import Path
@@ -18,6 +18,9 @@ if __name__ == "__main__":
 
     print("Saving Snapshots")
     cra.save_all_snapshots(output_path, threads=14)#simulation_settings.n_threads)
+
+    print("Saving cluster analysis plots")
+    cra.save_all_cluster_information_plots(output_path, threads=0,show_bar=True,connection_distance=2.5)
 
     # Also create a movie with ffmpeg
     print("Generating Snapshot Movie")

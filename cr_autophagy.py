@@ -311,17 +311,17 @@ def get_cluster_information(output_path: Path, iteration,connection_distance = 2
 def save_cluster_information_plots(output_path: Path, iteration,connection_distance = 2.5):
     clusters = get_cluster_information(output_path,iteration,connection_distance)
     
-    ofolder = output_path / "clusterplots"
+    ofolder = output_path / "clusterplots" / f"connection_distance_{connection_distance}"
     ofolder.mkdir(parents=True, exist_ok=True)
 
-    osubfolder = output_path / "clusterplots" / "individual_plots"
+    osubfolder = output_path / "clusterplots" / f"connection_distance_{connection_distance}" / "individual_plots"
     osubfolder.mkdir(parents=True, exist_ok=True)
 
-    fig, (ax1,ax2,ax3) = plt.subplots(3,1,figsize=(8, 13))
+    fig, (ax1,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(8, 16))
     #fig.suptitle('Cluster analysis plots')
 
     ax1.set_title("Cluster sizes and distance to cargo")
-    ax1.scatter(clusters[2],clusters[1])
+    ax1.scatter(clusters[1],clusters[2])
     ax1.set(xlabel='# particles in cluster', ylabel='min distance of cluster to cargo')
 
 
@@ -351,14 +351,33 @@ def save_cluster_information_plots(output_path: Path, iteration,connection_dista
                         wspace=0.4, 
                         hspace=0.4)
 
-    fig.savefig(ofolder / f"cluster_plot_cd{connection_distance}_{iteration:08}.png")
+    if os.path.isfile(output_path / "snapshots" / "snapshot_{:08}.png".format(iteration)):
+        image = plt.imread(output_path / "snapshots" / "snapshot_{:08}.png".format(iteration))
+        #print(image)
+        ax4.imshow(image)
+    fig.savefig(ofolder / f"cluster_plot_{iteration:08}.png")
+
+
         
     # Save just the portion _inside_ the second axis's boundaries
     extent1 = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     extent2 = ax2.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     extent3 = ax3.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     # Pad the saved area by 10% in the x-direction and 20% in the y-direction
-    fig.savefig(osubfolder / f"cluster_sizes_distances_plot_cd{connection_distance}_{iteration:08}.png", bbox_inches=extent1.expanded(1.3, 1.4))
-    fig.savefig(osubfolder / f"hist_cluster_sizes_{connection_distance}_{iteration:08}.png", bbox_inches=extent2.expanded(1.3, 1.4))
-    fig.savefig(osubfolder / f"PDF_CDF_cluster_sizes_{connection_distance}_{iteration:08}.png", bbox_inches=extent3.expanded(1.3, 1.4))
+    fig.savefig(osubfolder / f"cluster_sizes_distances_plot_cd{iteration:08}.png", bbox_inches=extent1.expanded(1.3, 1.4))
+    fig.savefig(osubfolder / f"hist_cluster_sizes_{iteration:08}.png", bbox_inches=extent2.expanded(1.3, 1.4))
+    fig.savefig(osubfolder / f"PDF_CDF_cluster_sizes_{iteration:08}.png", bbox_inches=extent3.expanded(1.3, 1.4))
     plt.close(fig)
+
+
+def __save_cluster_information_plots_helper(args):
+    return save_cluster_information_plots(*args)
+
+def save_all_cluster_information_plots(output_path: Path, threads=1, show_bar=True,connection_distance= 2.5):
+    if threads<=0:
+        threads = os.cpu_count()
+    output_iterations = [(output_path, iteration,connection_distance) for iteration in get_all_iterations(output_path)]
+    if show_bar:
+        list(tqdm.tqdm(mp.Pool(threads).imap(__save_cluster_information_plots_helper, output_iterations), total=len(output_iterations)))
+    else:
+        mp.Pool(threads).map(__save_cluster_information_plots_helper, output_iterations)
