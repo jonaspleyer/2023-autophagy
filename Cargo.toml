@@ -1,0 +1,25 @@
+[package]
+authors = ["Jonas Pleyer <jonas.pleyer@fdm.uni-freiburg.de>"]
+name = "cr_autophagy_pyo3"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "cr_autophagy_pyo3"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version="0.20", features = ["extension-module"] }
+serde = { version="1.0", features=["rc"] }
+serde_json = { version = "1.0" }
+rand = { version="0.8", features=["small_rng"] }
+rand_chacha = { version="0.3.1" }
+nalgebra = { version="0.32" }
+cellular_raza = { git = "https://github.com/jonaspleyer/cellular_raza", rev = "087bb66" , features=["pyo3"] }
+num = { version="0.4" }
+itertools = { version="0.12" }
+rayon = "1.7"
+
+[features]
+default = ["pyo3"]
+pyo3 = []

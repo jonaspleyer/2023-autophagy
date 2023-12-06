@@ -1,0 +1,10 @@
+ipykernel==6.26
+ipython==8.17
+jupyter_client==8.6
+jupyter_core==5.5
+matplotlib==3.8
+numpy==1.26
+pandas==2.1
+pyvista==0.42
+tqdm==4.66
+scipy==1.11

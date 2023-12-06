@@ -1,0 +1,6 @@
+__pycache__
+out
+*.xlsx
+target
+.venv
+
