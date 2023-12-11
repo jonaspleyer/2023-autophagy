@@ -149,9 +149,9 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
         clim=[0,12],
         scalar_bar_args=scalar_bar_args1,
     )
-    plotter.screenshot(opath)
+    img = plotter.screenshot(opath)
     plotter.close()
-    # jupyter_backend=jupyter_backend
+    return img
 
 
 def __save_snapshot_helper(args):
