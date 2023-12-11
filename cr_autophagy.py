@@ -163,7 +163,10 @@ def save_all_snapshots(output_path: Path, threads=1, show_bar=True):
         threads = os.cpu_count()
     output_iterations = [(output_path, iteration) for iteration in get_all_iterations(output_path)]
     if show_bar:
-        list(tqdm.tqdm(mp.Pool(threads).imap(__save_snapshot_helper, output_iterations), total=len(output_iterations)))
+        list(tqdm.tqdm(mp.Pool(threads).imap(
+            __save_snapshot_helper,
+            output_iterations
+        ), total=len(output_iterations)))
     else:
         mp.Pool(threads).imap(__save_snapshot_helper, output_iterations)
 
@@ -221,7 +224,10 @@ def save_all_scatter_snapshots(output_path: Path, threads=1, show_bar=True):
         threads = os.cpu_count()
     output_iterations = [(output_path, iteration) for iteration in get_all_iterations(output_path)]
     if show_bar:
-        list(tqdm.tqdm(mp.Pool(threads).imap(__save_scatter_snapshot_helper, output_iterations), total=len(output_iterations)))
+        list(tqdm.tqdm(mp.Pool(threads).imap(
+            __save_scatter_snapshot_helper,
+            output_iterations
+        ), total=len(output_iterations)))
     else:
         mp.Pool(threads).map(__save_scatter_snapshot_helper, output_iterations)
 
@@ -361,11 +367,22 @@ def __save_cluster_information_plots_helper(args):
     return save_cluster_information_plots(*args)
 
 
-def save_all_cluster_information_plots(output_path: Path, threads=1, show_bar=True,connection_distance= 2.5):
+def save_all_cluster_information_plots(
+    output_path: Path,
+    threads=1,
+    show_bar=True,
+    connection_distance=2.0
+):
     if threads<=0:
         threads = os.cpu_count()
-    output_iterations = [(output_path, iteration,connection_distance) for iteration in get_all_iterations(output_path)]
+    output_iterations = [
+        (output_path, iteration,connection_distance)
+        for iteration in get_all_iterations(output_path)
+    ]
     if show_bar:
-        list(tqdm.tqdm(mp.Pool(threads).imap(__save_cluster_information_plots_helper, output_iterations), total=len(output_iterations)))
+        list(tqdm.tqdm(mp.Pool(threads).imap(
+            __save_cluster_information_plots_helper,
+            output_iterations
+        ), total=len(output_iterations)))
     else:
         mp.Pool(threads).map(__save_cluster_information_plots_helper, output_iterations)
