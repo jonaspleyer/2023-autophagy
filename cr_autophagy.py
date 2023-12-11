@@ -10,8 +10,8 @@ import pyvista as pv
 import matplotlib.pyplot as plt
 import tqdm
 import copy
-from scipy.spatial import distance
-
+import scipy as sp
+import itertools
 
 
 def get_last_output_path(name = "autophagy"):
@@ -226,110 +226,114 @@ def save_all_scatter_snapshots(output_path: Path, threads=1, show_bar=True):
         mp.Pool(threads).map(__save_scatter_snapshot_helper, output_iterations)
 
 
-def get_cluster_information(output_path: Path, iteration,connection_distance = 2.5):
-    simulation_settings = get_simulation_settings(output_path)
-    #max_iter = max(cra.get_all_iterations(output_path))
-    n_cells = simulation_settings.n_cells_r11
-    n_cargo = simulation_settings.n_cells_cargo
+def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: np.ndarray):
+    # Calculate the combined matrix of all positions
+    combined_matrix = np.array(list(itertools.product(positions, positions)))
+    combined_matrix = combined_matrix.reshape(
+        (positions.shape[0], positions.shape[0], *combined_matrix.shape[1:])
+    )
+
+    # Calculate the distances between individual positions in two steps
+    # First Calculate the difference and omit unneeded axis
+    distance_matrix = np.squeeze(np.diff(combined_matrix, axis=2), axis=2)
+    # Then calculate the square, sum and square-root again
+    distance_matrix = np.sqrt(np.sum(distance_matrix**2, axis=2))
+
+    # Check that all distances of elements to themselves are actually zero
+    assert np.all(np.diag(distance_matrix) == 0)
+
+    # Construct Connection Matrix by filtering for distances below the specified threshold
+    connection_matrix = distance_matrix < distance
+
+    # Make sure that we actually choose more values than just the diagonal ones
+    assert np.sum(connection_matrix) > connection_matrix.shape[0]
+
+    # Calculate all connected components via scipy
+    n_components, labels = sp.sparse.csgraph.connected_components(
+        connection_matrix,
+        directed=False
+    )
+
+    # Calculate the sizes of clusters, meaning how many particles are in one cluster
+    cluster_sizes = np.array([
+        np.sum(labels==label) for label in np.sort(np.unique(labels))
+    ])
+
+    _helper = lambda x: np.sqrt(np.sum((x - cargo_position)**2))
+
+    # Also calculate the minimum distance from cluster center to cargo center
+    min_cluster_distances_to_cargo = np.array([
+        np.min([_helper(x) for x in positions[labels==label]], axis=0)
+        for label in np.sort(np.unique(labels))
+    ])
+
+    # Return all results
+    return n_components, cluster_sizes, min_cluster_distances_to_cargo
+
+
+def save_cluster_information_plots(output_path, iteration, connection_distance=2.0, overwrite=False):
+    # Create folder if not exists
+    ofolder = Path(output_path) / "clusterplots"
+    ofolder.mkdir(parents=True, exist_ok=True)
+    opath = ofolder / "snapshot_{:08}.png".format(iteration)
+    if os.path.isfile(opath) and not overwrite:
+        return None
+
+    # Get particles at specified iteration
     df = get_particles_at_iter(output_path, iteration)
 
-    # Initialize matrices
-    distance_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
-    cargo_distance = np.zeros(n_cells)
-    connection_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
-    cluster_size = np.zeros(n_cells).astype(int)
-    cluster_identity = np.zeros(n_cells).astype(int)
-    full_connection_matrix = [[0 for _ in range(n_cells)] for _ in range(n_cells)]
-    cluster_identity_counter = 0
+    cargo_positions = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_positions = np.array([np.array(elem) for elem in cargo_positions])
+    non_cargo_positions = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_positions = np.array([np.array(elem) for elem in non_cargo_positions])
 
-    # Get particle positions
-    cargo_at_end = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
-    cargo_at_end = np.array([np.array(elem) for elem in cargo_at_end])
-    non_cargo_at_end = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
-    non_cargo_at_end = np.array([np.array(elem) for elem in non_cargo_at_end])
+    # Set max distance at which two cells are considered part of same cluster
+    cargo_center = np.average(cargo_positions, axis=0)
 
+    n_components, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
+        positions=non_cargo_positions,
+        distance=connection_distance,
+        cargo_position=cargo_center,
+    )
 
-    
-    for i in range(n_cells):
-        for j in range(n_cells):
-            dist = distance.euclidean(non_cargo_at_end[i],non_cargo_at_end[j])
-            distance_matrix[i][j] = dist
-            distance_matrix[j][i] = dist
-            connection_matrix[i][j] = dist < connection_distance
-            connection_matrix[j][i] = dist < connection_distance
-        for k in range(n_cargo):
-            cargo_dist = distance.euclidean(non_cargo_at_end[i],cargo_at_end[k])
-            if cargo_distance[i] > cargo_dist:
-                cargo_distance[i] = cargo_dist
-            elif cargo_distance[i] == 0:
-                cargo_distance[i] = cargo_dist    
+    def calculate_cargo_percentile_boundary(
+        positions: np.ndarray,
+        center: np.ndarray,
+        percentile: float,
+        percentile_upper: float = 100,
+    ):
+        particles_distance = np.array([np.sqrt(np.sum((x-center)**2)) for x in positions])
+        percentile_low = np.percentile(particles_distance, percentile)
+        percentile_high = np.percentile(particles_distance, percentile_upper)
 
-    full_connection_matrix = connection_matrix
+        return [percentile_low, percentile_high]
 
-    # Go through all cells again and connect each with all its connections connections
-    for i in range(n_cells):
-        for p in range(n_cells):
-            # For connected cells
-            if connection_matrix[i][p] == 1:
-                # Check their connections as well 
-                for j in range(n_cells):
-                    # And if they are connected
-                    if connection_matrix[p][j] == 1:
-                        # connect initial cell as well
-                        full_connection_matrix[i][j] = 1
-                        full_connection_matrix[j][i] = 1
+    percentiles = [(0,70),(70, 80), (80, 90), (90, 100)]
+    boundaries = [calculate_cargo_percentile_boundary(
+        cargo_positions,
+        cargo_center,
+        x,
+        y,
+    ) for (x,y) in percentiles]
 
+    fig, ax = plt.subplots(2, 2, figsize=(12, 8))
 
-    # Collect the cluster
-    for i in range(n_cells):
-        cluster_size[i] = np.sum(full_connection_matrix[i],0)
-        if cluster_identity[i] == 0:
-            cluster_identity[i] = cluster_identity_counter
-            cluster_identity_counter = cluster_identity_counter + 1
-        for j in range(n_cells):
-            if full_connection_matrix[i][j] == 1:
-                if cluster_identity[j] == 0:
-                    cluster_identity[j] = cluster_identity_counter
+    ax[0,0].scatter(min_cluster_distances_to_cargo, cluster_sizes, color="#A23302")
+    ax[0,0].set_xlabel('min distance of cluster to cargo')
+    ax[0,0].set_ylabel('# particles in cluster')#
+    for i, boundary in enumerate(boundaries):
+        p = percentiles[i][1]
+        ax[0,0].axvspan(*boundary, alpha=(100-p)/50, color="#072853")
 
+    x_lim_high = 1.05*np.max(min_cluster_distances_to_cargo)
+    x_lim_low = -0.05*x_lim_high
+    ax[0,0].set_xlim([x_lim_low, x_lim_high])
 
-    cI = np.unique(cluster_identity, return_index=True)
-    min_cluster_cargo_distance = np.zeros(len(cI[1]))
+    ax[0,1].hist(cluster_sizes, color="#A23302")
+    ax[0,1].set_xlabel('# particles in cluster')
+    ax[0,1].set_ylabel('# of clusters')
 
-    # Check min distance of cluster to cargo
-    for k in range(np.max(cluster_identity)):
-        for i in range(n_cells):
-            if cluster_identity[i] == k+1:
-                if min_cluster_cargo_distance[k] > cargo_distance[i]:
-                    min_cluster_cargo_distance[k] = cargo_distance[i]
-                elif min_cluster_cargo_distance[k] == 0:
-                    min_cluster_cargo_distance[k] = cargo_distance[i]
-    
-    clusters = [cluster_identity[cI[1]], cluster_size[cI[1]], min_cluster_cargo_distance]
-    return clusters
-
-
-def save_cluster_information_plots(output_path: Path, iteration,connection_distance = 2.5):
-    clusters = get_cluster_information(output_path,iteration,connection_distance)
-    
-    ofolder = output_path / "clusterplots" / f"connection_distance_{connection_distance}"
-    ofolder.mkdir(parents=True, exist_ok=True)
-
-    osubfolder = output_path / "clusterplots" / f"connection_distance_{connection_distance}" / "individual_plots"
-    osubfolder.mkdir(parents=True, exist_ok=True)
-
-    fig, (ax1,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(8, 16))
-    #fig.suptitle('Cluster analysis plots')
-
-    ax1.set_title("Cluster sizes and distance to cargo")
-    ax1.scatter(clusters[1],clusters[2])
-    ax1.set(xlabel='# particles in cluster', ylabel='min distance of cluster to cargo')
-
-
-    ax2.set_title("Histogram of cluster sizes")
-    ax2.hist(clusters[1],bins=50)
-    ax2.set(xlabel='# particles in cluster', ylabel='# of clusters')
-    # getting data of the histogram 
-    count, bins_count = np.histogram(clusters[1],bins=50) 
+    count, bins = np.histogram(cluster_sizes)
 
     # finding the PDF of the histogram using count values 
     pdf = count / sum(count) 
@@ -339,39 +343,23 @@ def save_cluster_information_plots(output_path: Path, iteration,connection_dista
     cdf = np.cumsum(pdf) 
 
     # plotting PDF and CDF 
-    ax3.set_title("PDF and CDF of cluster sizes")
-    ax3.plot(bins_count[1:], pdf, color="red", label="PDF") 
-    ax3.plot(bins_count[1:], cdf, label="CDF") 
-    ax3.set(xlabel='# particles in cluster', ylabel='prob. density / cum. prob. density')
-    ax3.legend() 
-    fig.subplots_adjust(left=0.1,
-                        bottom=0.1, 
-                        right=0.9, 
-                        top=0.9, 
-                        wspace=0.4, 
-                        hspace=0.4)
+    ax[1,1].plot(bins[1:], pdf, color="#A23302", label="PDF")
+    ax[1,1].plot(bins[1:], cdf, label="CDF", color="#A23302", linestyle="--")
+    ax[1,1].set_xlabel('# particles in cluster')
+    ax[1,1].set_ylabel('prob. density / cum. prob. density')
+    ax[1,1].legend()
 
-    if os.path.isfile(output_path / "snapshots" / "snapshot_{:08}.png".format(iteration)):
-        image = plt.imread(output_path / "snapshots" / "snapshot_{:08}.png".format(iteration))
-        #print(image)
-        ax4.imshow(image)
-    fig.savefig(ofolder / f"cluster_plot_{iteration:08}.png")
+    img = save_snapshot(output_path, iteration, overwrite=True)
+    ax[1,0].imshow(img)
+    ax[1,0].axis('off')
 
-
-        
-    # Save just the portion _inside_ the second axis's boundaries
-    extent1 = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    extent2 = ax2.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    extent3 = ax3.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    # Pad the saved area by 10% in the x-direction and 20% in the y-direction
-    fig.savefig(osubfolder / f"cluster_sizes_distances_plot_cd{iteration:08}.png", bbox_inches=extent1.expanded(1.3, 1.4))
-    fig.savefig(osubfolder / f"hist_cluster_sizes_{iteration:08}.png", bbox_inches=extent2.expanded(1.3, 1.4))
-    fig.savefig(osubfolder / f"PDF_CDF_cluster_sizes_{iteration:08}.png", bbox_inches=extent3.expanded(1.3, 1.4))
-    plt.close(fig)
+    fig.savefig(opath)
+    return fig
 
 
 def __save_cluster_information_plots_helper(args):
     return save_cluster_information_plots(*args)
+
 
 def save_all_cluster_information_plots(output_path: Path, threads=1, show_bar=True,connection_distance= 2.5):
     if threads<=0:
