@@ -365,7 +365,7 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
 
 
 def __save_cluster_information_plots_helper(args):
-    return save_cluster_information_plots(*args)
+    save_cluster_information_plots(*args)
 
 
 def save_all_cluster_information_plots(
