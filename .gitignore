@@ -3,4 +3,5 @@ out
 *.xlsx
 target
 .venv
+Cargo.lock
 
