@@ -97,11 +97,17 @@ def generate_spheres(output_path: Path, iteration):
     return spheres_cargo, spheres_r11
 
 
+def create_save_path(output_path, subfolder, iteration):
+    # Create folder if not exists
+    ofolder = Path(output_path) / subfolder
+    ofolder.mkdir(parents=True, exist_ok=True)
+    save_path = ofolder / "snapshot_{:08}.png".format(iteration)
+    return save_path
+
+
 def save_snapshot(output_path: Path, iteration, overwrite=False):
     simulation_settings = get_simulation_settings(output_path)
-    ofolder = Path(output_path) / "snapshots"
-    ofolder.mkdir(parents=True, exist_ok=True)
-    opath = ofolder / "snapshot_{:08}.png".format(iteration)
+    opath = create_save_path(output_path, "snapshots", iteration)
     if os.path.isfile(opath) and not overwrite:
         return
     (cargo, r11) = generate_spheres(output_path, iteration)
@@ -278,12 +284,7 @@ def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: n
 
 
 def save_cluster_information_plots(output_path, iteration, connection_distance=2.0, overwrite=False):
-    # Create folder if not exists
-    ofolder = Path(output_path) / "clusterplots"
-    ofolder.mkdir(parents=True, exist_ok=True)
-    opath = ofolder / "snapshot_{:08}.png".format(iteration)
-    if os.path.isfile(opath) and not overwrite:
-        return None
+    opath = create_save_path(output_path, "clusterplots", iteration)
 
     # Get particles at specified iteration
     df = get_particles_at_iter(output_path, iteration)
