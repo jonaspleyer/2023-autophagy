@@ -14,29 +14,17 @@ def create_default_settings():
     simulation_settings = SimulationSettings()
 
     # Settings Cargo
-    simulation_settings.n_cells_cargo=100
-    simulation_settings.n_cells_r11=250
-    simulation_settings.cell_radius_cargo = 1.5
-    simulation_settings.interaction_range_cargo_cargo = 2.0
+    simulation_settings.potential_strength_r11_r11 = 0.002
+    simulation_settings.potential_strength_cargo_r11 = 0.0
+    simulation_settings.potential_strength_cargo_r11_avidity = 0.02
 
-    # Settings R11
-    simulation_settings.potential_strength_r11_r11 = 0.015
-    simulation_settings.potential_strength_cargo_r11 = 0.005
-    simulation_settings.potential_strength_cargo_r11_avidity = 1.5
-    simulation_settings.kb_temperature_r11 = 0.015
+    simulation_settings.n_times = 50_001
+    simulation_settings.dt = 2.0
+    simulation_settings.save_interval = 1_000
 
-    simulation_settings.interaction_range_r11_cargo = 1 * simulation_settings.cell_radius_cargo
+    simulation_settings.n_threads = 4
 
-    # Time
-    simulation_settings.n_threads = 1
-    simulation_settings.dt = 1.0
-    simulation_settings.n_times = 30_001
-    simulation_settings.save_interval = 2_000
-
-    # Domain
-    simulation_settings.domain_size = 30
-    simulation_settings.domain_cargo_low = [10]*3
-    simulation_settings.domain_cargo_high = [20]*3
+    simulation_settings.kb_temperature_r11 = 0.001
 
     # Other settings
     simulation_settings.show_progressbar = False
@@ -53,8 +41,14 @@ def run_single_simulation(i, potential_strength_r11_r11, potential_strength_carg
 
     simulation_settings.show_progressbar = False
     simulation_settings.storage_name = f"out/autophagy/explore_parameter_space_{i:08}/"
+    simulation_settings.storage_name_add_date = False
+    output_path = Path(simulation_settings.storage_name)
 
-    output_path = run_simulation(simulation_settings)
+    # Skip if folder already exists
+    if os.path.isdir(output_path):
+        return output_path
+    else:
+        output_path = run_simulation(simulation_settings)
     return Path(output_path)
 
 
@@ -88,6 +82,7 @@ def combine_plots(output_path):
     plt.savefig(f"param_space/combined_{number}.png")
     plt.close(fig)
 
+
 def postprocessing(output_path):
     # Save scatter snapshots
     # for iteration in cra.get_all_iterations(output_path):
@@ -101,9 +96,18 @@ def postprocessing(output_path):
     # for iteration in cra.get_all_iterations(output_path):
     #     cra.save_snapshot(output_path, iteration)
     max_iter = max(cra.get_all_iterations(output_path))
-    cra.save_snapshot(output_path, max_iter)
+    # cra.save_snapshot(output_path, max_iter)
+    cra.save_cluster_information_plots(output_path, max_iter)
+    cra.save_kernel_density(
+        output_path,
+        max_iter,
+        threshold=0.45,
+        overwrite=False,
+        discretization_factor=0.5,
+        bw_method=0.4
+    )
 
-    combine_plots(output_path)
+    # combine_plots(output_path)
     
     # Also create a movie with ffmpeg
     # bashcmd = f"ffmpeg -hide_banner -loglevel panic -y -r 30 -f image2 -pattern_type glob -i '{output_path}/snapshots/*.png' -c:v h264 -pix_fmt yuv420p -strict -2 {output_path}/snapshot_movie.mp4"
@@ -116,16 +120,16 @@ def run_pipeline(args):
     output_path = run_single_simulation(*args)
     return postprocessing(output_path)
 
+
 def sample_parameter_space():
-    potential_strength_r11_r11 = np.arange(0.001, 0.01, 0.002)#0.015
-    potential_strength_cargo_r11 = np.arange(0.05, 0.1, 0.02)#0.005
-    potential_strength_cargo_r11_avidity = np.arange(0.05, 0.3, 0.05)#1.5
-    kb_temperature_r11 = np.arange(0.006, 0.011, 0.002)#0.015
-    # kb_temperatures = np.arange(0.001, 0.002, 0.0002)
-    # kb_temperatures = [0.001]
-    # clustering_strengths = np.arange(0.15, 0.25, 0.01)
-    # clustering_strengths = [0.15]
-    # avidities = np.arange(0.0, 2.0, 0.2)
+    potential_strength_r11_r11 = np.linspace(0.00, 0.04, 8)
+    print(len(potential_strength_r11_r11))
+    potential_strength_cargo_r11 = np.linspace(0.00, 0.04, 8)
+    print(len(potential_strength_cargo_r11))
+    potential_strength_cargo_r11_avidity = np.linspace(0.00, 0.04, 8)
+    print(len(potential_strength_cargo_r11_avidity))
+    kb_temperature_r11 = np.linspace(0.00, 0.01, 8)
+    print(len(kb_temperature_r11))
 
     entries = [(i, *args) for (i, args) in enumerate(itertools.product(
         potential_strength_r11_r11,
@@ -133,11 +137,12 @@ def sample_parameter_space():
         potential_strength_cargo_r11_avidity,
         kb_temperature_r11,
     ))]
+    print(len(entries))
     return entries
 
 
 if __name__ == "__main__":
     parameter_space = sample_parameter_space()
 
-    with mp.Pool(14) as p:
+    with mp.Pool(10) as p:
         paths = list(tqdm.tqdm(p.imap(run_pipeline, parameter_space), total=len(parameter_space)))
