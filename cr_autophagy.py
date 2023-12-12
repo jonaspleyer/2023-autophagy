@@ -387,3 +387,137 @@ def save_all_cluster_information_plots(
         ), total=len(output_iterations)))
     else:
         mp.Pool(threads).map(__save_cluster_information_plots_helper, output_iterations)
+
+
+def calculate_spatial_discretization(domain_size, discretization):
+    xmin = 0.0
+    xmax = domain_size
+    h = discretization
+
+    X, Y, Z = np.mgrid[xmin:xmax:h, xmin:xmax:h, xmin:xmax:h]
+
+    space_discretization = np.vstack([X.ravel(), Y.ravel(), Z.ravel()])
+    return X, Y, Z, space_discretization
+
+
+def calculate_spatial_density(particle_positions, domain_size, discretization, bw_method=None):
+    x = particle_positions[:,0]
+    y = particle_positions[:,1]
+    z = particle_positions[:,2]
+
+    X, Y, Z, space_discretization = calculate_spatial_discretization(domain_size, discretization)
+
+    values = np.vstack([x, y, z])
+    kernel = sp.stats.gaussian_kde(values, bw_method)
+    D = np.reshape(kernel(space_discretization).T, X.shape)
+    return D
+
+
+def calculate_mask(density, threshold):
+    thresh = threshold*(np.max(density)  -np.min(density))   + np.min(density)
+    mask = density>=thresh
+    return mask, thresh
+
+
+def calculate_kernel_densities(output_path, iteration, discretization_factor, bw_method):
+    simulation_settings = get_simulation_settings(output_path)
+    domain_size = simulation_settings.domain_size
+
+    radius_cargo = simulation_settings.cell_radius_cargo
+    radius_r11 = simulation_settings.cell_radius_r11
+
+    df_cells = get_particles_at_iter(output_path, iteration)
+    positions_cargo = np.array([x
+        for x in df_cells[
+            df_cells["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"
+        ]
+    ])
+    positions_r11 = np.array([x
+        for x in df_cells[
+            df_cells["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"
+        ]
+    ])
+
+    density_cargo = calculate_spatial_density(
+        positions_cargo,
+        domain_size,
+        discretization_factor*radius_cargo,
+        bw_method
+    )
+    density_r11 = calculate_spatial_density(
+        positions_r11,
+        domain_size,
+        discretization_factor*radius_r11,
+        bw_method
+    )
+    return density_cargo, density_r11
+
+
+def save_kernel_density(
+    output_path,
+    iteration,
+    threshold=0.45,
+    overwrite=False,
+    discretization_factor=0.5,
+    bw_method=None,
+):
+    save_path = create_save_path(output_path, "kernel_density", iteration)
+    if os.path.isfile(save_path) and overwrite==False:
+        return None
+
+    density_cargo, density_r11 = calculate_kernel_densities(
+        output_path,
+        iteration,
+        discretization_factor,
+        bw_method
+    )
+
+    fig, ax = plt.subplots(3, 4, figsize=(12, 9))
+    ax[0,0].set_title("R11 Density")
+    ax[0,1].set_title("R11 Mask")
+    ax[0,2].set_title("Cargo Density")
+    ax[0,3].set_title("Cargo Mask")
+
+    for i in range(3):
+        lims_low = [0 if i!=j else round(density_r11.shape[0]/2) for j in range(3)]
+        lims_high = [-1 if i!=j else round(density_r11.shape[0]/2)+1 for j in range(3)]
+
+        data_r11 = density_r11[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
+        data_r11 = data_r11.squeeze(axis=i)
+        mask_r11, _ = calculate_mask(data_r11, threshold)
+
+        data_cargo = density_cargo[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
+        data_cargo = data_cargo.squeeze(axis=i)
+        mask_cargo, _ = calculate_mask(data_cargo, threshold)
+
+        # Plot density of R11
+        ax[i,0].imshow(data_r11)
+        ax[i,0].axis('off')
+
+        # Plot mask of R11
+        ax[i,1].imshow(mask_r11, cmap="grey")
+        ax[i,1].axis('off')
+
+        # Plot Density of Cargo
+        ax[i,2].imshow(data_cargo)
+        ax[i,2].axis('off')
+
+        ax[i,3].imshow(mask_cargo, cmap="grey")
+        ax[i,3].axis('off')
+    fig.tight_layout()
+    fig.savefig(save_path)
+    return fig
+
+
+def _save_kernel_density_helper(args_kwargs):
+    args, kwargs = args_kwargs
+    fig = save_kernel_density(*args, **kwargs)
+    plt.close(fig)
+
+
+def save_all_kernel_density(output_path, threads=1, **kwargs):
+    if threads<=0:
+        threads = mp.cpu_count()
+    pool = mp.Pool(threads)
+    args = [((output_path, iteration), kwargs) for iteration in get_all_iterations(output_path)]
+    _ = list(tqdm.tqdm(pool.imap_unordered(_save_kernel_density_helper, args), total=len(args)))
