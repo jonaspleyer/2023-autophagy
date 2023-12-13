@@ -9,7 +9,6 @@ from types import SimpleNamespace
 import pyvista as pv
 import matplotlib.pyplot as plt
 import tqdm
-import copy
 import scipy as sp
 import itertools
 
@@ -138,8 +137,6 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
         fmt="%.0f",
         font_family="arial",
     )
-    # scalar_bar_args2=copy.deepcopy(scalar_bar_args1)
-    # scalar_bar_args2["title"] = "Neighbours R11"
 
     plotter.add_mesh(
         cargo,
@@ -490,7 +487,6 @@ def save_kernel_density(
 
         data_r11 = density_r11[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
         data_r11 = data_r11.squeeze(axis=i)
-
         mask_r11, _ = _calculate_mask(data_r11, threshold)
 
         data_cargo = density_cargo[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
