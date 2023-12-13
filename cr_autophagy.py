@@ -656,7 +656,7 @@ class KDEClusterResult:
         return self.cluster_positions[mask]
 
 
-def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> ClusterResult:
+def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> KDEClusterResult:
     _, labels_cargo, identifiers_cargo, _ = calcualte_3d_connected_components(mask_cargo)
     n_clusters, labels_r11, identifiers_r11, cluster_sizes = calcualte_3d_connected_components(mask_r11)
 
