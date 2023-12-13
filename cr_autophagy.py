@@ -413,18 +413,24 @@ def calculate_spatial_density(particle_positions, domain_size, discretization, b
     return D
 
 
-def calculate_mask(density, threshold):
+def _calculate_mask(density, threshold):
     thresh = threshold*(np.max(density)  -np.min(density))   + np.min(density)
     mask = density>=thresh
     return mask, thresh
+
+
+def _get_discretization(output_path, discretization_factor):
+    simulation_settings = get_simulation_settings(output_path)
+    radius_cargo = simulation_settings.cell_radius_cargo
+    radius_r11 = simulation_settings.cell_radius_r11
+    return discretization_factor*radius_cargo, discretization_factor*radius_r11
 
 
 def calculate_kernel_densities(output_path, iteration, discretization_factor, bw_method):
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
-    radius_cargo = simulation_settings.cell_radius_cargo
-    radius_r11 = simulation_settings.cell_radius_r11
+    discr_cargo, discr_r11 = _get_discretization(output_path, discretization_factor)
 
     df_cells = get_particles_at_iter(output_path, iteration)
     positions_cargo = np.array([x
@@ -441,13 +447,13 @@ def calculate_kernel_densities(output_path, iteration, discretization_factor, bw
     density_cargo = calculate_spatial_density(
         positions_cargo,
         domain_size,
-        discretization_factor*radius_cargo,
+        discr_cargo,
         bw_method
     )
     density_r11 = calculate_spatial_density(
         positions_r11,
         domain_size,
-        discretization_factor*radius_r11,
+        discr_r11,
         bw_method
     )
     return density_cargo, density_r11
@@ -484,11 +490,12 @@ def save_kernel_density(
 
         data_r11 = density_r11[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
         data_r11 = data_r11.squeeze(axis=i)
-        mask_r11, _ = calculate_mask(data_r11, threshold)
+
+        mask_r11, _ = _calculate_mask(data_r11, threshold)
 
         data_cargo = density_cargo[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
         data_cargo = data_cargo.squeeze(axis=i)
-        mask_cargo, _ = calculate_mask(data_cargo, threshold)
+        mask_cargo, _ = _calculate_mask(data_cargo, threshold)
 
         # Plot density of R11
         ax[i,0].imshow(data_r11)
