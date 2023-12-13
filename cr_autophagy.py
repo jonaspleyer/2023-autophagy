@@ -573,6 +573,29 @@ class ClusterResult:
     cargo_position: np.ndarray
     distances_cargo: np.ndarray
 
+    def get_cargo_distance_percentile(self, percentile):
+        return np.percentile(self.distances_cargo, percentile)
+
+
+    def _validate_leakiness(self, percentile=70, **kwargs):
+        cargo_distance = self.get_cargo_distance_percentile(percentile)
+        return np.all(
+            np.sum((self.cluster_positions-cargo_distance)**2, axis=1)**0.5>cargo_distance
+        )
+
+
+    def validate(self, **kwargs):
+        if self._validate_leakiness(**kwargs) == False:
+            return False
+        return True
+
+
+    def clusters_at_cargo(self, relative_radial_distance=0.5):
+        cargo_radius = self.get_cargo_distance_percentile(90)
+        cluster_cargo_distances = np.sum((self.cluster_positions-self.cargo_position)**2, axis=1)**0.5
+        mask = cluster_cargo_distances < (1.0 + relative_radial_distance) * cargo_radius
+        return self.cluster_positions[mask]
+
 
 def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> ClusterResult:
     _, labels_cargo, identifiers_cargo, _ = calcualte_3d_connected_components(mask_cargo)
