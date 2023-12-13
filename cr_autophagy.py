@@ -273,13 +273,72 @@ def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: n
     _helper = lambda x: np.sqrt(np.sum((x - cargo_position)**2))
 
     # Also calculate the minimum distance from cluster center to cargo center
+    cluster_positions = np.array([
+        np.average(positions[labels==label], axis=0) for label in np.sort(np.unique(labels))
+    ])
     min_cluster_distances_to_cargo = np.array([
         np.min([_helper(x) for x in positions[labels==label]], axis=0)
         for label in np.sort(np.unique(labels))
     ])
 
     # Return all results
-    return n_components, cluster_sizes, min_cluster_distances_to_cargo
+    return n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo
+
+
+@dataclass
+class GraphClusterResult:
+    n_clusters: int
+    cluster_positions: np.ndarray
+    cluster_sizes: np.ndarray
+    min_cluster_distances_to_cargo: np.ndarray
+    cargo_center: np.ndarray
+    cargo_distances: np.ndarray
+    cargo_positions: np.ndarray
+
+
+    def get_cargo_distance_percentile(self, percentile):
+        return np.percentile(self.cargo_distances, percentile)
+
+
+    def validate(self):
+        return True
+
+
+    def clusters_at_cargo(self, relative_radial_distance):
+        # TODO fix this function
+        cargo_radius = self.get_cargo_distance_percentile(90)
+        cluster_cargo_distances = np.sum((self.cluster_positions-self.cargo_center)**2, axis=1)**0.5
+        mask = cluster_cargo_distances < (1.0 + relative_radial_distance) * cargo_radius
+        return self.cluster_positions[mask]
+
+
+def get_clusters_graph(output_path, iteration, connection_distance=2.0):
+    # Get particles at specified iteration
+    df = get_particles_at_iter(output_path, iteration)
+
+    cargo_positions = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_positions = np.array([np.array(elem) for elem in cargo_positions])
+    non_cargo_positions = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_positions = np.array([np.array(elem) for elem in non_cargo_positions])
+
+    # Set max distance at which two cells are considered part of same cluster
+    cargo_center = np.average(cargo_positions, axis=0)
+    cargo_distances = np.sum((cargo_positions-cargo_center)**2, axis=1)**0.5
+
+    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
+        positions=non_cargo_positions,
+        distance=connection_distance,
+        cargo_position=cargo_center,
+    )
+    return GraphClusterResult(
+        n_components,
+        cluster_positions,
+        cluster_sizes,
+        min_cluster_distances_to_cargo,
+        cargo_center,
+        cargo_positions,
+        cargo_distances,
+    )
 
 
 def save_cluster_information_plots(output_path, iteration, connection_distance=2.0, overwrite=False):
