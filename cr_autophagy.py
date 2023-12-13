@@ -566,10 +566,10 @@ def determine_optimal_thresh(
 
 
 @dataclass
-class ClusterResult:
+class KDEClusterResult:
     n_clusters: int
     cluster_sizes: np.ndarray
-    positions_r11: np.ndarray
+    cluster_positions: np.ndarray
     cargo_position: np.ndarray
     distances_cargo: np.ndarray
 
@@ -625,26 +625,26 @@ def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> 
         return
 
     # Now gather positions of R11 clusters
-    positions_r11 = np.array([])
+    cluster_positions = np.array([])
     for ident in identifiers_r11[1:]:
         indices = np.argwhere(labels_r11==ident)
         middle = np.average(indices, axis=0)*domain_size/np.array([*labels_r11.shape])
-        positions_r11 = np.vstack([*positions_r11, middle])
+        cluster_positions = np.vstack([*cluster_positions, middle])
 
     # Make sure that we really have some R11 clusters
-    if positions_r11.shape[0] == 0:
+    if cluster_positions.shape[0] == 0:
         return
 
-    return ClusterResult(
+    return KDEClusterResult(
         n_clusters-1,
         cluster_sizes[1:],
-        positions_r11[1:],
+        cluster_positions[1:],
         cargo_position,
         distances_cargo
     )
 
 
-def get_clusters(output_path, iteration, *args):
+def get_clusters_kde(output_path, iteration, *args):
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
@@ -667,15 +667,13 @@ def get_clusters(output_path, iteration, *args):
 
 
 def plot_cluster_distribution(output_path, iteration, discretization_factor, bw_method):
-    clrs = get_clusters(output_path, iteration, discretization_factor, bw_method)
+    clrs = get_clusters_kde(output_path, iteration, discretization_factor, bw_method)
 
     # Calculate percentiles for plotting
-    percentiles = []
-    for perc in [70, 80, 90]:
-        percentiles.append(np.percentile(clrs.distances_cargo, perc))
+    percentiles = [clrs.get_cargo_distance_percentile(perc) for perc in [70, 80, 90]]
 
     distances = np.array([
-        np.sum((x-clrs.cargo_position)**2)**0.5 for x in clrs.positions_r11
+        np.sum((x-clrs.cargo_position)**2)**0.5 for x in clrs.cluster_positions
     ])
 
     fig, ax = plt.subplots()
