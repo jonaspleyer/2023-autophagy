@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import tqdm
 import scipy as sp
 import itertools
+import cc3d
+from dataclasses import dataclass
 
 
 def get_last_output_path(name = "autophagy"):
@@ -524,3 +526,145 @@ def save_all_kernel_density(output_path, threads=1, **kwargs):
     pool = mp.Pool(threads)
     args = [((output_path, iteration), kwargs) for iteration in get_all_iterations(output_path)]
     _ = list(tqdm.tqdm(pool.imap_unordered(_save_kernel_density_helper, args), total=len(args)))
+
+
+def calcualte_3d_connected_components(mask):
+    labels = cc3d.connected_components(mask)
+    cluster_identifiers = np.unique(labels)
+    n_clusters = len(cluster_identifiers)
+    cluster_sizes = np.array([len(labels[labels==i]) for i in cluster_identifiers])
+    return n_clusters, labels, cluster_identifiers, cluster_sizes
+
+
+def determine_optimal_thresh(
+        output_path,
+        iteration,
+        discretization_factor,
+        bw_method=0.45,
+        dthresh=0.01,
+    ):
+    # Define starting values
+    n_clusters = 2
+    threshold = dthresh
+
+    # As long as the cargo is still recognized as one cluster, we are lowering
+    while n_clusters == 2:
+        threshold += dthresh
+
+        density_cargo, _ = calculate_kernel_densities(
+            output_path,
+            iteration,
+            discretization_factor,
+            bw_method
+        )
+        mask_cargo, _ = _calculate_mask(density_cargo, threshold)
+
+        n_clusters, _, _, _ = calcualte_3d_connected_components(mask_cargo)
+
+    # We return the last known value where bw_method was successful
+    return threshold - dthresh
+
+
+@dataclass
+class ClusterResult:
+    n_clusters: int
+    cluster_sizes: np.ndarray
+    positions_r11: np.ndarray
+    cargo_position: np.ndarray
+    distances_cargo: np.ndarray
+
+
+def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> ClusterResult:
+    _, labels_cargo, identifiers_cargo, _ = calcualte_3d_connected_components(mask_cargo)
+    n_clusters, labels_r11, identifiers_r11, cluster_sizes = calcualte_3d_connected_components(mask_r11)
+
+    _helper_x = domain_size/np.array([*labels_cargo.shape])
+    _helper_y = np.product(_helper_x)**(1/3)
+    to_coordinate = lambda x: x*_helper_x
+    to_coordinate_single = lambda x: x*_helper_y
+
+    # Transform cluster_sizes to coordinates
+    cluster_sizes = to_coordinate_single(cluster_sizes)
+
+    positions_cargo = np.array([])
+    for ident in identifiers_cargo[1:]:
+        indices = np.argwhere(labels_cargo==ident)
+        middle = to_coordinate(np.average(indices, axis=0))
+        distances_cargo = np.sum((to_coordinate(indices) - middle)**2, axis=1)**0.5
+        positions_cargo = np.vstack([*positions_cargo, middle])
+
+    # Make sure that we only have one cargo position left over
+    if positions_cargo.shape[0] != 1:
+        return
+
+    cargo_position = positions_cargo[0]
+    if cargo_position.shape != (3,):
+        return
+
+    # Now gather positions of R11 clusters
+    positions_r11 = np.array([])
+    for ident in identifiers_r11[1:]:
+        indices = np.argwhere(labels_r11==ident)
+        middle = np.average(indices, axis=0)*domain_size/np.array([*labels_r11.shape])
+        positions_r11 = np.vstack([*positions_r11, middle])
+
+    # Make sure that we really have some R11 clusters
+    if positions_r11.shape[0] == 0:
+        return
+
+    return ClusterResult(
+        n_clusters-1,
+        cluster_sizes[1:],
+        positions_r11[1:],
+        cargo_position,
+        distances_cargo
+    )
+
+
+def get_clusters(output_path, iteration, *args):
+    simulation_settings = get_simulation_settings(output_path)
+    domain_size = simulation_settings.domain_size
+
+    threshold = determine_optimal_thresh(
+        output_path,
+        iteration,
+        *args,
+    )
+
+    density_cargo, density_r11 = calculate_kernel_densities(
+        output_path,
+        iteration,
+        *args,
+    )
+
+    mask_r11,   _ = _calculate_mask(density_r11,   threshold)
+    mask_cargo, _ = _calculate_mask(density_cargo, threshold)
+
+    return calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size)
+
+
+def plot_cluster_distribution(output_path, iteration, discretization_factor, bw_method):
+    clrs = get_clusters(output_path, iteration, discretization_factor, bw_method)
+
+    # Calculate percentiles for plotting
+    percentiles = []
+    for perc in [70, 80, 90]:
+        percentiles.append(np.percentile(clrs.distances_cargo, perc))
+
+    distances = np.array([
+        np.sum((x-clrs.cargo_position)**2)**0.5 for x in clrs.positions_r11
+    ])
+
+    fig, ax = plt.subplots()
+    # ax.hist(labels[labels!=np.argmax(cluster_sizes)])
+    ax.set_ylabel("Cluster Volume")
+    ax.set_xlabel("Distance to Cargo")
+    ax.set_title(f"{clrs.n_clusters-1} Cluster" + (clrs.n_clusters-1>1)*"s")
+    ax.scatter(distances, clrs.cluster_sizes[1:], color="#A23302")
+
+    last_percentile = 0
+    max_percentile = np.max(percentiles)
+    for p in percentiles:
+        ax.axvspan(last_percentile, p, alpha=1-p/max_percentile, color="#072853")
+        last_percentile = p
+    return fig
