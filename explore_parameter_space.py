@@ -18,11 +18,11 @@ def create_default_settings():
     simulation_settings.potential_strength_cargo_r11 = 0.0
     simulation_settings.potential_strength_cargo_r11_avidity = 0.02
 
-    simulation_settings.n_times = 50_001
-    simulation_settings.dt = 2.0
-    simulation_settings.save_interval = 1_000
+    simulation_settings.n_times = 30_001
+    simulation_settings.dt = 2.5
+    simulation_settings.save_interval = 5_000
 
-    simulation_settings.n_threads = 4
+    simulation_settings.n_threads = 1
 
     simulation_settings.kb_temperature_r11 = 0.001
 
@@ -40,7 +40,7 @@ def run_single_simulation(i, potential_strength_r11_r11, potential_strength_carg
     simulation_settings.kb_temperature_r11 = kb_temperature_r11
 
     simulation_settings.show_progressbar = False
-    simulation_settings.storage_name = f"out/autophagy/explore_parameter_space_{i:08}/"
+    simulation_settings.storage_name = f"out/autophagy/explore_parameter_space_2_{i:08}/"
     simulation_settings.storage_name_add_date = False
     output_path = Path(simulation_settings.storage_name)
 
@@ -104,7 +104,7 @@ def postprocessing(output_path):
         threshold=0.45,
         overwrite=False,
         discretization_factor=0.5,
-        bw_method=0.4
+        bw_method=0.2
     )
 
     # combine_plots(output_path)
@@ -122,13 +122,13 @@ def run_pipeline(args):
 
 
 def sample_parameter_space():
-    potential_strength_r11_r11 = np.linspace(0.00, 0.04, 8)
+    potential_strength_r11_r11 = np.linspace(0.00, 0.01, 4)
     print(len(potential_strength_r11_r11))
-    potential_strength_cargo_r11 = np.linspace(0.00, 0.04, 8)
+    potential_strength_cargo_r11 = np.linspace(0.00, 0.01, 4)
     print(len(potential_strength_cargo_r11))
-    potential_strength_cargo_r11_avidity = np.linspace(0.00, 0.04, 8)
+    potential_strength_cargo_r11_avidity = np.linspace(0.00, 0.01, 4)
     print(len(potential_strength_cargo_r11_avidity))
-    kb_temperature_r11 = np.linspace(0.00, 0.01, 8)
+    kb_temperature_r11 = np.linspace(0.00, 0.03, 3)
     print(len(kb_temperature_r11))
 
     entries = [(i, *args) for (i, args) in enumerate(itertools.product(
