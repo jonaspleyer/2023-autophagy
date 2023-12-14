@@ -155,5 +155,5 @@ def sample_parameter_space():
 if __name__ == "__main__":
     parameter_space = sample_parameter_space()
 
-    with mp.Pool(10) as p:
+    with mp.Pool(40) as p:
         paths = list(tqdm.tqdm(p.imap(run_pipeline, parameter_space), total=len(parameter_space)))
