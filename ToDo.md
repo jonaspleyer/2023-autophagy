@@ -1,5 +1,5 @@
 To Do:
-[ ]- Cargo Starting Positions fixieren nach Pre-Equilibrierung (Jonas)
+- [ ] Cargo Starting Positions fixieren nach Pre-Equilibrierung (Jonas)
 [ ]- Manuskript (Alle)
 [ ]- Affiliations (FGW)
 [ ]- Anchoring der Gleichungen und Größenordnungen in Realität und Anpassung der anderen Variablen (Mio)
