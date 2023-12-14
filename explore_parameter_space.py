@@ -32,7 +32,14 @@ def create_default_settings():
     return simulation_settings
 
 
-def run_single_simulation(i, potential_strength_r11_r11, potential_strength_cargo_r11, potential_strength_cargo_r11_avidity, kb_temperature_r11):
+def run_single_simulation(
+        i,
+        potential_strength_r11_r11,
+        potential_strength_cargo_r11,
+        potential_strength_cargo_r11_avidity,
+        kb_temperature_r11,
+        seed,
+    ):
     simulation_settings = create_default_settings()
     simulation_settings.potential_strength_r11_r11 = potential_strength_r11_r11
     simulation_settings.potential_strength_cargo_r11 = potential_strength_cargo_r11
@@ -42,6 +49,7 @@ def run_single_simulation(i, potential_strength_r11_r11, potential_strength_carg
     simulation_settings.show_progressbar = False
     simulation_settings.storage_name = f"out/autophagy/explore_parameter_space_2_{i:08}/"
     simulation_settings.storage_name_add_date = False
+    simulation_settings.random_seed = seed
     output_path = Path(simulation_settings.storage_name)
 
     # Skip if folder already exists
@@ -130,12 +138,15 @@ def sample_parameter_space():
     print(len(potential_strength_cargo_r11_avidity))
     kb_temperature_r11 = np.linspace(0.00, 0.03, 3)
     print(len(kb_temperature_r11))
+    seeds = np.arange(4)
+    print(len(seeds))
 
     entries = [(i, *args) for (i, args) in enumerate(itertools.product(
         potential_strength_r11_r11,
         potential_strength_cargo_r11,
         potential_strength_cargo_r11_avidity,
         kb_temperature_r11,
+        seeds,
     ))]
     print(len(entries))
     return entries
