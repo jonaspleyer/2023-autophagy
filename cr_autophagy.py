@@ -355,7 +355,7 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
     # Set max distance at which two cells are considered part of same cluster
     cargo_center = np.average(cargo_positions, axis=0)
 
-    n_components, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
+    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
         positions=non_cargo_positions,
         distance=connection_distance,
         cargo_position=cargo_center,
