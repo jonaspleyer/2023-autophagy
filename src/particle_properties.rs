@@ -114,8 +114,10 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
             (Species::R11, Species::R11) => {
                 let cutoff = calculate_cutoff(self.interaction_range_r11_r11);
                 Some(Ok(cutoff
-                    * self.potential_strength_r11_r11
-                    * (repelling_force + attracting_force)))
+                    * (self.potential_strength_cargo_cargo
+                    * repelling_force
+                    + self.potential_strength_r11_r11
+                    * attracting_force)))
             }
         }
     }
