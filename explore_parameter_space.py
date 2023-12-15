@@ -39,6 +39,7 @@ def run_single_simulation(
         potential_strength_r11_r11,
         potential_strength_cargo_r11,
         potential_strength_cargo_r11_avidity,
+        interaction_relative_neighbour_distance,
         kb_temperature_r11,
         seed,
     ):
@@ -46,6 +47,7 @@ def run_single_simulation(
     simulation_settings.potential_strength_r11_r11 = potential_strength_r11_r11
     simulation_settings.potential_strength_cargo_r11 = potential_strength_cargo_r11
     simulation_settings.potential_strength_cargo_r11_avidity = potential_strength_cargo_r11_avidity
+    simulation_settings.interaction_relative_neighbour_distance = interaction_relative_neighbour_distance
     simulation_settings.kb_temperature_r11 = kb_temperature_r11
 
     simulation_settings.show_progressbar = False
@@ -142,11 +144,13 @@ def sample_parameter_space():
     print(len(kb_temperature_r11))
     seeds = np.arange(4)
     print(len(seeds))
+    interaction_relative_neighbour_distance = np.arange(1.8, 2.3, 0.1)
 
     entries = [(i, *args) for (i, args) in enumerate(itertools.product(
         potential_strength_r11_r11,
         potential_strength_cargo_r11,
         potential_strength_cargo_r11_avidity,
+        interaction_relative_neighbour_distance,
         kb_temperature_r11,
         seeds,
     ))]
