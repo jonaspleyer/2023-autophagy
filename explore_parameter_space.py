@@ -18,11 +18,11 @@ def create_default_settings():
     simulation_settings.potential_strength_cargo_r11 = 0.0
     simulation_settings.potential_strength_cargo_r11_avidity = 0.02
 
-    simulation_settings.n_times = 30_001
-    simulation_settings.dt = 2.5
-    simulation_settings.save_interval = 10_000
+    simulation_settings.n_times = 45_001
+    simulation_settings.dt = 1.5
+    simulation_settings.save_interval = 15_000
 
-    simulation_settings.extra_saves = np.arange(29_000, 30_001, 200)
+    simulation_settings.extra_saves = np.arange(44_000, 45_001, 200)
 
     simulation_settings.n_threads = 1
 
@@ -96,35 +96,6 @@ def combine_plots(output_path):
 
 
 def postprocessing(output_path):
-    # Save scatter snapshots
-    # for iteration in cra.get_all_iterations(output_path):
-    #     cra.save_scatter_snapshot(output_path, iteration)
-
-    # Also create a movie with ffmpeg
-    # bashcmd = f"ffmpeg -hide_banner -loglevel panic -y -r 30 -f image2 -pattern_type glob -i '{output_path}/scatterplots/*.png' -c:v h264 -pix_fmt yuv420p -strict -2 {output_path}/scatter_movie.mp4"
-    # os.system(bashcmd)
-
-    # Save all snapshots
-    # for iteration in cra.get_all_iterations(output_path):
-    #     cra.save_snapshot(output_path, iteration)
-    # max_iter = max(cra.get_all_iterations(output_path))
-    # cra.save_snapshot(output_path, max_iter)
-    # cra.save_cluster_information_plots(output_path, max_iter)
-    # cra.save_kernel_density(
-    #     output_path,
-    #     max_iter,
-    #     threshold=0.45,
-    #     overwrite=False,
-    #     discretization_factor=0.5,
-    #     bw_method=0.2
-    # )
-
-    # combine_plots(output_path)
-    
-    # Also create a movie with ffmpeg
-    # bashcmd = f"ffmpeg -hide_banner -loglevel panic -y -r 30 -f image2 -pattern_type glob -i '{output_path}/snapshots/*.png' -c:v h264 -pix_fmt yuv420p -strict -2 {output_path}/snapshot_movie.mp4"
-    # os.system(bashcmd)
-
     return True
 
 
@@ -134,15 +105,15 @@ def run_pipeline(args):
 
 
 def sample_parameter_space():
-    potential_strength_r11_r11 = np.linspace(0.00, 0.01, 4)
+    potential_strength_r11_r11 = np.linspace(0.00, 0.01, 5)
     print(len(potential_strength_r11_r11))
-    potential_strength_cargo_r11 = np.linspace(0.00, 0.01, 4)
+    potential_strength_cargo_r11 = np.linspace(0.00, 0.01, 5)
     print(len(potential_strength_cargo_r11))
-    potential_strength_cargo_r11_avidity = np.linspace(0.00, 0.01, 4)
+    potential_strength_cargo_r11_avidity = np.linspace(0.00, 0.01, 5)
     print(len(potential_strength_cargo_r11_avidity))
-    kb_temperature_r11 = np.linspace(0.00, 0.03, 3)
+    kb_temperature_r11 = np.linspace(0.00, 0.03, 6)
     print(len(kb_temperature_r11))
-    seeds = np.arange(4)
+    seeds = np.arange(8)
     print(len(seeds))
     interaction_relative_neighbour_distance = np.arange(1.8, 2.3, 0.1)
 
