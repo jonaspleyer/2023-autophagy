@@ -74,6 +74,9 @@ pub struct SimulationSettings {
     /// Lower the number for more saved results.
     pub save_interval: usize,
 
+    /// Extra iterations at which the simulation should be saved
+    pub extra_saves: Vec<usize>,
+
     /// Number of threads to use in the simulation.
     pub n_threads: usize,
 
@@ -149,6 +152,7 @@ impl SimulationSettings {
             dt,
             n_times: 40_001,
             save_interval: 100,
+            extra_saves: Vec::new(),
 
             n_threads: 1,
 
@@ -367,9 +371,16 @@ pub fn run_simulation(
         t_start: 0.0,
         t_eval: (0..simulation_settings.n_times)
             .map(|n| {
+                let mut save_here = false;
+                if n % simulation_settings.save_interval == 0 {
+                    save_here = true;
+                }
+                if simulation_settings.extra_saves.contains(&n) {
+                    save_here = true;
+                }
                 (
                     n as f64 * simulation_settings.dt,
-                    n % simulation_settings.save_interval == 0,
+                    save_here,
                 )
             })
             .collect(),
