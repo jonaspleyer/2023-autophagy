@@ -20,7 +20,9 @@ def create_default_settings():
 
     simulation_settings.n_times = 30_001
     simulation_settings.dt = 2.5
-    simulation_settings.save_interval = 5_000
+    simulation_settings.save_interval = 10_000
+
+    simulation_settings.extra_saves = np.arange(29_000, 30_001, 200)
 
     simulation_settings.n_threads = 1
 
