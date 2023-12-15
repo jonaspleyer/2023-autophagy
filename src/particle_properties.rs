@@ -28,6 +28,7 @@ pub struct TypedInteraction {
     pub interaction_range_cargo_cargo: f64,
     pub interaction_range_r11_r11: f64,
     pub interaction_range_r11_cargo: f64,
+    pub relative_neighbour_distance: f64,
     neighbour_count: usize,
 }
 
@@ -134,7 +135,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
     ) -> Result<bool, CalcError> {
         match (&self.species, &ext_inf.2) {
             (Species::R11, Species::R11) | (Species::Cargo, Species::Cargo) => {
-                Ok((own_pos - ext_pos).norm() <= 2.0 * (self.cell_radius + ext_inf.0))
+                Ok((own_pos - ext_pos).norm() <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
             }
             _ => Ok(false),
         }
@@ -164,6 +165,7 @@ impl TypedInteraction {
         interaction_range_cargo_cargo: f64,
         interaction_range_r11_r11: f64,
         interaction_range_r11_cargo: f64,
+        relative_neighbour_distance: f64,
     ) -> Self {
         Self {
             species,
@@ -175,6 +177,7 @@ impl TypedInteraction {
             interaction_range_cargo_cargo,
             interaction_range_r11_r11,
             interaction_range_r11_cargo,
+            relative_neighbour_distance,
             neighbour_count: 0,
         }
     }

@@ -65,6 +65,7 @@ pub struct SimulationSettings {
     pub interaction_range_cargo_cargo: f64,
     pub interaction_range_r11_r11: f64,
     pub interaction_range_r11_cargo: f64,
+    pub interaction_relative_neighbour_distance: f64,
 
     /// Integration step of the numerical simulation.
     pub dt: f64,
@@ -149,6 +150,7 @@ impl SimulationSettings {
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_r11),
             interaction_range_r11_r11: 0.4 * (cell_radius_cargo + cell_radius_r11),
             interaction_range_r11_cargo: 0.4 * (cell_radius_cargo + cell_radius_r11),
+            interaction_relative_neighbour_distance: 2.0,
             dt,
             n_times: 40_001,
             save_interval: 100,
@@ -326,6 +328,7 @@ fn create_particle_interaction(
         simulation_settings.interaction_range_cargo_cargo,        // interaction_range_cargo_cargo
         simulation_settings.interaction_range_r11_r11,            // interaction_range_r11_r11
         simulation_settings.interaction_range_r11_cargo,          // interaction_range_r11_cargo
+        simulation_settings.interaction_relative_neighbour_distance,                              // relative_neighbour_distance
     ))
 }
 
