@@ -103,17 +103,17 @@ def postprocessing(output_path):
     # Save all snapshots
     # for iteration in cra.get_all_iterations(output_path):
     #     cra.save_snapshot(output_path, iteration)
-    max_iter = max(cra.get_all_iterations(output_path))
+    # max_iter = max(cra.get_all_iterations(output_path))
     # cra.save_snapshot(output_path, max_iter)
-    cra.save_cluster_information_plots(output_path, max_iter)
-    cra.save_kernel_density(
-        output_path,
-        max_iter,
-        threshold=0.45,
-        overwrite=False,
-        discretization_factor=0.5,
-        bw_method=0.2
-    )
+    # cra.save_cluster_information_plots(output_path, max_iter)
+    # cra.save_kernel_density(
+    #     output_path,
+    #     max_iter,
+    #     threshold=0.45,
+    #     overwrite=False,
+    #     discretization_factor=0.5,
+    #     bw_method=0.2
+    # )
 
     # combine_plots(output_path)
     
