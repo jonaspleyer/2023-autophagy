@@ -1,5 +1,6 @@
 from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
+import numpy as np
 
 
 if __name__ == "__main__":
@@ -17,6 +18,7 @@ if __name__ == "__main__":
     simulation_settings.n_times = 30_001
     simulation_settings.dt = 2.5
     simulation_settings.save_interval = 1_000
+    simulation_settings.extra_saves = np.arange(29_000, 30_001, 100)
 
     simulation_settings.n_threads = 1
 
