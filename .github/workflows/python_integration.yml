@@ -1,22 +1,15 @@
-# Based on https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
-#
-# While our "example" application has the platform-specific code,
-# for simplicity we are compiling and testing everything on the Ubuntu environment only.
-# For multi-OS testing see the `cross.yml` workflow.
-
-on: [workflow_call]
-
-name: Python Integration
-
-jobs:
-  install-python:
-    name: Install
-    runs-on: ubuntu-latest
+on:
+  workflow_call:
     inputs:
       python-version:
-        required: true
+        description: "The python version to be used"
+        default: "3.11"
+        required: false
         type: string
 
+jobs:
+  setup-python:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -29,10 +22,10 @@ jobs:
           override: true
 
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ python-version }}
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ python-version }}
+          python-version: ${{ inputs.python-version }}
 
       - name: create virtual environment
         run: |
@@ -44,4 +37,3 @@ jobs:
       - name: install cellular_raza
         run: |
           pip install .
-

@@ -3,26 +3,47 @@ name: Create Docs
 on: [push]
 
 jobs:
-  build-docs:
-    name: Build Docs
+  build-sphinx:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Configure Python environment
-        uses: ./.github/workflows/python_integration.yml
+      # TODO maybe in the future use reusable workflows or composite workflows
+      # for this part here
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: create virtual environment
+        run: |
+          pip install --upgrade pip
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      
+      - name: install cellular_raza
+        run: |
+          pip install .
+      # Up until here!
 
       - name: Install Doc Requirements
         run: |
           pip install -r docs/requirements.txt
 
-      - name: Install latex
-        run: |
-          python -m pip install latex
-          sudo apt install texlive texlive-latex-extra texlive-fonts-recommended dvipng cm-super
-
-      - name: Generate Plots for Documentation
-        run: |
-          python docs/create_plots.py
+      # - name: Install latex
+        # run: |
+        #   python -m pip install latex
+        #   sudo apt install texlive texlive-latex-extra texlive-fonts-recommended dvipng cm-super
 
       - name: Sphinx build
         run: |
