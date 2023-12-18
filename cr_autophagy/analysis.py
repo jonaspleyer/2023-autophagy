@@ -302,20 +302,21 @@ def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> 
     )
 
 
-def get_clusters_kde(output_path, iteration, *args):
+def get_clusters_kde(output_path, iteration, threshold=None, **kwargs):
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
-    threshold = determine_optimal_thresh(
-        output_path,
-        iteration,
-        *args,
-    )
+    if threshold==None:
+        threshold = determine_optimal_thresh(
+            output_path,
+            iteration,
+            **kwargs,
+        )
 
     density_cargo, density_r11 = calculate_kernel_densities(
         output_path,
         iteration,
-        *args,
+        **kwargs,
     )
 
     mask_r11,   _ = calculate_mask(density_r11,   threshold)
