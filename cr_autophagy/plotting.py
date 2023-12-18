@@ -355,8 +355,8 @@ def save_all_kernel_density(output_path, threads=1, **kwargs):
     _ = list(tqdm.tqdm(pool.imap_unordered(_save_kernel_density_helper, args), total=len(args)))
 
 
-def plot_cluster_distribution(output_path, iteration, discretization_factor, bw_method):
-    clrs = get_clusters_kde(output_path, iteration, discretization_factor=discretization_factor, bw_method=bw_method)
+def plot_cluster_distribution(output_path, iteration, threshold, discretization_factor, bw_method):
+    clrs = get_clusters_kde(output_path, iteration, threshold=threshold, discretization_factor=discretization_factor, bw_method=bw_method)
 
     # Calculate percentiles for plotting
     percentiles = [clrs.get_cargo_distance_percentile(perc) for perc in [70, 80, 90]]
