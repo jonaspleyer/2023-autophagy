@@ -1,0 +1,16 @@
+on: [push, pull_request]
+
+name: Python Installation
+
+jobs:
+  test-python-install:
+    name: Test Python Installation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    
+    uses: ./.github/workflows/python_integration.yml
+    with:
+      python-version: ${{ matrix.python-version }}

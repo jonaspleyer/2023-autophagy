@@ -4,7 +4,7 @@
 # for simplicity we are compiling and testing everything on the Ubuntu environment only.
 # For multi-OS testing see the `cross.yml` workflow.
 
-on: [push, pull_request, workflow_call]
+on: [workflow_call]
 
 name: Python Integration
 
@@ -12,9 +12,10 @@ jobs:
   install-python:
     name: Install
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+    inputs:
+      python-version:
+        required: true
+        type: string
 
     steps:
       - name: Checkout sources
@@ -28,10 +29,10 @@ jobs:
           override: true
 
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ python-version }}
 
       - name: create virtual environment
         run: |
@@ -43,3 +44,4 @@ jobs:
       - name: install cellular_raza
         run: |
           pip install .
+
