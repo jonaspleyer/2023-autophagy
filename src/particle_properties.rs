@@ -11,7 +11,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[pyclass]
 pub enum Species {
+    /// Cargo particle
     Cargo,
+    /// R11 particle which is a combination of receptor and Atg11
     R11,
 }
 
@@ -19,16 +21,39 @@ pub enum Species {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[pyclass(get_all, set_all)]
 pub struct TypedInteraction {
+    /// Labels particles as Cargo or R11
     pub species: Species,
+
+    /// Radius of the spherical particle
     pub cell_radius: f64,
+
+    /// Attracting potential strength between individual Cargo particles
     pub potential_strength_cargo_cargo: f64,
+
+    /// Attracting potential strength between individual R11 particles
     pub potential_strength_r11_r11: f64,
+
+    /// Attracting potential strength between individual Cargo and R11 particles
     pub potential_strength_cargo_r11: f64,
+
+    /// Attracting potential strength between multiple Cargo and R11 particles known as avidity.
+    /// This mechanism only comes into effect when multiple
+    /// neighbours are present around the two particles.
     pub potential_strength_cargo_r11_avidity: f64,
+
+    /// The interaction range (beyond size of the particles) between Cargo particles
     pub interaction_range_cargo_cargo: f64,
+
+    /// The interaction range (beyond size of the particles) between R11 particles
     pub interaction_range_r11_r11: f64,
+
+    /// The interaction range (beyond size of the particles) between Cargo and R11 particles
     pub interaction_range_r11_cargo: f64,
+
+    /// Distance at which other particles of the same species are regarded as neighbours.
     pub relative_neighbour_distance: f64,
+
+    /// Number of particles currently present which are considered to be neighbours.
     neighbour_count: usize,
 }
 
@@ -155,6 +180,19 @@ impl Volume for Particle {
 #[pymethods]
 impl TypedInteraction {
     #[new]
+    #[pyo3(signature = (
+        species,
+        cell_radius,
+        potential_strength_cargo_cargo,
+        potential_strength_r11_r11,
+        potential_strength_cargo_r11,
+        potential_strength_cargo_r11_avidity,
+        interaction_range_cargo_cargo,
+        interaction_range_r11_r11,
+        interaction_range_r11_cargo,
+        relative_neighbour_distance,
+    ))]
+    /// Constructs a new TypedInteraction
     pub fn new(
         species: Species,
         cell_radius: f64,
@@ -183,11 +221,15 @@ impl TypedInteraction {
     }
 }
 
+/// Cargo or R11 particle depending on the [Species] of the interaction field.
 #[derive(CellAgent, Clone, Debug, Deserialize, Serialize)]
 pub struct Particle {
+    /// The [Langevin3D] motion was chosen to model mechanics of the particle movement
     #[Mechanics(Vector3<f64>, Vector3<f64>, Vector3<f64>)]
     pub mechanics: Langevin3D,
 
+    /// The [TypedInteraction] assigns the [Species] to the particle and handles
+    /// calculation of interactions.
     #[Interaction(Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species))]
     pub interaction: TypedInteraction,
 }

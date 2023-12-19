@@ -193,7 +193,7 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
     # Set max distance at which two cells are considered part of same cluster
     cargo_center = np.average(cargo_positions, axis=0)
 
-    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
+    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_graph_clusters(
         positions=non_cargo_positions,
         distance=connection_distance,
         cargo_position=cargo_center,
@@ -355,8 +355,8 @@ def save_all_kernel_density(output_path, threads=1, **kwargs):
     _ = list(tqdm.tqdm(pool.imap_unordered(_save_kernel_density_helper, args), total=len(args)))
 
 
-def plot_cluster_distribution(output_path, iteration, discretization_factor, bw_method):
-    clrs = get_clusters_kde(output_path, iteration, discretization_factor, bw_method)
+def plot_cluster_distribution(output_path, iteration, threshold, discretization_factor, bw_method):
+    clrs = get_clusters_kde(output_path, iteration, threshold=threshold, discretization_factor=discretization_factor, bw_method=bw_method)
 
     # Calculate percentiles for plotting
     percentiles = [clrs.get_cargo_distance_percentile(perc) for perc in [70, 80, 90]]

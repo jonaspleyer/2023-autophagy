@@ -32,45 +32,75 @@ pub const KELVIN: f64 = 1.0;
 /// that can influence the results of our simulation.
 /// Not all settings do make sense and some combinations can lead
 /// to numerical integration problems.
-///
-/// For documentation of the individual settings, refer to the linked modules.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[pyclass(get_all, set_all)]
 pub struct SimulationSettings {
     /// Number of cargo particles in the simulation.
     pub n_cells_cargo: usize,
 
-    /// Number of Atg11 particles in the simulation.
+    /// Number of R11 particles in the simulation.
     pub n_cells_r11: usize,
 
+    /// Radius of the Cargo particles
     pub cell_radius_cargo: f64,
+
+    /// Radius of the R11 particles
     pub cell_radius_r11: f64,
 
+    /// Mass of the Cargo particles
     pub mass_cargo: f64,
+
+    /// Mass of the R11 particles
     pub mass_r11: f64,
 
+    /// Damping constant of the Cargo particles of the Langevin mechanics model.
     pub damping_cargo: f64,
+
+    /// Damping constant of the R11 particles of the Langevin mechanics model.
     pub damping_r11: f64,
 
+    /// Product of Boltzmann-Constant and temperature of the
+    /// Langevin mechanics model for Cargo particles.
     pub kb_temperature_cargo: f64,
+
+    /// Product of Boltzmann-Constant and temperature of the
+    /// Langevin mechanics model for R11 particles.
     pub kb_temperature_r11: f64,
 
+    /// Product of Boltzmann-Constant and temperature of the
+    /// Langevin mechanics model for R11 particles.
     pub update_interval: usize,
 
+    /// See TypedInteraction
     pub potential_strength_cargo_cargo: f64,
+
+    /// See TypedInteraction
     pub potential_strength_r11_r11: f64,
+
+    /// See TypedInteraction
     pub potential_strength_cargo_r11: f64,
+
+    /// See TypedInteraction
     pub potential_strength_cargo_r11_avidity: f64,
 
+    /// See TypedInteraction
     pub interaction_range_cargo_cargo: f64,
+
+    /// See TypedInteraction
     pub interaction_range_r11_r11: f64,
+
+    /// See TypedInteraction
     pub interaction_range_r11_cargo: f64,
+
+    /// See TypedInteraction
     pub interaction_relative_neighbour_distance: f64,
 
     /// Integration step of the numerical simulation.
     pub dt: f64,
+
     /// Number of intgration steps done totally.
     pub n_times: usize,
+
     /// Specifies the frequency at which results are saved as json files.
     /// Lower the number for more saved results.
     pub save_interval: usize,
@@ -81,7 +111,7 @@ pub struct SimulationSettings {
     /// Number of threads to use in the simulation.
     pub n_threads: usize,
 
-    /// See [CartesianCuboid3]
+    /// Overall domain size of the simulation. The lower bound starts at `0.0`.
     pub domain_size: f64,
 
     /// Upper bound of the radius in which the cargo particles will be spawned

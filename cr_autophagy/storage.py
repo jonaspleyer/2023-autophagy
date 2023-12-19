@@ -8,11 +8,38 @@ from cr_autophagy_pyo3 import *
 from types import SimpleNamespace
 
 
-def get_last_output_path(name = "autophagy"):
-    return Path("out") / name / sorted(os.listdir(Path("out") / name))[-1]
+def get_last_output_path(name = "out/autophagy") -> Path:
+    """
+    Obtains the output path of the last simulation that was run (assuming
+    dates and times were added to the output folder).
+    Optionally, one can specify the name of the output folder.
+
+    Consider the following folder structure::
+
+        out/autophagy
+        ├── 2023-12-06-T06-02-30
+        ├── 2023-12-11-T22-56-36
+        ├── 2023-12-12-T00-34-23
+        ├── 2023-12-12-T01-05-41
+        ├── 2023-12-12-T01-12-52
+        ├── 2023-12-12-T21-49-59
+        └── 2023-12-13-T01-51-58
+
+    The function above will then produce the following output::
+
+        >>> get_last_output_path()
+        Path("out/autophagy/2023-12-13-T01-51-58")
+
+    """
+    return Path(name) / sorted(os.listdir(Path(name)))[-1]
 
 
-def get_simulation_settings(output_path):
+def get_simulation_settings(output_path) -> SimpleNamespace:
+    """
+    This function loads the `simulation_settings.json` file corresponding to the
+    given ``output_path``. It is a wrapper for the ``json.load`` function.
+    (See https://docs.python.org/3/library/json.html)
+    """
     f = open(output_path / "simulation_settings.json")
     return json.load(f, object_hook=lambda d: SimpleNamespace(**d))
 
@@ -28,7 +55,10 @@ def _combine_batches(run_directory):
     return combined_batch
 
 
-def get_particles_at_iter(output_path: Path, iteration):
+def get_particles_at_iter(output_path: Path, iteration) -> pd.DataFrame:
+    """
+    Loads particles at a specified iteration.
+    """
     dir = Path(output_path) / "cell_storage/json"
     run_directory = None
     for x in os.listdir(dir):
@@ -46,7 +76,10 @@ def get_particles_at_iter(output_path: Path, iteration):
         raise ValueError(f"Could not find iteration {iteration} in saved results")
 
 
-def get_all_iterations(output_path):
+def get_all_iterations(output_path: Path) -> list:
+    """
+    Get all iterations that the simulation has produced for a given output path.
+    """
     return sorted([int(x) for x in os.listdir(Path(output_path) / "cell_storage/json")])
 
 
@@ -55,7 +88,11 @@ def __iter_to_cells(iteration_dir):
     return (int(iteration), _combine_batches(dir / iteration))
 
 
-def get_particles_at_all_iterations(output_path: Path, threads=1):
+def get_particles_at_all_iterations(output_path: Path, threads:int=1)->list:
+    """
+    Get all particles for every possible iteration step of the simulation run.
+    This process can be parallelized if desired.
+    """
     dir = Path(output_path) / "cell_storage/json/"
     runs = [(x, dir) for x in os.listdir(dir)]
     pool = mp.Pool(threads)

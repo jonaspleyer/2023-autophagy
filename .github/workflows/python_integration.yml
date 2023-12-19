@@ -1,21 +1,15 @@
-# Based on https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
-#
-# While our "example" application has the platform-specific code,
-# for simplicity we are compiling and testing everything on the Ubuntu environment only.
-# For multi-OS testing see the `cross.yml` workflow.
-
-on: [push, pull_request]
-
-name: Python Integration
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "The python version to be used"
+        default: "3.11"
+        required: false
+        type: string
 
 jobs:
-  install-python:
-    name: Install
+  setup-python:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -28,10 +22,10 @@ jobs:
           override: true
 
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ inputs.python-version }}
 
       - name: create virtual environment
         run: |
