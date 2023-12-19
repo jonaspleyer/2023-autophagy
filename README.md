@@ -22,3 +22,6 @@ pip install -r requirements.txt
 
 ## Example
 For a short example with default settings look at `run_sim.py`
+
+## Documentation
+You can find the documentation under [jonaspleyer.github.io/2023-autophagy](https://jonaspleyer.github.io/2023-autophagy/index.html).
