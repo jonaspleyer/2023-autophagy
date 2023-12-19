@@ -1,7 +1,16 @@
-pub mod particle_properties;
-pub mod simulation;
-use particle_properties::*;
-use simulation::*;
+#![warn(missing_docs)]
+#![warn(rustdoc::broken_intra_doc_links)]
+
+//! To go back to the main documentation click [here](https://jonaspleyer.github.io/2023-autophagy/)
+
+/// Contains properties of particles such as interaction and mechanics.
+mod particle_properties;
+
+/// Methods and objects to run a full simulation.
+mod simulation;
+
+pub use particle_properties::*;
+pub use simulation::*;
 
 use pyo3::prelude::*;
 
