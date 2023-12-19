@@ -10,11 +10,42 @@ from dataclasses import dataclass
 from .storage import *
 
 
-def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: np.ndarray):
+def calculate_graph_clusters(
+        r11_positions: np.ndarray,
+        distance: float,
+        cargo_position: np.ndarray
+    ) -> tuple:
+    """
+    Calculates the clusters of particles by measuring their respective distances
+    and then grouping them together by who is connected with which other.
+
+    This function uses the ``scipy`` function ``scipy.sparse.csgraph.connected_components``.
+
+    Parameters
+    ----------
+    r11_positions : np.ndarray
+        A numpy array of shape (N,3) which holds all positions of R11 particles.
+    distance : float
+        Distance for which particles should be considered connected
+    cargo_position : np.ndarray
+        The position of the cargo as (3,) numpy array.
+
+    Returns
+    -------
+    n_clusters
+        Number of clusters that were detected
+    cluster_positions
+        Positions of clusters calculated by taking the average
+        over positions in the respective cluster.
+    cluster_sizes
+        List of sizes of the individual clusters.
+    min_cluster_distances_to_cargo
+        Minimum distance of cluster to cargo center.
+    """
     # Calculate the combined matrix of all positions
-    combined_matrix = np.array(list(itertools.product(positions, positions)))
+    combined_matrix = np.array(list(itertools.product(r11_positions, r11_positions)))
     combined_matrix = combined_matrix.reshape(
-        (positions.shape[0], positions.shape[0], *combined_matrix.shape[1:])
+        (r11_positions.shape[0], r11_positions.shape[0], *combined_matrix.shape[1:])
     )
 
     # Calculate the distances between individual positions in two steps
@@ -33,7 +64,7 @@ def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: n
     assert np.sum(connection_matrix) > connection_matrix.shape[0]
 
     # Calculate all connected components via scipy
-    n_components, labels = sp.sparse.csgraph.connected_components(
+    n_clusters, labels = sp.sparse.csgraph.connected_components(
         connection_matrix,
         directed=False
     )
@@ -47,15 +78,15 @@ def calculate_clusters(positions: np.ndarray, distance: float, cargo_position: n
 
     # Also calculate the minimum distance from cluster center to cargo center
     cluster_positions = np.array([
-        np.average(positions[labels==label], axis=0) for label in np.sort(np.unique(labels))
+        np.average(r11_positions[labels==label], axis=0) for label in np.sort(np.unique(labels))
     ])
     min_cluster_distances_to_cargo = np.array([
-        np.min([_helper(x) for x in positions[labels==label]], axis=0)
+        np.min([_helper(x) for x in r11_positions[labels==label]], axis=0)
         for label in np.sort(np.unique(labels))
     ])
 
     # Return all results
-    return n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo
+    return n_clusters, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo
 
 
 @dataclass
@@ -98,7 +129,7 @@ def get_clusters_graph(output_path, iteration, connection_distance=2.0):
     cargo_center = np.average(cargo_positions, axis=0)
     cargo_distances = np.sum((cargo_positions-cargo_center)**2, axis=1)**0.5
 
-    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_clusters(
+    n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_graph_clusters(
         positions=non_cargo_positions,
         distance=connection_distance,
         cargo_position=cargo_center,
@@ -114,8 +145,27 @@ def get_clusters_graph(output_path, iteration, connection_distance=2.0):
     )
 
 
+def calculate_spatial_discretization(domain_size: float, discretization: float) -> tuple:
+    """
+    This function serves as a helper function for
+    :py:meth:`calculate_spatial_density`. It is exposed to the user
+    in order to obtain reproducible space discretizations.
 
-def calculate_spatial_discretization(domain_size, discretization):
+    Parameters
+    ----------
+    domain_size : float
+        Domain size of the simulation. This quantity should be read out automatically using
+        the :py:meth:`cr_autophagy.storage.get_simulation_settings` function.
+    discretization : float
+        Discretization to use when creating points in space.
+
+    Returns
+    -------
+    X, Y, Z
+        3-dimensional arrays containing points representing x,y,z coordinates.
+    space_discretization
+        (N,3) array that contains a list of all points in the discretization
+    """
     xmin = 0.0
     xmax = domain_size
     h = discretization
@@ -126,10 +176,37 @@ def calculate_spatial_discretization(domain_size, discretization):
     return X, Y, Z, space_discretization
 
 
-def calculate_spatial_density(particle_positions, domain_size, discretization, bw_method=None):
-    x = particle_positions[:,0]
-    y = particle_positions[:,1]
-    z = particle_positions[:,2]
+def calculate_spatial_density(
+        r11_positions:np.ndarray,
+        domain_size:float,
+        discretization:float,
+        bw_method:float=None
+    ):
+    """
+    Calculate the spatial density of particles.
+
+    This function uses the ``scipy`` method :py:meth:`sp.stats.gaussian.kde`.
+    Thus we can specify the width of gaussians to be used with the ``bw_method`` parameter.
+
+    Parameters
+    ----------
+    r11_positions : np.ndarray
+        A numpy array of shape (N,3) which holds all positions of R11 particles.
+    domain_size : float
+        See :py:meth:`calculate_spatial_discretization`
+    discretization : float
+        See :py:meth:`calculate_spatial_discretization`
+    bw_method : float, optional
+        See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html, by default None
+
+    Returns
+    -------
+    np.ndarray
+        The spatial density as (N,N,N) array where N depends on the discretization chosen.
+    """
+    x = r11_positions[:,0]
+    y = r11_positions[:,1]
+    z = r11_positions[:,2]
 
     X, Y, Z, space_discretization = calculate_spatial_discretization(domain_size, discretization)
 
@@ -139,8 +216,26 @@ def calculate_spatial_density(particle_positions, domain_size, discretization, b
     return D
 
 
-def calculate_mask(density, threshold):
-    thresh = threshold*(np.max(density)  -np.min(density))   + np.min(density)
+def calculate_mask(density: np.ndarray, threshold: float) -> tuple:
+    """
+    Calculate array containing 0 and 1 if the value exceeds the threshold or not.
+
+    Parameters
+    ----------
+    density : np.ndarray
+        Density of particles over discretized space  (not normalized)
+    threshold : float
+        Relative value between 0 and 1 to serve as cut-off value.
+        We will consider changing this to a fixed value instead of relative.
+
+    Returns
+    -------
+    mask
+        Calculate mask with same shape as ``density``
+    thresh
+        Calculate threshold
+    """
+    thresh = threshold*(np.max(density) - np.min(density)) + np.min(density)
     mask = density>=thresh
     return mask, thresh
 
@@ -152,7 +247,35 @@ def _get_discretization(output_path, discretization_factor):
     return discretization_factor*radius_cargo, discretization_factor*radius_r11
 
 
-def calculate_kernel_densities(output_path, iteration, discretization_factor, bw_method):
+def calculate_kernel_densities(
+        output_path: Path,
+        iteration: int,
+        discretization_factor: float,
+        bw_method
+    ) -> tuple:
+    """
+    Computes the kerneld densities of R11 and Cargo particles.
+
+    Parameters
+    ----------
+    output_path : Path
+        Path of output of simulation
+    iteration : int
+        Iteration at which to calculate the densities
+    discretization_factor : float
+        Discretization of domain to choose.
+    bw_method : _type_
+        See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
+
+    Returns
+    -------
+    density_cargo
+        Denstiy of the Cargo particles as (N,N,N) array where N
+        depends on the discretization chosen.
+    density_r11
+        Denstiy of the R11 particles as (N,N,N) array where N
+        depends on the discretization chosen.
+    """
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
@@ -186,7 +309,29 @@ def calculate_kernel_densities(output_path, iteration, discretization_factor, bw
 
 
 
-def calcualte_3d_connected_components(mask):
+def calcualte_3d_connected_components(mask: np.ndarray) -> tuple:
+    """
+    Calculates all connected components in a 3D mask and labels them.
+
+    Parameters
+    ----------
+    mask : np.ndarray
+        An array filled with zero and ones indicating if a position belongs to
+        a possible cluster region.
+
+    Returns
+    -------
+    n_clusters:
+        Number of clusters found
+    labels:
+        numpy array of identical shape as ``mask`` containing increasing numbers
+        from 0 indicating. All points with identical label belong to the same cluster.
+        Most of the time, the largest cluster is the one with index 0.
+    cluster_identifiers:
+        A list of unique labels without their spatial distribution
+    cluster_sizes:
+        A numpy array containing the size of the individual clusters.
+    """
     labels = cc3d.connected_components(mask)
     cluster_identifiers = np.unique(labels)
     n_clusters = len(cluster_identifiers)
