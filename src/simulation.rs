@@ -116,7 +116,9 @@ impl SimulationSettings {
         // let thermodynamic_energy = BOLTZMANN_CONSTANT * temperature;
         // TODO for the future
         // let cell_radius_r11: f64 = 0.5*(22.938 + 16.259) * NANOMETRE;
-        let cell_radius_r11: f64 = 1.0;
+        // let cell_radius_r11: f64 = 1.0;
+        let cell_radius_r11: f64 = 10.0;
+
         // TODO for the future
         // let mass_r11 = 135002.0 * DALTON;
         let mass_r11 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_r11.powf(3.0);
@@ -125,8 +127,10 @@ impl SimulationSettings {
         let dt = 1.0;
 
         SimulationSettings {
-            n_cells_cargo: 200,
-            n_cells_r11: 200,
+            // n_cells_cargo: 200,
+            // n_cells_r11: 200,
+            n_cells_cargo: 420,
+            n_cells_r11: 55,
 
             cell_radius_cargo,
             cell_radius_r11,
@@ -158,9 +162,13 @@ impl SimulationSettings {
 
             n_threads: 1,
 
-            domain_size: 20.0,
-            domain_cargo_radius_max: 6.0,
-            domain_r11_radius_min: 6.5,
+            // domain_size: 20.0,
+            // domain_cargo_radius_max: 6.0,
+            // domain_r11_radius_min: 6.5,
+            domain_size: 200.0,
+            domain_cargo_radius_max: 60.0,
+            domain_r11_radius_min: 65.0,
+            
             // TODO For the future
             // domain_size: 100_f64 * NANOMETRE,
             // domain_cargo_radius_max: 20_f64 * NANOMETRE,
