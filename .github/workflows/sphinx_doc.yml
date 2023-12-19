@@ -36,6 +36,10 @@ jobs:
           python3 -m pip install .
       # Up until here!
 
+      - name: build cargo documentation in docs dir
+        run: |
+          cargo doc --no-deps --target-dir docs/build/html/rust_doc
+
       - name: Install Doc Requirements
         run: |
           python3 -m pip install -r docs/requirements.txt

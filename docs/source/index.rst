@@ -18,6 +18,7 @@ package.
    Parameter Space <param_space>
    Rust Bindings <rust-bindings>
    Storage <storage>
+   Rust Documentation <https://jonaspleyer.github.io/2023-autophagy/rust_doc/doc/cr_autophagy_pyo3/index.html>
 
 Indices and tables
 ==================
