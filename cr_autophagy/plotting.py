@@ -206,7 +206,7 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
     cargo_center = np.average(cargo_positions, axis=0)
 
     n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_graph_clusters(
-        positions=non_cargo_positions,
+        non_cargo_positions,
         distance=connection_distance,
         cargo_position=cargo_center,
     )

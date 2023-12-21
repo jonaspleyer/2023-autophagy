@@ -447,7 +447,7 @@ def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> 
     )
 
 
-def get_clusters_kde(output_path, iteration, threshold=None, **kwargs):
+def get_clusters_kde(output_path, iteration, threshold=None, **kwargs) -> KDEClusterResult:
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
