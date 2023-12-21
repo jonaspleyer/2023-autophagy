@@ -1,5 +1,6 @@
 from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
+import numpy as np
 
 
 if __name__ == "__main__":
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     # domain size
     simulation_settings.domain_size = 200.0
     simulation_settings.domain_cargo_radius_max = 80.0
-    simulation_settings.domain_r11_radius_min = 85.0
+    simulation_settings.domain_r11_radius_min = 95.0
 
     # interaction ranges
     simulation_settings.interaction_range_cargo_cargo = 0.4 * (simulation_settings.cell_radius_cargo + simulation_settings.cell_radius_r11)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     simulation_settings.potential_strength_cargo_r11 = 0.1
     simulation_settings.potential_strength_cargo_r11_avidity = 1.0
 
-    simulation_settings.n_times = 60_001
+    simulation_settings.n_times = 40_001
     simulation_settings.dt = 2.5
     simulation_settings.save_interval = 1_000
     simulation_settings.extra_saves = np.arange(29_000, 30_001, 100)
