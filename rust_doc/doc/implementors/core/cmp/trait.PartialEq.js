@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"cr_autophagy_pyo3":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.74.1/core/cmp/trait.PartialEq.html\" title=\"trait core::cmp::PartialEq\">PartialEq</a>&lt;<a class=\"enum\" href=\"cr_autophagy_pyo3/enum.Species.html\" title=\"enum cr_autophagy_pyo3::Species\">Species</a>&gt; for <a class=\"enum\" href=\"cr_autophagy_pyo3/enum.Species.html\" title=\"enum cr_autophagy_pyo3::Species\">Species</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
