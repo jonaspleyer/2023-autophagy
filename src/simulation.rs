@@ -188,9 +188,9 @@ impl SimulationSettings {
 
             n_threads: 1,
 
-            domain_size: 20.0,
-            domain_cargo_radius_max: 6.0,
-            domain_r11_radius_min: 6.5,
+            domain_size: 30.0,
+            domain_cargo_radius_max: 8.0,
+            domain_r11_radius_min: 9.0,
             // TODO For the future
             // domain_size: 100_f64 * NANOMETRE,
             // domain_cargo_radius_max: 20_f64 * NANOMETRE,
@@ -229,66 +229,45 @@ fn save_simulation_settings(
     Ok(())
 }
 
-fn generate_particle_pos(
+fn generate_particle_pos_spherical(
     simulation_settings: &SimulationSettings,
     rng: &mut ChaCha8Rng,
     n: usize,
-) -> PyResult<[f64; 3]> {
+) -> [f64; 3] {
+    let middle = simulation_settings.domain_size / 2.0;
     let mut generate_position = |lower_radius: f64, upper_radius: f64| -> [f64; 3] {
-        // Calculate middle of simulation domain
-        let domain_half = simulation_settings.domain_size / 2.0;
-
-        // Fix the first coordinate
-        let x0_lower = lower_radius.max(0.0);
-        let x0_upper = upper_radius.min(domain_half);
-        let x0_sign = if rng.gen_bool(0.5) { 1.0 } else { -1.0 };
-        let x0 = x0_sign * rng.gen_range(x0_lower..x0_upper);
-
-        // Determine upper and lower bounds for next coordinate
-        let x1_lower_squared = lower_radius.powi(2) - x0.powi(2);
-        let x1_lower = match x1_lower_squared > 0.0 {
-            true => x1_lower_squared.sqrt(),
-            false => 0.0,
-        };
-        let x1_upper_squared = upper_radius.powi(2) - x0.powi(2);
-        let x1_upper = match x1_upper_squared < domain_half.powi(2) {
-            true => x1_upper_squared.sqrt(),
-            false => domain_half,
-        };
-
-        // Fix second coordinate
-        let x1_sign = if rng.gen_bool(0.5) { 1.0 } else { -1.0 };
-        let x1 = x1_sign * rng.gen_range(x1_lower..x1_upper);
-
-        // Determine upper and lower bounds for next coordinate
-        let x2_lower_squared = x1_lower_squared - x1.powi(2);
-        let x2_lower = match x2_lower_squared > 0.0 {
-            true => x2_lower_squared.sqrt(),
-            false => 0.0,
-        };
-
-        let x2_upper_squared = x1_upper_squared - x1.powi(2);
-        let x2_upper = match x2_upper_squared < domain_half.powi(2) {
-            true => x2_upper_squared.sqrt(),
-            false => domain_half,
-        };
-
-        // Fix third coordinate
-        let x2_sign = if rng.gen_bool(0.5) { 1.0 } else { -1.0 };
-        let x2 = x2_sign * rng.gen_range(x2_lower..x2_upper);
-
-        [domain_half + x0, domain_half + x1, domain_half + x2]
+        let r = rng.gen_range(lower_radius..upper_radius);
+        let phi = rng.gen_range(0.0..2.0*std::f64::consts::PI);
+        let theta = rng.gen_range(0.0..std::f64::consts::PI);
+        [
+            middle + r*phi.cos()*theta.sin(),
+            middle + r*phi.sin()*theta.sin(),
+            middle + r*theta.cos(),
+        ]
     };
-
     let pos = if n < simulation_settings.n_cells_cargo {
         generate_position(0.0, simulation_settings.domain_cargo_radius_max)
     } else {
         generate_position(
             simulation_settings.domain_r11_radius_min,
-            simulation_settings.domain_size,
+            simulation_settings.domain_size/2.0,
         )
     };
-    Ok(pos)
+    pos
+}
+
+#[test]
+fn test_particle_pos_config() {
+    let simulation_settings = SimulationSettings::new();
+    let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
+
+    for n in 0..simulation_settings.n_cells_cargo+simulation_settings.n_cells_r11 {
+        let pos = generate_particle_pos_spherical(&simulation_settings, &mut rng, n);
+        for i in 0..3 {
+            assert!(0.0 <= pos[i]);
+            assert!(pos[i] <= simulation_settings.domain_size);
+        }
+    }
 }
 
 fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> PyResult<f64> {
@@ -310,7 +289,7 @@ fn create_particle_mechanics(
     rng: &mut ChaCha8Rng,
     n: usize,
 ) -> PyResult<Langevin3D> {
-    let pos = generate_particle_pos(simulation_settings, rng, n)?;
+    let pos = generate_particle_pos_spherical(simulation_settings, rng, n);
     let mass = if n < simulation_settings.n_cells_cargo {
         simulation_settings.mass_cargo
     } else {
