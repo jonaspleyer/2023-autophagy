@@ -37,19 +37,27 @@ if __name__ == "__main__":
     #simulation_settings.potential_strength_cargo_r11_avidity = 0.00
 
     # HIGH AVIDITY CONFIGURATION
+<<<<<<< HEAD:run_sim.py
     simulation_settings.potential_strength_cargo_cargo = 2.0
     simulation_settings.potential_strength_r11_r11 = 0.6
     simulation_settings.potential_strength_cargo_r11 = 0.1
     simulation_settings.potential_strength_cargo_r11_avidity = 1.0
+=======
+    simulation_settings.potential_strength_r11_r11 = 0.01
+    simulation_settings.potential_strength_cargo_r11 = 0.01
+    simulation_settings.potential_strength_cargo_r11_avidity = 0.00
+>>>>>>> 41a37bc59891d069309bbd7f1d828e0309b59f5f:script_run_sim.py
 
     simulation_settings.n_times = 40_001
     simulation_settings.dt = 2.5
     simulation_settings.save_interval = 1_000
     simulation_settings.extra_saves = np.arange(29_000, 30_001, 100)
 
-    simulation_settings.n_threads = 1
+    simulation_settings.n_threads = 4
 
-    simulation_settings.kb_temperature_r11 = 0.001
+    simulation_settings.kb_temperature_r11 = 0.0025
+
+    simulation_settings.random_seed = 3
 
     from pathlib import Path
     import os

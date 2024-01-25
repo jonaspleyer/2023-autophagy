@@ -3,6 +3,7 @@ import pyvista as pv
 import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing as mp
+import matplotlib
 
 from pathlib import Path
 
@@ -81,17 +82,28 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
         font_family="arial",
     )
 
+    gfp_high = np.array([121, 200, 119])/255
+    gfp_low = np.array([255, 255, 255])/255
+    gfp_cols = np.linspace(gfp_low, gfp_high, 12)
+    gfp_cmap = matplotlib.colors.ListedColormap(gfp_cols)
+
+    bfp_high = np.array([33, 113, 181])/255
+    bfp_low = np.array([255, 255, 255])/255
+    bfp_cols = np.linspace(bfp_low, bfp_high, 12)
+    bfp_cmap = matplotlib.colors.ListedColormap(bfp_cols)
+    # '#79c877'
+
     plotter.add_mesh(
         cargo,
         scalars="neighbour_count1",
-        cmap="Blues",
+        cmap=bfp_cmap,
         clim=[0,12],
         scalar_bar_args=scalar_bar_args1,
     )
     plotter.add_mesh(
         r11,
         scalars="neighbour_count2",
-        cmap="Oranges",
+        cmap=gfp_cmap,
         clim=[0,12],
         scalar_bar_args=scalar_bar_args1,
     )
@@ -194,7 +206,7 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
     cargo_center = np.average(cargo_positions, axis=0)
 
     n_components, cluster_positions, cluster_sizes, min_cluster_distances_to_cargo = calculate_graph_clusters(
-        positions=non_cargo_positions,
+        non_cargo_positions,
         distance=connection_distance,
         cargo_position=cargo_center,
     )
