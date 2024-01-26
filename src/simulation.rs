@@ -192,7 +192,6 @@ impl SimulationSettings {
 
             n_threads: 1,
 
-<<<<<<< HEAD
             // domain_size: 20.0,
             // domain_cargo_radius_max: 6.0,
             // domain_r11_radius_min: 6.5,
@@ -200,11 +199,6 @@ impl SimulationSettings {
             domain_cargo_radius_max: 60.0,
             domain_r11_radius_min: 65.0,
             
-=======
-            domain_size: 30.0,
-            domain_cargo_radius_max: 8.0,
-            domain_r11_radius_min: 9.0,
->>>>>>> 41a37bc59891d069309bbd7f1d828e0309b59f5f
             // TODO For the future
             // domain_size: 100_f64 * NANOMETRE,
             // domain_cargo_radius_max: 20_f64 * NANOMETRE,
