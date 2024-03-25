@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 
 def run_simulation(SimulationSettings) -> str:
@@ -39,6 +40,9 @@ class SimulationSettings:
     storage_name_add_date: bool
     show_progressbar: bool
     random_seed: int
+
+    def load_from_file(path: Path) -> SimulationSettings:
+        pass
 
 
 class Species():

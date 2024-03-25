@@ -217,6 +217,22 @@ impl SimulationSettings {
     fn __repr__(&self) -> String {
         format!("{:#?}", self)
     }
+
+    #[staticmethod]
+    fn load_from_file(path: std::path::PathBuf) -> PyResult<Self> {
+        let file = std::fs::File::open(path).or_else(|e| {
+            Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                format!("serde_json error in loading simulation settings from file: {e}"),
+            ))
+        })?;
+        let reader = std::io::BufReader::new(file);
+        let settings: Self = serde_json::from_reader(reader).or_else(|e| {
+            Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                format!("serde_json error in loading simulation settings from file: {e}"),
+            ))
+        })?;
+        Ok(settings)
+    }
 }
 
 fn save_simulation_settings(
