@@ -198,12 +198,11 @@ impl SimulationSettings {
             domain_size: 200.0,
             domain_cargo_radius_max: 60.0,
             domain_r11_radius_min: 65.0,
-            
+
             // TODO For the future
             // domain_size: 100_f64 * NANOMETRE,
             // domain_cargo_radius_max: 20_f64 * NANOMETRE,
             // domain_r11_radius_min: 40_f64 * NANOMETRE,
-
             domain_n_voxels: Some(4),
 
             storage_name: "out/autophagy".into(),
@@ -245,12 +244,12 @@ fn generate_particle_pos_spherical(
     let middle = simulation_settings.domain_size / 2.0;
     let mut generate_position = |lower_radius: f64, upper_radius: f64| -> [f64; 3] {
         let r = rng.gen_range(lower_radius..upper_radius);
-        let phi = rng.gen_range(0.0..2.0*std::f64::consts::PI);
+        let phi = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
         let theta = rng.gen_range(0.0..std::f64::consts::PI);
         [
-            middle + r*phi.cos()*theta.sin(),
-            middle + r*phi.sin()*theta.sin(),
-            middle + r*theta.cos(),
+            middle + r * phi.cos() * theta.sin(),
+            middle + r * phi.sin() * theta.sin(),
+            middle + r * theta.cos(),
         ]
     };
     let pos = if n < simulation_settings.n_cells_cargo {
@@ -258,7 +257,7 @@ fn generate_particle_pos_spherical(
     } else {
         generate_position(
             simulation_settings.domain_r11_radius_min,
-            simulation_settings.domain_size/2.0,
+            simulation_settings.domain_size / 2.0,
         )
     };
     pos
@@ -269,7 +268,7 @@ fn test_particle_pos_config() {
     let simulation_settings = SimulationSettings::new();
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
-    for n in 0..simulation_settings.n_cells_cargo+simulation_settings.n_cells_r11 {
+    for n in 0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11 {
         let pos = generate_particle_pos_spherical(&simulation_settings, &mut rng, n);
         for i in 0..3 {
             assert!(0.0 <= pos[i]);
@@ -339,13 +338,13 @@ fn create_particle_interaction(
             simulation_settings.cell_radius_r11
         },
         simulation_settings.potential_strength_cargo_cargo, // potential_strength_cargo_cargo
-        simulation_settings.potential_strength_r11_r11,   // potential_strength_r11_r11
-        simulation_settings.potential_strength_cargo_r11, // potential_strength_cargo_r11
+        simulation_settings.potential_strength_r11_r11,     // potential_strength_r11_r11
+        simulation_settings.potential_strength_cargo_r11,   // potential_strength_cargo_r11
         simulation_settings.potential_strength_cargo_r11_avidity, // potential_strength_cargo_r11_avidity
         simulation_settings.interaction_range_cargo_cargo,        // interaction_range_cargo_cargo
         simulation_settings.interaction_range_r11_r11,            // interaction_range_r11_r11
         simulation_settings.interaction_range_r11_cargo,          // interaction_range_r11_cargo
-        simulation_settings.interaction_relative_neighbour_distance,                              // relative_neighbour_distance
+        simulation_settings.interaction_relative_neighbour_distance, // relative_neighbour_distance
     ))
 }
 
@@ -398,10 +397,7 @@ pub fn run_simulation(
                 if simulation_settings.extra_saves.contains(&n) {
                     save_here = true;
                 }
-                (
-                    n as f64 * simulation_settings.dt,
-                    save_here,
-                )
+                (n as f64 * simulation_settings.dt, save_here)
             })
             .collect(),
     };

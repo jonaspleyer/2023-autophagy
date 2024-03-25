@@ -140,10 +140,8 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
             (Species::R11, Species::R11) => {
                 let cutoff = calculate_cutoff(self.interaction_range_r11_r11);
                 Some(Ok(cutoff
-                    * (self.potential_strength_cargo_cargo
-                    * repelling_force
-                    + self.potential_strength_r11_r11
-                    * attracting_force)))
+                    * (self.potential_strength_cargo_cargo * repelling_force
+                        + self.potential_strength_r11_r11 * attracting_force)))
             }
         }
     }
@@ -160,7 +158,8 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
     ) -> Result<bool, CalcError> {
         match (&self.species, &ext_inf.2) {
             (Species::R11, Species::R11) | (Species::Cargo, Species::Cargo) => {
-                Ok((own_pos - ext_pos).norm() <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
+                Ok((own_pos - ext_pos).norm()
+                    <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
             }
             _ => Ok(false),
         }
