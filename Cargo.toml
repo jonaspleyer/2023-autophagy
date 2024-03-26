@@ -9,7 +9,7 @@ name = "cr_autophagy_pyo3"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version="0.20", features = ["extension-module"] }
+pyo3 = { version="0.21", features = ["extension-module"] }
 serde = { version="1.0", features=["rc"] }
 serde_json = { version = "1.0" }
 rand = { version="0.8", features=["small_rng"] }
