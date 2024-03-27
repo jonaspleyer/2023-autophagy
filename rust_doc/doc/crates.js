@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["cr_autophagy_pyo3"];

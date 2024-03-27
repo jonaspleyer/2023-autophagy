@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ANGSTROM","BOLTZMANN_CONSTANT","DALTON","KELVIN","NANOMETRE"],"enum":["Species"],"fn":["run_simulation"],"struct":["Particle","SimulationSettings","TypedInteraction"]};
