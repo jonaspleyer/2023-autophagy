@@ -224,12 +224,12 @@ impl TypedInteraction {
 #[derive(CellAgent, Clone, Debug, Deserialize, Serialize)]
 pub struct Particle {
     /// The [Langevin3D] motion was chosen to model mechanics of the particle movement
-    #[Mechanics(Vector3<f64>, Vector3<f64>, Vector3<f64>)]
+    #[Mechanics]
     pub mechanics: Langevin3D,
 
     /// The [TypedInteraction] assigns the [Species] to the particle and handles
     /// calculation of interactions.
-    #[Interaction(Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species))]
+    #[Interaction]
     pub interaction: TypedInteraction,
 }
 
