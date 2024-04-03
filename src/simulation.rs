@@ -366,6 +366,32 @@ fn create_particle_interaction(
 pub fn run_simulation(
     simulation_settings: SimulationSettings,
 ) -> Result<std::path::PathBuf, pyo3::PyErr> {
+    let mut simulation_settings_cargo_initials = simulation_settings.clone();
+    simulation_settings_cargo_initials.storage_name_add_date = false;
+    simulation_settings_cargo_initials.storage_name = "out/cargo_initials".into();
+    simulation_settings_cargo_initials.save_interval = simulation_settings.n_times;
+
+    // Check if folder exists
+    let mut path = std::path::PathBuf::from(&simulation_settings_cargo_initials.storage_name);
+    path.push("simulation_settings.json");
+    let cargo_initials_path = if SimulationSettings::load_from_file(path)
+        .is_ok_and(|sim_settings| sim_settings == simulation_settings_cargo_initials)
+    {
+        Ok(std::path::PathBuf::from("out/cargo_initials"))
+    } else {
+        run_simulation_single(simulation_settings_cargo_initials)
+    }?;
+
+    // Get initial values of Cargo particles
+    match run_simulation_single(simulation_settings) {
+        Ok(p) => Ok(p),
+        Err(e) => Err(SimulationError::from(e).into()),
+    }
+}
+
+fn run_simulation_single(
+    simulation_settings: SimulationSettings,
+) -> Result<std::path::PathBuf, SimulationError> {
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
     let particles = (0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11)
