@@ -1,6 +1,8 @@
 use super::particle_properties::*;
 
-use cellular_raza::prelude::*;
+use cellular_raza::core::backend::chili::*;
+use cellular_raza::building_blocks::*;
+use cellular_raza::core::storage::StorageBuilder;
 use pyo3::prelude::*;
 
 use rand::{Rng, SeedableRng};
