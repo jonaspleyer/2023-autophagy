@@ -382,12 +382,12 @@ pub fn run_simulation(
     let interaction_range_max = calculate_interaction_range_max(&simulation_settings);
 
     let domain = match simulation_settings.domain_n_voxels {
-        Some(n_voxels) => CartesianCuboid3::from_boundaries_and_n_voxels(
+        Some(n_voxels) => CartesianCuboid3New::from_boundaries_and_n_voxels(
             [0.0; 3],
             [simulation_settings.domain_size; 3],
             [n_voxels; 3],
         ),
-        None => CartesianCuboid3::from_boundaries_and_interaction_ranges(
+        None => CartesianCuboid3New::from_boundaries_and_interaction_ranges(
             [0.0; 3],
             [simulation_settings.domain_size; 3],
             [interaction_range_max; 3],
