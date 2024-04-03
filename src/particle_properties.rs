@@ -75,7 +75,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
         ext_pos: &Vector3<f64>,
         _ext_vel: &Vector3<f64>,
         ext_info: &(f64, usize, Species),
-    ) -> Option<Result<Vector3<f64>, CalcError>> {
+    ) -> Result<Vector3<f64>, CalcError> {
         // Calculate radius and direction
         let min_relative_distance_to_center = 0.3162277660168379;
         let (r, dir) =
@@ -88,7 +88,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
                 true => {
                     let dir = match own_pos == ext_pos {
                         true => {
-                            return None;
+                            return Ok([0.0; 3].into());
                         }
                         false => (own_pos - ext_pos).normalize(),
                     };
@@ -126,22 +126,22 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
                 let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
                         + (self.potential_strength_cargo_r11 + avidity) * attracting_force);
-                Some(Ok(force))
+                Ok(force)
             }
 
             // R11 forms clusters
             (Species::Cargo, Species::Cargo) => {
                 let cutoff = calculate_cutoff(self.interaction_range_cargo_cargo);
-                Some(Ok(cutoff
+                Ok(cutoff
                     * self.potential_strength_cargo_cargo
-                    * (repelling_force + attracting_force)))
+                    * (repelling_force + attracting_force))
             }
 
             (Species::R11, Species::R11) => {
                 let cutoff = calculate_cutoff(self.interaction_range_r11_r11);
-                Some(Ok(cutoff
+                Ok(cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
-                        + self.potential_strength_r11_r11 * attracting_force)))
+                        + self.potential_strength_r11_r11 * attracting_force))
             }
         }
     }
