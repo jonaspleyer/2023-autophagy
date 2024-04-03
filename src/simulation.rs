@@ -101,11 +101,11 @@ pub struct SimulationSettings {
     pub dt: f64,
 
     /// Number of intgration steps done totally.
-    pub n_times: usize,
+    pub n_times: u64,
 
     /// Specifies the frequency at which results are saved as json files.
     /// Lower the number for more saved results.
-    pub save_interval: usize,
+    pub save_interval: u64,
 
     /// Extra iterations at which the simulation should be saved
     pub extra_saves: Vec<usize>,
