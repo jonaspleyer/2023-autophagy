@@ -290,7 +290,7 @@ fn test_particle_pos_config() {
     }
 }
 
-fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> PyResult<f64> {
+fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> f64 {
     // Calculate the maximal interaction range
     let i1 = simulation_settings.interaction_range_cargo_cargo;
     let i2 = simulation_settings.interaction_range_r11_cargo;
@@ -301,14 +301,14 @@ fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> 
     let r2 = simulation_settings.cell_radius_r11;
     let rmax = r1.max(r2);
 
-    Ok(2.0 * rmax + imax)
+    2.0 * rmax + imax
 }
 
 fn create_particle_mechanics(
     simulation_settings: &SimulationSettings,
     rng: &mut ChaCha8Rng,
     n: usize,
-) -> PyResult<Langevin3D> {
+) -> Langevin3D {
     let pos = generate_particle_pos_spherical(simulation_settings, rng, n);
     let mass = if n < simulation_settings.n_cells_cargo {
         simulation_settings.mass_cargo
@@ -325,21 +325,21 @@ fn create_particle_mechanics(
     } else {
         simulation_settings.kb_temperature_r11
     };
-    Ok(Langevin3D::new(
+    Langevin3D::new(
         pos,
         [0.0; 3].into(),
         mass,
         damping,
         kb_temperature,
         simulation_settings.update_interval,
-    ))
+    )
 }
 
 fn create_particle_interaction(
     simulation_settings: &SimulationSettings,
     n: usize,
-) -> PyResult<TypedInteraction> {
-    Ok(TypedInteraction::new(
+) -> TypedInteraction {
+    TypedInteraction::new(
         if n < simulation_settings.n_cells_cargo {
             Species::Cargo
         } else {
@@ -358,7 +358,7 @@ fn create_particle_interaction(
         simulation_settings.interaction_range_r11_r11,            // interaction_range_r11_r11
         simulation_settings.interaction_range_r11_cargo,          // interaction_range_r11_cargo
         simulation_settings.interaction_relative_neighbour_distance, // relative_neighbour_distance
-    ))
+    )
 }
 
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output directory.
@@ -370,16 +370,16 @@ pub fn run_simulation(
 
     let particles = (0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11)
         .map(|n| {
-            let mechanics = create_particle_mechanics(&simulation_settings, &mut rng, n)?;
-            let interaction = create_particle_interaction(&simulation_settings, n)?;
-            Ok(Particle {
+            let mechanics = create_particle_mechanics(&simulation_settings, &mut rng, n);
+            let interaction = create_particle_interaction(&simulation_settings, n);
+            Particle {
                 mechanics,
                 interaction,
-            })
+            }
         })
-        .collect::<Result<Vec<_>, pyo3::PyErr>>()?;
+        .collect::<Vec<_>>();
 
-    let interaction_range_max = calculate_interaction_range_max(&simulation_settings)?;
+    let interaction_range_max = calculate_interaction_range_max(&simulation_settings);
 
     let domain = match simulation_settings.domain_n_voxels {
         Some(n_voxels) => CartesianCuboid3::from_boundaries_and_n_voxels(
@@ -392,33 +392,7 @@ pub fn run_simulation(
             [simulation_settings.domain_size; 3],
             [interaction_range_max; 3],
         ),
-    }
-    .or_else(|e| {
-        Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
-            format!("Rust error in construction of simulation domain: {e}"),
-        ))
-    })?;
-
-    let time = TimeSetup {
-        t_start: 0.0,
-        t_eval: (0..simulation_settings.n_times)
-            .map(|n| {
-                let mut save_here = false;
-                if n % simulation_settings.save_interval == 0 {
-                    save_here = true;
-                }
-                if simulation_settings.extra_saves.contains(&n) {
-                    save_here = true;
-                }
-                (n as f64 * simulation_settings.dt, save_here)
-            })
-            .collect(),
-    };
-
-    let meta_params = SimulationMetaParams {
-        n_threads: simulation_settings.n_threads,
-        ..Default::default()
-    };
+    }?;
 
     let storage = StorageConfig::from_path(std::path::Path::new(&simulation_settings.storage_name))
         .add_date(simulation_settings.storage_name_add_date);
