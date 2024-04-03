@@ -394,26 +394,29 @@ pub fn run_simulation(
         ),
     }?;
 
-    let storage = StorageConfig::from_path(std::path::Path::new(&simulation_settings.storage_name))
-        .add_date(simulation_settings.storage_name_add_date);
+    let time = cellular_raza::core::time::FixedStepsize::from_partial_save_steps(
+        0.0,
+        simulation_settings.dt,
+        simulation_settings.n_times,
+        simulation_settings.save_interval,
+    )?;
 
-    let simulation_setup = create_simulation_setup!(
-        Domain: domain,
-        Cells: particles,
-        Time: time,
-        MetaParams: meta_params,
-        Storage: storage
-    );
+    use cellular_raza::core::backend::chili;
 
-    let mut supervisor = SimulationSupervisor::initialize_from_setup(simulation_setup);
-    supervisor.config.show_progressbar = simulation_settings.show_progressbar;
+    let storage = StorageBuilder::new().location(simulation_settings.storage_name);
 
-    save_simulation_settings(&supervisor.storage.get_location(), &simulation_settings)?;
+    let settings = chili::Settings {
+        n_threads: simulation_settings.n_threads.try_into().unwrap(),
+        time,
+        storage,
+        show_progressbar: simulation_settings.show_progressbar,
+    };
 
-    let simulation_result = supervisor.run_full_sim().or_else(|e| {
-        Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
-            format!("Rust error in simulation run: {e}"),
-        ))
-    })?;
-    Ok(simulation_result.storage.get_location())
+    let storage = chili::run_simulation!(
+        agents: particles,
+        domain: domain,
+        settings: settings,
+        aspects: [Mechanics, Interaction],
+    )?;
+    todo!()
 }
