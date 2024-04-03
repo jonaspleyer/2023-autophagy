@@ -34,7 +34,7 @@ pub const KELVIN: f64 = 1.0;
 /// that can influence the results of our simulation.
 /// Not all settings do make sense and some combinations can lead
 /// to numerical integration problems.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[pyclass(get_all, set_all)]
 pub struct SimulationSettings {
     /// Number of cargo particles in the simulation.
