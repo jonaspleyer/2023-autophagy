@@ -251,6 +251,7 @@ fn save_simulation_settings(
     save_path.push("simulation_settings.json");
     let f = std::fs::File::create(save_path)?;
     let writer = std::io::BufWriter::new(f);
+    serde_json::to_writer_pretty(writer, &simulation_settings)?;
     Ok(())
 }
 
