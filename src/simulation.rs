@@ -240,6 +240,12 @@ impl SimulationSettings {
         })?;
         Ok(settings)
     }
+
+    /// Saves the object to a file at the given path
+    pub fn save_to_file(&self, path: std::path::PathBuf) -> PyResult<()> {
+        save_simulation_settings(&path, &self)?;
+        Ok(())
+    }
 }
 
 fn save_simulation_settings(
