@@ -470,6 +470,10 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
     }
 }
 
+chili::prepare_types!(
+    aspects: [Mechanics, Interaction]
+);
+
 fn run_simulation_single(
     simulation_settings: SimulationSettings,
 ) -> Result<std::path::PathBuf, SimulationError> {
@@ -519,7 +523,13 @@ fn run_simulation_single(
         show_progressbar: simulation_settings.show_progressbar,
     };
 
-    let storage = chili::run_simulation!(
+    chili::test_compatibility!(
+        agents: particles,
+        domain: domain,
+        settings: settings,
+        aspects: [Mechanics, Interaction]
+    );
+    chili::run_main!(
         agents: particles,
         domain: domain,
         settings: settings,
