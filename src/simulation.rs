@@ -321,8 +321,12 @@ fn create_particle_mechanics(
     simulation_settings: &SimulationSettings,
     rng: &mut ChaCha8Rng,
     n: usize,
+    position: Option<Vector3<f64>>,
 ) -> Langevin3D {
-    let pos = generate_particle_pos_spherical(simulation_settings, rng, n);
+    let pos = match position {
+        Some(pos) => pos.into(),
+        None => generate_particle_pos_spherical(simulation_settings, rng, n),
+    };
     let mass = if n < simulation_settings.n_cells_cargo {
         simulation_settings.mass_cargo
     } else {
