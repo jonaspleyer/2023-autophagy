@@ -473,6 +473,12 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
     }
 }
 
+fn construct_storage_builder(simulation_settings: &SimulationSettings) -> StorageBuilder {
+    StorageBuilder::new()
+        .location(simulation_settings.storage_name.clone())
+        .priority([cellular_raza::core::storage::StorageOption::SerdeJson])
+}
+
 chili::prepare_types!(
     aspects: [Mechanics, Interaction]
 );
