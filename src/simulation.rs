@@ -373,6 +373,76 @@ fn create_particle_interaction(
     )
 }
 
+///
+#[pyclass]
+#[derive(Clone)]
+pub struct Storager {
+    manager: StorageManager<
+        chili::CellIdentifier,
+        (
+            chili::CellBox<Particle>,
+            _CrAuxStorage<Vector3<f64>, Vector3<f64>, Vector3<f64>, f64, 2>,
+        ),
+    >,
+}
+
+#[pymethods]
+impl Storager {
+    fn load_all_particles_at_iteration(
+        &self,
+        iteration: u64,
+    ) -> PyResult<std::collections::HashMap<chili::CellIdentifier, Particle>> {
+        Ok(self
+            .manager
+            .load_all_elements_at_iteration(iteration)
+            .or_else(|e| Err(chili::SimulationError::from(e)))?
+            .into_iter()
+            .map(|(x, (y, _))| (x, y.cell))
+            .collect())
+    }
+
+    fn load_all_particles(
+        &self,
+    ) -> PyResult<
+        std::collections::HashMap<u64, std::collections::HashMap<chili::CellIdentifier, Particle>>,
+    > {
+        Ok(self
+            .manager
+            .load_all_elements()
+            .or_else(|e| Err(chili::SimulationError::from(e)))?
+            .into_iter()
+            .map(|(x, particles)| {
+                (
+                    x,
+                    particles
+                        .into_iter()
+                        .map(|(px, (py, _))| (px, py.cell))
+                        .collect(),
+                )
+            })
+            .collect())
+    }
+
+    fn get_all_iterations(&self) -> PyResult<Vec<u64>> {
+        Ok(self
+            .manager
+            .get_all_iterations()
+            .or_else(|e| Err(chili::SimulationError::from(e)))?)
+    }
+
+    fn load_single_element(
+        &self,
+        iteration: u64,
+        identifier: chili::CellIdentifier,
+    ) -> PyResult<Option<Particle>> {
+        Ok(self
+            .manager
+            .load_single_element(iteration, &identifier)
+            .or_else(|e| Err(chili::SimulationError::from(e)))?
+            .and_then(|p| Some(p.0.cell)))
+    }
+}
+
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output directory.
 #[pyfunction]
 pub fn run_simulation(
