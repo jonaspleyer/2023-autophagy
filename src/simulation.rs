@@ -531,11 +531,13 @@ fn run_simulation_single(
         settings: settings,
         aspects: [Mechanics, Interaction]
     );
-    chili::run_main!(
+    let storage_accesss: chili::StorageAccess<_, _> = chili::run_main!(
         agents: particles,
         domain: domain,
         settings: settings,
         aspects: [Mechanics, Interaction],
     )?;
-    todo!()
+    Ok(Storager {
+        manager: storage_accesss.cells,
+    })
 }
