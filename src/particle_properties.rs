@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// We currently only distinguish between the cargo itself
 /// and freely moving combinations of the receptor and ATG11.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[pyclass]
+#[pyclass(set_all, get_all)]
 pub enum Species {
     /// Cargo particle
     Cargo,
@@ -220,7 +220,7 @@ impl TypedInteraction {
 }
 
 /// Cargo or R11 particle depending on the [Species] of the interaction field.
-#[pyclass]
+#[pyclass(get_all, set_all)]
 #[derive(CellAgent, Clone, Debug, Deserialize, Serialize)]
 pub struct Particle {
     /// The [Langevin3D] motion was chosen to model mechanics of the particle movement
