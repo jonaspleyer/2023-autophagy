@@ -467,12 +467,21 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
             .or_else(|e| Err(chili::SimulationError::from(e)))?;
         Storager { manager }
     } else {
-        run_simulation_single(simulation_settings_cargo_initials)?
+        run_simulation_single::<Vec<_>>(simulation_settings_cargo_initials, None)?
+    };
+
+    let cargo_initials_positions = {
+        let iterations = cargo_initials_storager.get_all_iterations()?;
+        let max_iter = iterations.into_iter().max().unwrap();
+        let cells_last_iter = cargo_initials_storager.load_all_particles_at_iteration(max_iter)?;
+        cells_last_iter
+            .into_iter()
+            .map(|(_, cell)| cell.mechanics.pos)
     };
 
     // TODO Get initial values of Cargo particles
 
-    run_simulation_single(simulation_settings)
+    run_simulation_single(simulation_settings, Some(cargo_initials_positions))
         .or_else(|e| Err(PyErr::from(chili::SimulationError::from(e))))
 }
 
