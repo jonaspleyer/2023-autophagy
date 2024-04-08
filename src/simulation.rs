@@ -216,12 +216,17 @@ impl SimulationSettings {
         }
     }
 
-    fn __repr__(&self) -> String {
+    /// Formats the object
+    pub fn __repr__(&self) -> String {
         format!("{:#?}", self)
     }
 
+    /// Loads the settings from an existing path.
+    ///
+    /// Will fail if the given path is invalid or the given json file does not match memory layout
+    /// of this object.
     #[staticmethod]
-    fn load_from_file(path: std::path::PathBuf) -> PyResult<Self> {
+    pub fn load_from_file(path: std::path::PathBuf) -> PyResult<Self> {
         let file = std::fs::File::open(path).or_else(|e| {
             Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 format!("serde_json error in loading simulation settings from file: {e}"),
