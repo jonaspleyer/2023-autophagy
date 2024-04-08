@@ -455,13 +455,16 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
     // Check if folder exists
     let mut path = std::path::PathBuf::from(&simulation_settings_cargo_initials.storage_name);
     path.push("simulation_settings.json");
-    let cargo_initials_path = if SimulationSettings::load_from_file(path)
+    let cargo_initials_storager: Storager = if SimulationSettings::load_from_file(path)
         .is_ok_and(|sim_settings| sim_settings == simulation_settings_cargo_initials)
     {
-        Ok(std::path::PathBuf::from("out/cargo_initials"))
+        let storage_builder = construct_storage_builder(&simulation_settings);
+        let manager = cellular_raza::core::storage::StorageManager::construct(&storage_builder, 0)
+            .or_else(|e| Err(chili::SimulationError::from(e)))?;
+        Storager { manager }
     } else {
-        run_simulation_single(simulation_settings_cargo_initials)
-    }?;
+        run_simulation_single(simulation_settings_cargo_initials)?
+    };
 
     // Get initial values of Cargo particles
     match run_simulation_single(simulation_settings) {
