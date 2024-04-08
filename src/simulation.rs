@@ -466,11 +466,10 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
         run_simulation_single(simulation_settings_cargo_initials)?
     };
 
-    // Get initial values of Cargo particles
-    match run_simulation_single(simulation_settings) {
-        Ok(p) => Ok(p),
-        Err(e) => Err(SimulationError::from(e).into()),
-    }
+    // TODO Get initial values of Cargo particles
+
+    run_simulation_single(simulation_settings)
+        .or_else(|e| Err(PyErr::from(chili::SimulationError::from(e))))
 }
 
 fn construct_storage_builder(simulation_settings: &SimulationSettings) -> StorageBuilder {
