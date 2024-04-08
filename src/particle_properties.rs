@@ -220,6 +220,7 @@ impl TypedInteraction {
 }
 
 /// Cargo or R11 particle depending on the [Species] of the interaction field.
+#[pyclass]
 #[derive(CellAgent, Clone, Debug, Deserialize, Serialize)]
 pub struct Particle {
     /// The [Langevin3D] motion was chosen to model mechanics of the particle movement
