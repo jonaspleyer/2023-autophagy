@@ -245,7 +245,7 @@ impl SimulationSettings {
 fn save_simulation_settings(
     path: &std::path::PathBuf,
     simulation_settings: &SimulationSettings,
-) -> Result<(), cellular_raza::core::storage::StorageError> {
+) -> Result<(), std::io::Error> {
     // Also save the SimulationSettings into the same folder
     let mut save_path = path.clone();
     save_path.push("simulation_settings.json");
