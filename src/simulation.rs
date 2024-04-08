@@ -476,7 +476,7 @@ chili::prepare_types!(
 
 fn run_simulation_single(
     simulation_settings: SimulationSettings,
-) -> Result<std::path::PathBuf, SimulationError> {
+) -> Result<Storager, chili::SimulationError> {
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
     let particles = (0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11)
