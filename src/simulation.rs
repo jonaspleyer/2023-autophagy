@@ -456,6 +456,7 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
         let mut sim_settings_cargo_initials = simulation_settings.clone();
         sim_settings_cargo_initials.storage_name_add_date = false;
         sim_settings_cargo_initials.storage_name = "out/cargo_initials".into();
+        sim_settings_cargo_initials.storage_name_add_date = false;
         sim_settings_cargo_initials.save_interval = simulation_settings.n_times;
         sim_settings_cargo_initials
     };
