@@ -448,7 +448,8 @@ impl Storager {
     }
 }
 
-/// Takes [SimulationSettings], runs the full simulation and returns the string of the output directory.
+/// Takes [SimulationSettings], runs the full simulation and returns the string of the output
+/// directory.
 #[pyfunction]
 pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storager, pyo3::PyErr> {
     let simulation_settings_cargo_initials = {
