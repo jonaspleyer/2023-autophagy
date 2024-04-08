@@ -522,9 +522,7 @@ fn run_simulation_single(
         simulation_settings.save_interval,
     )?;
 
-    use cellular_raza::core::backend::chili;
-
-    let storage = StorageBuilder::new().location(simulation_settings.storage_name);
+    let storage = construct_storage_builder(&simulation_settings);
 
     let settings = chili::Settings {
         n_threads: simulation_settings.n_threads.try_into().unwrap(),
