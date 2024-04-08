@@ -451,10 +451,13 @@ impl Storager {
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output directory.
 #[pyfunction]
 pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storager, pyo3::PyErr> {
-    let mut simulation_settings_cargo_initials = simulation_settings.clone();
-    simulation_settings_cargo_initials.storage_name_add_date = false;
-    simulation_settings_cargo_initials.storage_name = "out/cargo_initials".into();
-    simulation_settings_cargo_initials.save_interval = simulation_settings.n_times;
+    let simulation_settings_cargo_initials = {
+        let mut sim_settings_cargo_initials = simulation_settings.clone();
+        sim_settings_cargo_initials.storage_name_add_date = false;
+        sim_settings_cargo_initials.storage_name = "out/cargo_initials".into();
+        sim_settings_cargo_initials.save_interval = simulation_settings.n_times;
+        sim_settings_cargo_initials
+    };
 
     // Check if folder exists
     let mut path = std::path::PathBuf::from(&simulation_settings_cargo_initials.storage_name);
