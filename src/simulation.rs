@@ -482,8 +482,6 @@ chili::prepare_types!(
     aspects: [Mechanics, Interaction]
 );
 
-type MyAuxStorage = _CrAuxStorage<Vector3<f64>, Vector3<f64>, Vector3<f64>, f64, 2>;
-
 fn run_simulation_single(
     simulation_settings: SimulationSettings,
 ) -> Result<Storager, chili::SimulationError> {
