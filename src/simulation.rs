@@ -479,8 +479,6 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
             .map(|(_, cell)| cell.mechanics.pos)
     };
 
-    // TODO Get initial values of Cargo particles
-
     run_simulation_single(simulation_settings, Some(cargo_initials_positions))
         .or_else(|e| Err(PyErr::from(chili::SimulationError::from(e))))
 }
@@ -495,21 +493,52 @@ chili::prepare_types!(
     aspects: [Mechanics, Interaction]
 );
 
-fn run_simulation_single(
+// TODO cann we modularize this function even more?
+fn run_simulation_single<I>(
     simulation_settings: SimulationSettings,
-) -> Result<Storager, chili::SimulationError> {
+    cargo_positions: Option<I>,
+) -> Result<Storager, chili::SimulationError>
+where
+    I: IntoIterator<Item = Vector3<f64>>,
+    <I as IntoIterator>::IntoIter: ExactSizeIterator,
+{
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
-    let particles = (0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11)
-        .map(|n| {
-            let mechanics = create_particle_mechanics(&simulation_settings, &mut rng, n);
-            let interaction = create_particle_interaction(&simulation_settings, n);
-            Particle {
-                mechanics,
-                interaction,
-            }
-        })
-        .collect::<Vec<_>>();
+    let particles = match cargo_positions {
+        // Cargo positions were given -> Use them in our simulation
+        Some(positions) => {
+            let mut positions = positions.into_iter();
+            let n_positions = positions.len();
+            (0..n_positions + simulation_settings.n_cells_r11)
+                .map(|n| {
+                    let pos = positions.next();
+                    let mechanics =
+                        create_particle_mechanics(&simulation_settings, &mut rng, n, pos);
+                    let interaction = create_particle_interaction(&simulation_settings, n);
+                    Particle {
+                        mechanics,
+                        interaction,
+                    }
+                })
+                .collect::<Vec<_>>()
+        }
+        // Cargo positions were not given -> calculate them without putting R11 particles in there
+        None => {
+            let mut simulation_settings_new = simulation_settings.clone();
+            simulation_settings_new.n_cells_r11 = 0;
+            (0..simulation_settings_new.n_cells_cargo)
+                .map(|n| {
+                    let mechanics =
+                        create_particle_mechanics(&simulation_settings_new, &mut rng, n, None);
+                    let interaction = create_particle_interaction(&simulation_settings_new, n);
+                    Particle {
+                        mechanics,
+                        interaction,
+                    }
+                })
+                .collect::<Vec<_>>()
+        }
+    };
 
     let interaction_range_max = calculate_interaction_range_max(&simulation_settings);
 
