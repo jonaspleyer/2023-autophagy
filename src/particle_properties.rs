@@ -35,11 +35,6 @@ pub struct TypedInteraction {
     /// Attracting potential strength between individual Cargo and R11 particles
     pub potential_strength_cargo_r11: f64,
 
-    /// Attracting potential strength between multiple Cargo and R11 particles known as avidity.
-    /// This mechanism only comes into effect when multiple
-    /// neighbours are present around the two particles.
-    pub potential_strength_cargo_r11_avidity: f64,
-
     /// The interaction range (beyond size of the particles) between Cargo particles
     pub interaction_range_cargo_cargo: f64,
 
@@ -48,23 +43,9 @@ pub struct TypedInteraction {
 
     /// The interaction range (beyond size of the particles) between Cargo and R11 particles
     pub interaction_range_r11_cargo: f64,
-
-    /// Distance at which other particles of the same species are regarded as neighbours.
-    pub relative_neighbour_distance: f64,
-
-    /// Number of particles currently present which are considered to be neighbours.
-    neighbour_count: usize,
 }
 
-fn calculate_avidity(own_neighbour_count: usize, ext_neighbour_count: usize) -> f64 {
-    let n = 6.0;
-    let alpha = 4.0;
-    let nc = own_neighbour_count.min(ext_neighbour_count);
-    let s = (nc as f64 / alpha).powf(n) / (1.0 + (nc as f64 / alpha).powf(n));
-    s
-}
-
-impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)>
+impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)>
     for TypedInteraction
 {
     fn calculate_force_between(
@@ -73,7 +54,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
         _own_vel: &Vector3<f64>,
         ext_pos: &Vector3<f64>,
         _ext_vel: &Vector3<f64>,
-        ext_info: &(f64, usize, Species),
+        ext_info: &(f64, Species),
     ) -> Result<Vector3<f64>, CalcError> {
         // Calculate radius and direction
         let min_relative_distance_to_center = 0.3162277660168379;
@@ -95,7 +76,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
                     (r, dir)
                 }
             };
-        let (ext_radius, ext_neighbour_count, ext_species) = ext_info;
+        let (ext_radius, ext_species) = ext_info;
         // Introduce Non-dimensional length variable
         let sigma = r / (self.cell_radius + ext_radius);
         let bound = 4.0 + 1.0 / sigma;
@@ -119,8 +100,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
         match (ext_species, &self.species) {
             // R11 will bind to cargo
             (Species::Cargo, Species::R11) | (Species::R11, Species::Cargo) => {
-                let avidity = self.potential_strength_cargo_r11_avidity
-                    * calculate_avidity(self.neighbour_count, *ext_neighbour_count);
+                let avidity = self.potential_strength_cargo_r11_avidity;
                 let cutoff = calculate_cutoff(self.interaction_range_r11_cargo);
                 let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
@@ -142,36 +122,10 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, usize, Species)
                     * (self.potential_strength_cargo_cargo * repelling_force
                         + self.potential_strength_r11_r11 * attracting_force))
             }
-        }
     }
 
-    fn get_interaction_information(&self) -> (f64, usize, Species) {
-        (self.cell_radius, self.neighbour_count, self.species.clone())
-    }
-
-    fn is_neighbour(
-        &self,
-        own_pos: &Vector3<f64>,
-        ext_pos: &Vector3<f64>,
-        ext_inf: &(f64, usize, Species),
-    ) -> Result<bool, CalcError> {
-        match (&self.species, &ext_inf.2) {
-            (Species::R11, Species::R11) | (Species::Cargo, Species::Cargo) => {
-                Ok((own_pos - ext_pos).norm()
-                    <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
-            }
-            _ => Ok(false),
-        }
-    }
-
-    fn react_to_neighbours(&mut self, neighbours: usize) -> Result<(), CalcError> {
-        Ok(self.neighbour_count = neighbours)
-    }
-}
-
-impl Volume for Particle {
-    fn get_volume(&self) -> f64 {
-        1.0
+    fn get_interaction_information(&self) -> (f64, Species) {
+        (self.cell_radius, self.species.clone())
     }
 }
 
@@ -184,11 +138,9 @@ impl TypedInteraction {
         potential_strength_cargo_cargo,
         potential_strength_r11_r11,
         potential_strength_cargo_r11,
-        potential_strength_cargo_r11_avidity,
         interaction_range_cargo_cargo,
         interaction_range_r11_r11,
         interaction_range_r11_cargo,
-        relative_neighbour_distance,
     ))]
     /// Constructs a new TypedInteraction
     pub fn new(
@@ -197,11 +149,9 @@ impl TypedInteraction {
         potential_strength_cargo_cargo: f64,
         potential_strength_r11_r11: f64,
         potential_strength_cargo_r11: f64,
-        potential_strength_cargo_r11_avidity: f64,
         interaction_range_cargo_cargo: f64,
         interaction_range_r11_r11: f64,
         interaction_range_r11_cargo: f64,
-        relative_neighbour_distance: f64,
     ) -> Self {
         Self {
             species,
@@ -209,12 +159,9 @@ impl TypedInteraction {
             potential_strength_cargo_cargo,
             potential_strength_r11_r11,
             potential_strength_cargo_r11,
-            potential_strength_cargo_r11_avidity,
             interaction_range_cargo_cargo,
             interaction_range_r11_r11,
             interaction_range_r11_cargo,
-            relative_neighbour_distance,
-            neighbour_count: 0,
         }
     }
 }
