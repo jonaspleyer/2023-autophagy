@@ -349,9 +349,9 @@ fn create_particle_interaction(
         simulation_settings.potential_strength_cargo_cargo, // potential_strength_cargo_cargo
         simulation_settings.potential_strength_r11_r11,     // potential_strength_r11_r11
         simulation_settings.potential_strength_cargo_r11,   // potential_strength_cargo_r11
-        simulation_settings.interaction_range_cargo_cargo,        // interaction_range_cargo_cargo
-        simulation_settings.interaction_range_r11_r11,            // interaction_range_r11_r11
-        simulation_settings.interaction_range_r11_cargo,          // interaction_range_r11_cargo
+        simulation_settings.interaction_range_cargo_cargo,  // interaction_range_cargo_cargo
+        simulation_settings.interaction_range_r11_r11,      // interaction_range_r11_r11
+        simulation_settings.interaction_range_r11_cargo,    // interaction_range_r11_cargo
     )
 }
 
@@ -475,13 +475,14 @@ fn construct_storage_builder(simulation_settings: &SimulationSettings) -> Storag
     StorageBuilder::new()
         .location(simulation_settings.storage_name.clone())
         .priority([cellular_raza::core::storage::StorageOption::SerdeJson])
+        .add_date(simulation_settings.storage_name_add_date)
 }
 
 chili::prepare_types!(
     aspects: [Mechanics, Interaction]
 );
 
-// TODO cann we modularize this function even more?
+// TODO can we modularize this function even more?
 fn run_simulation_single<I>(
     simulation_settings: SimulationSettings,
     cargo_positions: Option<I>,
@@ -565,13 +566,13 @@ where
         settings: settings,
         aspects: [Mechanics, Interaction]
     );
-    let storage_accesss: chili::StorageAccess<_, _> = chili::run_main!(
+    let storage_access: chili::StorageAccess<_, _> = chili::run_main!(
         agents: particles,
         domain: domain,
         settings: settings,
         aspects: [Mechanics, Interaction],
     )?;
     Ok(Storager {
-        manager: storage_accesss.cells,
+        manager: storage_access.cells,
     })
 }
