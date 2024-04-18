@@ -370,6 +370,25 @@ pub struct Storager {
 
 #[pymethods]
 impl Storager {
+    /// Construct a [Storager] from the given path.
+    #[staticmethod]
+    pub fn from_path(path: std::path::PathBuf, date: Option<std::path::PathBuf>) -> PyResult<Self> {
+        let simulation_settings = SimulationSettings::load_from_file(path.join(SIM_SETTINGS))?;
+        let builder = construct_storage_builder(&simulation_settings).suffix("cells");
+        let manager = match date {
+            Some(date) => {
+                let builder = builder.init_with_date(&date);
+                StorageManager::open_or_create(builder, 0)
+            }
+            None => {
+                let builder = builder.add_date(false).init();
+                StorageManager::open_or_create(builder, 0)
+            }
+        }
+        .or_else(|e| Err(chili::SimulationError::from(e)))?;
+        Ok(Storager { manager })
+    }
+
     fn load_all_particles_at_iteration(
         &self,
         iteration: u64,
