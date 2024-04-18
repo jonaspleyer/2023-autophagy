@@ -120,9 +120,9 @@ def get_clusters_graph(output_path, iteration, connection_distance=2.0):
     # Get particles at specified iteration
     df = get_particles_at_iter(output_path, iteration)
 
-    cargo_positions = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_positions = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
     cargo_positions = np.array([np.array(elem) for elem in cargo_positions])
-    non_cargo_positions = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_positions = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     non_cargo_positions = np.array([np.array(elem) for elem in non_cargo_positions])
 
     # Set max distance at which two cells are considered part of same cluster
@@ -284,12 +284,12 @@ def calculate_kernel_densities(
     df_cells = get_particles_at_iter(output_path, iteration)
     positions_cargo = np.array([x
         for x in df_cells[
-            df_cells["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"
+            df_cells["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"
         ]
     ])
     positions_r11 = np.array([x
         for x in df_cells[
-            df_cells["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"
+            df_cells["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"
         ]
     ])
 

@@ -51,6 +51,7 @@ def _combine_batches(run_directory):
     for batch_file in os.listdir(run_directory):
         f = open(run_directory / batch_file)
         b = json.load(f)["data"]
+        b = [bi["element"][0] for bi in b]
         combined_batch.extend(b)
     return combined_batch
 
@@ -59,7 +60,7 @@ def get_particles_at_iter(output_path: Path, iteration) -> pd.DataFrame:
     """
     Loads particles at a specified iteration.
     """
-    dir = Path(output_path) / "cell_storage/json"
+    dir = Path(output_path) / "cells/json"
     run_directory = None
     for x in os.listdir(dir):
         if int(x) == iteration:
@@ -68,9 +69,8 @@ def get_particles_at_iter(output_path: Path, iteration) -> pd.DataFrame:
     if run_directory != None:
         df = pd.json_normalize(_combine_batches(run_directory))
         df["identifier"] = df["identifier"].apply(lambda x: tuple(x))
-        df["element.cell.mechanics.pos"] = df["element.cell.mechanics.pos"].apply(lambda x: np.array(x, dtype=float))
-        df["element.cell.mechanics.vel"] = df["element.cell.mechanics.vel"].apply(lambda x: np.array(x, dtype=float))
-        df["element.cell.mechanics.random_vector"] = df["element.cell.mechanics.random_vector"].apply(lambda x: np.array(x))
+        df["cell.mechanics.pos"] = df["cell.mechanics.pos"].apply(lambda x: np.array(x, dtype=float))
+        df["cell.mechanics.random_vector"] = df["cell.mechanics.random_vector"].apply(lambda x: np.array(x))
         return df
     else:
         raise ValueError(f"Could not find iteration {iteration} in saved results")
@@ -80,7 +80,7 @@ def get_all_iterations(output_path: Path) -> list:
     """
     Get all iterations that the simulation has produced for a given output path.
     """
-    return sorted([int(x) for x in os.listdir(Path(output_path) / "cell_storage/json")])
+    return sorted([int(x) for x in os.listdir(Path(output_path) / "cells/json")])
 
 
 def __iter_to_cells(iteration_dir):
@@ -93,7 +93,7 @@ def get_particles_at_all_iterations(output_path: Path, threads:int=1)->list:
     Get all particles for every possible iteration step of the simulation run.
     This process can be parallelized if desired.
     """
-    dir = Path(output_path) / "cell_storage/json/"
+    dir = Path(output_path) / "cells/json/"
     runs = [(x, dir) for x in os.listdir(dir)]
     pool = mp.Pool(threads)
     result = list(pool.map(__iter_to_cells, runs[:10]))

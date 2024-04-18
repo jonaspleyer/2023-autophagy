@@ -18,19 +18,17 @@ def _generate_spheres(output_path: Path, iteration):
     # df = df[df["iteration"]==iteration]
 
     # Create a dataset for pyvista for plotting
-    pos_cargo = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
-    pos_r11 = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    pos_cargo = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
+    pos_r11 = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     pset_cargo = pv.PolyData(np.array([np.array(x) for x in pos_cargo]))
     pset_r11 = pv.PolyData(np.array([np.array(x) for x in pos_r11]))
 
     # Extend dataset by species and diameter
-    pset_cargo.point_data["diameter"] = 2.0*df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.interaction.cell_radius"]
-    pset_cargo.point_data["species"] = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.interaction.species"]
-    pset_cargo.point_data["neighbour_count1"] = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.interaction.neighbour_count"]
+    pset_cargo.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.cell_radius"]
+    pset_cargo.point_data["species"] = df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.species"]
 
-    pset_r11.point_data["diameter"] = 2.0*df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.interaction.cell_radius"]
-    pset_r11.point_data["species"] = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.interaction.species"]
-    pset_r11.point_data["neighbour_count2"] = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.interaction.neighbour_count"]
+    pset_r11.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.cell_radius"]
+    pset_r11.point_data["species"] = df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.species"]
 
     # Create spheres glyphs from dataset
     sphere = pv.Sphere()
@@ -132,9 +130,9 @@ def save_all_snapshots(output_path: Path, threads=1, show_bar=True):
 def save_scatter_snapshot(output_path: Path, iteration):
     df = get_particles_at_iter(output_path, iteration)
 
-    cargo_at_end = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_at_end = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
     cargo_at_end = np.array([np.array(elem) for elem in cargo_at_end])
-    non_cargo_at_end = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_at_end = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     non_cargo_at_end = np.array([np.array(elem) for elem in non_cargo_at_end])
     cargo_middle = np.average(non_cargo_at_end, axis=0)
 
@@ -197,9 +195,9 @@ def save_cluster_information_plots(output_path, iteration, connection_distance=2
     # Get particles at specified iteration
     df = get_particles_at_iter(output_path, iteration)
 
-    cargo_positions = df[df["element.cell.interaction.species"]=="Cargo"]["element.cell.mechanics.pos"]
+    cargo_positions = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
     cargo_positions = np.array([np.array(elem) for elem in cargo_positions])
-    non_cargo_positions = df[df["element.cell.interaction.species"]!="Cargo"]["element.cell.mechanics.pos"]
+    non_cargo_positions = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     non_cargo_positions = np.array([np.array(elem) for elem in non_cargo_positions])
 
     # Set max distance at which two cells are considered part of same cluster
