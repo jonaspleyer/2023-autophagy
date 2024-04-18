@@ -170,7 +170,7 @@ impl TypedInteraction {
 pub struct Particle {
     /// The [Langevin3D] motion was chosen to model mechanics of the particle movement
     #[Mechanics]
-    pub mechanics: Langevin3D,
+    pub mechanics: Brownian3D,
 
     /// The [TypedInteraction] assigns the [Species] to the particle and handles
     /// calculation of interactions.

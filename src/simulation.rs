@@ -50,17 +50,8 @@ pub struct SimulationSettings {
     /// Radius of the R11 particles
     pub cell_radius_r11: f64,
 
-    /// Mass of the Cargo particles
-    pub mass_cargo: f64,
-
-    /// Mass of the R11 particles
-    pub mass_r11: f64,
-
-    /// Damping constant of the Cargo particles of the Langevin mechanics model.
-    pub damping_cargo: f64,
-
-    /// Damping constant of the R11 particles of the Langevin mechanics model.
-    pub damping_r11: f64,
+    /// Diffusion as given in the [Brownian3D] struct.
+    pub diffusion_r11: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
     /// Langevin mechanics model for Cargo particles.
@@ -154,27 +145,21 @@ impl SimulationSettings {
 
         // TODO for the future
         // let mass_r11 = 135002.0 * DALTON;
-        let mass_r11 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_r11.powf(3.0);
-        let mass_cargo = 3.0 * mass_r11;
+        // let mass_r11 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_r11.powf(3.0);
+        // let mass_cargo = 3.0 * mass_r11;
         let cell_radius_cargo: f64 = 1.0 * cell_radius_r11;
         let dt = 1.0;
 
         SimulationSettings {
-            // n_cells_cargo: 200,
-            // n_cells_r11: 200,
-            n_cells_cargo: 420,
-            n_cells_r11: 55,
-
+            n_cells_cargo: 200,
+            n_cells_r11: 200,
             cell_radius_cargo,
             cell_radius_r11,
 
-            mass_cargo,
-            mass_r11,
 
-            damping_cargo: 1.5,
-            damping_r11: 1.5,
+            diffusion_r11: 0.003 / 1.5,
 
-            kb_temperature_cargo: 0.0,
+            kb_temperature_cargo: 0.1,
             kb_temperature_r11: 0.003,
 
             update_interval: 5,
@@ -322,31 +307,24 @@ fn create_particle_mechanics(
     rng: &mut ChaCha8Rng,
     n: usize,
     position: Option<Vector3<f64>>,
-) -> Langevin3D {
+) -> Brownian3D {
     let pos = match position {
         Some(pos) => pos.into(),
         None => generate_particle_pos_spherical(simulation_settings, rng, n),
-    };
-    let mass = if n < simulation_settings.n_cells_cargo {
-        simulation_settings.mass_cargo
-    } else {
-        simulation_settings.mass_r11
-    };
-    let damping = if n < simulation_settings.n_cells_cargo {
-        simulation_settings.damping_cargo
-    } else {
-        simulation_settings.damping_r11
     };
     let kb_temperature = if n < simulation_settings.n_cells_cargo {
         simulation_settings.kb_temperature_cargo
     } else {
         simulation_settings.kb_temperature_r11
     };
-    Langevin3D::new(
+    let diffusion = if n < simulation_settings.n_cells_cargo {
+        simulation_settings.diffusion_r11
+    } else {
+        0.0
+    };
+    Brownian3D::new(
         pos,
-        [0.0; 3].into(),
-        mass,
-        damping,
+        diffusion,
         kb_temperature,
         simulation_settings.update_interval,
     )
