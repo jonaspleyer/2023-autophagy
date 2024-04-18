@@ -444,12 +444,6 @@ impl Storager {
     }
 }
 
-fn cargo_initials_output_dir(
-    _simulation_settings: &SimulationSettings,
-) -> std::path::PathBuf {
-    "out/cargo_initials".into()
-}
-
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output
 /// directory.
 #[pyfunction]
@@ -457,22 +451,21 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
     let simulation_settings_cargo_initials = {
         let mut sim_settings_cargo_initials = simulation_settings.clone();
         sim_settings_cargo_initials.storage_name_add_date = false;
-        sim_settings_cargo_initials.storage_name =
-            cargo_initials_output_dir(&simulation_settings);
+        sim_settings_cargo_initials.storage_name = CARGO_INITIALS_ODIR.into();
         sim_settings_cargo_initials.save_interval = simulation_settings.n_times;
         sim_settings_cargo_initials
     };
 
     // Check if folder exists
     let mut path = std::path::PathBuf::from(&simulation_settings_cargo_initials.storage_name);
-    path.push("simulation_settings.json");
+    path.push(SIM_SETTINGS);
     let cargo_initials_storager: Storager = if SimulationSettings::load_from_file(path)
         .is_ok_and(|sim_settings| sim_settings == simulation_settings_cargo_initials)
     {
-        let storage_builder = construct_storage_builder(&simulation_settings);
-        let manager = cellular_raza::core::storage::StorageManager::construct(&storage_builder, 0)
-            .or_else(|e| Err(chili::SimulationError::from(e)))?;
-        Storager { manager }
+        Storager::from_path(
+            simulation_settings_cargo_initials.storage_name.clone(),
+            None,
+        )?
     } else {
         run_simulation_single::<Vec<_>>(simulation_settings_cargo_initials, None)?
     };
