@@ -1,7 +1,7 @@
 use super::particle_properties::*;
 
 use cellular_raza::core::backend::chili;
-use cellular_raza::core::storage::{StorageBuilder, StorageError, StorageInterfaceLoad};
+use cellular_raza::core::storage::{StorageBuilder, StorageInterfaceLoad};
 use cellular_raza::{building_blocks::*, core::storage::StorageManager};
 use pyo3::prelude::*;
 
