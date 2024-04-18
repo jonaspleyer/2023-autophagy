@@ -29,6 +29,12 @@ pub const BOLTZMANN_CONSTANT: f64 = 1.380649e-23;
 /// One Kelvin in SI units
 pub const KELVIN: f64 = 1.0;
 
+/// Name of the simulation_settings file
+const SIM_SETTINGS: &str = "simulation_settings.json";
+
+/// Path where the cargo initial positions will be stored.
+const CARGO_INITIALS_ODIR: &str = "out/cargo_initials";
+
 /// All settings which can be configured by the Python interface.
 ///
 /// We aim to provide access to even the more lower-level settings
