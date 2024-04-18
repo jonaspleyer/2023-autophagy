@@ -45,9 +45,7 @@ pub struct TypedInteraction {
     pub interaction_range_r11_cargo: f64,
 }
 
-impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)>
-    for TypedInteraction
-{
+impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for TypedInteraction {
     fn calculate_force_between(
         &self,
         own_pos: &Vector3<f64>,
@@ -100,11 +98,10 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)>
         match (ext_species, &self.species) {
             // R11 will bind to cargo
             (Species::Cargo, Species::R11) | (Species::R11, Species::Cargo) => {
-                let avidity = self.potential_strength_cargo_r11_avidity;
                 let cutoff = calculate_cutoff(self.interaction_range_r11_cargo);
                 let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
-                        + (self.potential_strength_cargo_r11 + avidity) * attracting_force);
+                        + self.potential_strength_cargo_r11 * attracting_force);
                 Ok(force)
             }
 
@@ -122,6 +119,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)>
                     * (self.potential_strength_cargo_cargo * repelling_force
                         + self.potential_strength_r11_r11 * attracting_force))
             }
+        }
     }
 
     fn get_interaction_information(&self) -> (f64, Species) {
