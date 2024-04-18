@@ -563,7 +563,9 @@ where
         simulation_settings.save_interval,
     )?;
 
-    let storage = construct_storage_builder(&simulation_settings);
+    let storage = construct_storage_builder(&simulation_settings).init();
+    let path = storage.get_full_path();
+    simulation_settings.save_to_file(path)?;
 
     let settings = chili::Settings {
         n_threads: simulation_settings.n_threads.try_into().unwrap(),
