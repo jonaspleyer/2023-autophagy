@@ -122,7 +122,7 @@ pub struct SimulationSettings {
     pub domain_n_voxels: Option<usize>,
 
     /// Name of the folder to store the results in.
-    pub storage_name: String,
+    pub storage_name: std::path::PathBuf,
 
     /// Determines if to add the current date at the end of the save path
     pub storage_name_add_date: bool,
