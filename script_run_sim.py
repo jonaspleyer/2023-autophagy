@@ -3,11 +3,14 @@ import cr_autophagy as cra
 import json
 
 if __name__ == "__main__":
-    simulation_settings = SimulationSettings.load_from_file("runs/avidity/simulation_settings.json")
+    simulation_settings = SimulationSettings()
+    simulation_settings.n_threads = 2
     
+    storager = run_simulation(simulation_settings)
+
     import os
     from pathlib import Path
-    output_path = Path(run_simulation(simulation_settings))
+    output_path = Path(cra.get_last_output_path())
 
     print("Saving Snapshots")
     cra.save_all_snapshots(output_path, threads=14)#simulation_settings.n_threads)
