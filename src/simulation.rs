@@ -228,23 +228,20 @@ impl SimulationSettings {
     }
 
     /// Saves the object to a file at the given path
-    pub fn save_to_file(&self, path: std::path::PathBuf) -> PyResult<()> {
-        save_simulation_settings(&path, &self)?;
+    pub fn save_to_file(&self, path: std::path::PathBuf) -> Result<(), std::io::Error> {
+        // Also save the SimulationSettings into the same folder
+        let mut save_path = path.clone();
+        save_path.push(SIM_SETTINGS);
+        let f = std::fs::File::create(save_path)?;
+        let writer = std::io::BufWriter::new(f);
+        match serde_json::to_writer_pretty(writer, &self) {
+            Err(e) => {
+                return Err(e.into());
+            }
+            _ => (),
+        };
         Ok(())
     }
-}
-
-fn save_simulation_settings(
-    path: &std::path::PathBuf,
-    simulation_settings: &SimulationSettings,
-) -> Result<(), std::io::Error> {
-    // Also save the SimulationSettings into the same folder
-    let mut save_path = path.clone();
-    save_path.push("simulation_settings.json");
-    let f = std::fs::File::create(save_path)?;
-    let writer = std::io::BufWriter::new(f);
-    serde_json::to_writer_pretty(writer, &simulation_settings)?;
-    Ok(())
 }
 
 fn generate_particle_pos_spherical(
