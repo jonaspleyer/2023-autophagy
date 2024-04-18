@@ -81,9 +81,6 @@ pub struct SimulationSettings {
     pub potential_strength_cargo_r11: f64,
 
     /// See TypedInteraction
-    pub potential_strength_cargo_r11_avidity: f64,
-
-    /// See TypedInteraction
     pub interaction_range_cargo_cargo: f64,
 
     /// See TypedInteraction
@@ -173,7 +170,6 @@ impl SimulationSettings {
             potential_strength_cargo_cargo: 0.03,
             potential_strength_r11_r11: 0.001,
             potential_strength_cargo_r11: 0.0,
-            potential_strength_cargo_r11_avidity: 0.01,
 
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_r11),
             interaction_range_r11_r11: 0.4 * (cell_radius_cargo + cell_radius_r11),
