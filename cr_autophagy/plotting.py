@@ -68,42 +68,22 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
         (0, 0, 0)
     ]
 
-    scalar_bar_args1=dict(
-        title="Neighbours",
-        title_font_size=20,
-        width=0.4,
-        position_x=0.55,
-        label_font_size=16,
-        shadow=True,
-        italic=True,
-        fmt="%.0f",
-        font_family="arial",
-    )
-
     gfp_high = np.array([121, 200, 119])/255
     gfp_low = np.array([255, 255, 255])/255
     gfp_cols = np.linspace(gfp_low, gfp_high, 12)
-    gfp_cmap = matplotlib.colors.ListedColormap(gfp_cols)
 
     bfp_high = np.array([33, 113, 181])/255
     bfp_low = np.array([255, 255, 255])/255
     bfp_cols = np.linspace(bfp_low, bfp_high, 12)
-    bfp_cmap = matplotlib.colors.ListedColormap(bfp_cols)
     # '#79c877'
 
     plotter.add_mesh(
         cargo,
-        scalars="neighbour_count1",
-        cmap=bfp_cmap,
-        clim=[0,12],
-        scalar_bar_args=scalar_bar_args1,
+        color=bfp_high,
     )
     plotter.add_mesh(
         r11,
-        scalars="neighbour_count2",
-        cmap=gfp_cmap,
-        clim=[0,12],
-        scalar_bar_args=scalar_bar_args1,
+        color=gfp_high,
     )
     img = plotter.screenshot(opath)
     plotter.close()
