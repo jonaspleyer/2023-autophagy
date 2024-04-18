@@ -421,6 +421,12 @@ impl Storager {
     }
 }
 
+fn cargo_initials_output_dir(
+    _simulation_settings: &SimulationSettings,
+) -> std::path::PathBuf {
+    "out/cargo_initials".into()
+}
+
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output
 /// directory.
 #[pyfunction]
@@ -428,8 +434,8 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
     let simulation_settings_cargo_initials = {
         let mut sim_settings_cargo_initials = simulation_settings.clone();
         sim_settings_cargo_initials.storage_name_add_date = false;
-        sim_settings_cargo_initials.storage_name = "out/cargo_initials".into();
-        sim_settings_cargo_initials.storage_name_add_date = false;
+        sim_settings_cargo_initials.storage_name =
+            cargo_initials_output_dir(&simulation_settings);
         sim_settings_cargo_initials.save_interval = simulation_settings.n_times;
         sim_settings_cargo_initials
     };
