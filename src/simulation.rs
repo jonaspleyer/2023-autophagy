@@ -231,6 +231,8 @@ impl SimulationSettings {
 
     /// Saves the object to a file at the given path
     pub fn save_to_file(&self, path: std::path::PathBuf) -> Result<(), std::io::Error> {
+        // Create dir if not existing
+        std::fs::create_dir_all(&path)?;
         // Also save the SimulationSettings into the same folder
         let mut save_path = path.clone();
         save_path.push(SIM_SETTINGS);
