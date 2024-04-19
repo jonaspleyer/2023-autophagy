@@ -47,47 +47,47 @@ pub struct SimulationSettings {
     /// Number of cargo particles in the simulation.
     pub n_cells_cargo: usize,
 
-    /// Number of R11 particles in the simulation.
-    pub n_cells_r11: usize,
+    /// Number of Atg11/19 particles in the simulation.
+    pub n_cells_atg11w19: usize,
 
     /// Radius of the Cargo particles
     pub cell_radius_cargo: f64,
 
-    /// Radius of the R11 particles
-    pub cell_radius_r11: f64,
+    /// Radius of the Atg11/19 particles
+    pub cell_radius_atg11w19: f64,
 
     /// Diffusion as given in the [Brownian3D] struct.
-    pub diffusion_r11: f64,
+    pub diffusion_atg11w19: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
     /// Langevin mechanics model for Cargo particles.
     pub kb_temperature_cargo: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
-    /// Langevin mechanics model for R11 particles.
-    pub kb_temperature_r11: f64,
+    /// Langevin mechanics model for Atg11/19 particles.
+    pub kb_temperature_atg11w19: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
-    /// Langevin mechanics model for R11 particles.
+    /// Langevin mechanics model for Atg11/19 particles.
     pub update_interval: usize,
 
     /// See TypedInteraction
     pub potential_strength_cargo_cargo: f64,
 
     /// See TypedInteraction
-    pub potential_strength_r11_r11: f64,
+    pub potential_strength_atg11w19_atg11w19: f64,
 
     /// See TypedInteraction
-    pub potential_strength_cargo_r11: f64,
+    pub potential_strength_cargo_atg11w19: f64,
 
     /// See TypedInteraction
     pub interaction_range_cargo_cargo: f64,
 
     /// See TypedInteraction
-    pub interaction_range_r11_r11: f64,
+    pub interaction_range_atg11w19_atg11w19: f64,
 
     /// See TypedInteraction
-    pub interaction_range_r11_cargo: f64,
+    pub interaction_range_atg11w19_cargo: f64,
 
     /// See TypedInteraction
     pub interaction_relative_neighbour_distance: f64,
@@ -114,9 +114,9 @@ pub struct SimulationSettings {
     /// Upper bound of the radius in which the cargo particles will be spawned
     pub domain_cargo_radius_max: f64,
 
-    /// Minimal radius outside of which r11 particles will be spawned
+    /// Minimal radius outside of which atg11w19 particles will be spawned
     /// Must be smaller than the domain_size
-    pub domain_r11_radius_min: f64,
+    pub domain_atg11w19_radius_min: f64,
 
     /// See [CartesianCuboid3]
     pub domain_n_voxels: Option<usize>,
@@ -142,38 +142,44 @@ impl SimulationSettings {
         // let temperature = 300_f64 * KELVIN;
         // let thermodynamic_energy = BOLTZMANN_CONSTANT * temperature;
         // TODO for the future
-        // let cell_radius_r11: f64 = 0.5*(22.938 + 16.259) * NANOMETRE;
-        // let cell_radius_r11: f64 = 1.0;
-        let cell_radius_r11: f64 = 10.0;
+        // let cell_radius_atg11w19: f64 = 0.5*(22.938 + 16.259) * NANOMETRE;
+        // let cell_radius_atg11w19: f64 = 1.0;
+        let cell_radius_atg11w19: f64 = 10.0;
 
         // TODO for the future
-        // let mass_r11 = 135002.0 * DALTON;
-        // let mass_r11 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_r11.powf(3.0);
-        // let mass_cargo = 3.0 * mass_r11;
-        let cell_radius_cargo: f64 = 1.0 * cell_radius_r11;
+        // let mass_atg11w19 = 135002.0 * DALTON;
+        // let mass_atg11w19 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_atg11w19.powf(3.0);
+        // let mass_cargo = 3.0 * mass_atg11w19;
+        let cell_radius_cargo: f64 = 1.0 * cell_radius_atg11w19;
         let dt = 1.0;
 
         SimulationSettings {
             n_cells_cargo: 200,
-            n_cells_r11: 200,
+            n_cells_atg11w19: 200,
+            // n_cells_cargo: 420,
+            // n_cells_atg11w19: 55,
             cell_radius_cargo,
-            cell_radius_r11,
+            cell_radius_atg11w19,
 
+            // mass_cargo,
+            // mass_atg11w19,
 
-            diffusion_r11: 0.003 / 1.5,
+            // damping_cargo: 1.5,
+            // damping_atg11w19: 1.5,
+            diffusion_atg11w19: 0.003 / 1.5,
 
             kb_temperature_cargo: 0.1,
-            kb_temperature_r11: 0.003,
+            kb_temperature_atg11w19: 0.003,
 
             update_interval: 5,
 
             potential_strength_cargo_cargo: 0.03,
-            potential_strength_r11_r11: 0.001,
-            potential_strength_cargo_r11: 0.0,
+            potential_strength_atg11w19_atg11w19: 0.001,
+            potential_strength_cargo_atg11w19: 0.0,
 
-            interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_r11),
-            interaction_range_r11_r11: 0.4 * (cell_radius_cargo + cell_radius_r11),
-            interaction_range_r11_cargo: 0.4 * (cell_radius_cargo + cell_radius_r11),
+            interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
+            interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
+            interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_relative_neighbour_distance: 2.0,
             dt,
             n_times: 40_001,
@@ -184,15 +190,15 @@ impl SimulationSettings {
 
             // domain_size: 20.0,
             // domain_cargo_radius_max: 6.0,
-            // domain_r11_radius_min: 6.5,
+            // domain_atg11w19_radius_min: 6.5,
             domain_size: 200.0,
             domain_cargo_radius_max: 60.0,
-            domain_r11_radius_min: 65.0,
+            domain_atg11w19_radius_min: 65.0,
 
             // TODO For the future
             // domain_size: 100_f64 * NANOMETRE,
             // domain_cargo_radius_max: 20_f64 * NANOMETRE,
-            // domain_r11_radius_min: 40_f64 * NANOMETRE,
+            // domain_atg11w19_radius_min: 40_f64 * NANOMETRE,
             domain_n_voxels: Some(4),
 
             storage_name: "out/autophagy".into(),
@@ -268,7 +274,7 @@ fn generate_particle_pos_spherical(
         generate_position(0.0, simulation_settings.domain_cargo_radius_max)
     } else {
         generate_position(
-            simulation_settings.domain_r11_radius_min,
+            simulation_settings.domain_atg11w19_radius_min,
             simulation_settings.domain_size / 2.0,
         )
     };
@@ -280,7 +286,7 @@ fn test_particle_pos_config() {
     let simulation_settings = SimulationSettings::new();
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
-    for n in 0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_r11 {
+    for n in 0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_atg11w19 {
         let pos = generate_particle_pos_spherical(&simulation_settings, &mut rng, n);
         for i in 0..3 {
             assert!(0.0 <= pos[i]);
@@ -292,12 +298,12 @@ fn test_particle_pos_config() {
 fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> f64 {
     // Calculate the maximal interaction range
     let i1 = simulation_settings.interaction_range_cargo_cargo;
-    let i2 = simulation_settings.interaction_range_r11_cargo;
-    let i3 = simulation_settings.interaction_range_r11_r11;
+    let i2 = simulation_settings.interaction_range_atg11w19_cargo;
+    let i3 = simulation_settings.interaction_range_atg11w19_atg11w19;
     let imax = i1.max(i2).max(i3);
 
     let r1 = simulation_settings.cell_radius_cargo;
-    let r2 = simulation_settings.cell_radius_r11;
+    let r2 = simulation_settings.cell_radius_atg11w19;
     let rmax = r1.max(r2);
 
     2.0 * rmax + imax
@@ -316,12 +322,12 @@ fn create_particle_mechanics(
     let kb_temperature = if n < simulation_settings.n_cells_cargo {
         simulation_settings.kb_temperature_cargo
     } else {
-        simulation_settings.kb_temperature_r11
+        simulation_settings.kb_temperature_atg11w19
     };
     let diffusion = if n < simulation_settings.n_cells_cargo {
-        simulation_settings.diffusion_r11
-    } else {
         0.0
+    } else {
+        simulation_settings.diffusion_atg11w19
     };
     Brownian3D::new(
         pos,
@@ -339,19 +345,19 @@ fn create_particle_interaction(
         if n < simulation_settings.n_cells_cargo {
             Species::Cargo
         } else {
-            Species::R11
+            Species::Atg11w19
         },
         if n < simulation_settings.n_cells_cargo {
             simulation_settings.cell_radius_cargo
         } else {
-            simulation_settings.cell_radius_r11
+            simulation_settings.cell_radius_atg11w19
         },
         simulation_settings.potential_strength_cargo_cargo, // potential_strength_cargo_cargo
-        simulation_settings.potential_strength_r11_r11,     // potential_strength_r11_r11
-        simulation_settings.potential_strength_cargo_r11,   // potential_strength_cargo_r11
+        simulation_settings.potential_strength_atg11w19_atg11w19,     // potential_strength_atg11w19_atg11w19
+        simulation_settings.potential_strength_cargo_atg11w19,   // potential_strength_cargo_atg11w19
         simulation_settings.interaction_range_cargo_cargo,  // interaction_range_cargo_cargo
-        simulation_settings.interaction_range_r11_r11,      // interaction_range_r11_r11
-        simulation_settings.interaction_range_r11_cargo,    // interaction_range_r11_cargo
+        simulation_settings.interaction_range_atg11w19_atg11w19,      // interaction_range_atg11w19_atg11w19
+        simulation_settings.interaction_range_atg11w19_cargo,    // interaction_range_atg11w19_cargo
     )
 }
 
@@ -510,7 +516,7 @@ where
         Some(positions) => {
             let mut positions = positions.into_iter();
             let n_positions = positions.len();
-            (0..n_positions + simulation_settings.n_cells_r11)
+            (0..n_positions + simulation_settings.n_cells_atg11w19)
                 .map(|n| {
                     let pos = positions.next();
                     let mechanics =
@@ -523,10 +529,11 @@ where
                 })
                 .collect::<Vec<_>>()
         }
-        // Cargo positions were not given -> calculate them without putting R11 particles in there
+        // Cargo positions were not given -> calculate them without putting Atg11/19 particles in there
         None => {
+            println!("Calculating cargo initial positions");
             let mut simulation_settings_new = simulation_settings.clone();
-            simulation_settings_new.n_cells_r11 = 0;
+            simulation_settings_new.n_cells_atg11w19 = 0;
             (0..simulation_settings_new.n_cells_cargo)
                 .map(|n| {
                     let mechanics =

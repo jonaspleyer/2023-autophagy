@@ -3,7 +3,7 @@ use nalgebra::Vector3;
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
-/// Particle Species of type Cargo or R11
+/// Particle Species of type Cargo or Atg11/19
 ///
 /// We currently only distinguish between the cargo itself
 /// and freely moving combinations of the receptor and ATG11.
@@ -12,15 +12,15 @@ use serde::{Deserialize, Serialize};
 pub enum Species {
     /// Cargo particle
     Cargo,
-    /// R11 particle which is a combination of receptor and Atg11
-    R11,
+    /// Atg11/19 particle which is a combination of receptor and Atg11
+    Atg11w19,
 }
 
 /// Interaction potential depending on the other cells species.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[pyclass(get_all, set_all)]
 pub struct TypedInteraction {
-    /// Labels particles as Cargo or R11
+    /// Labels particles as Cargo or Atg11/19
     pub species: Species,
 
     /// Radius of the spherical particle
@@ -29,20 +29,20 @@ pub struct TypedInteraction {
     /// Attracting potential strength between individual Cargo particles
     pub potential_strength_cargo_cargo: f64,
 
-    /// Attracting potential strength between individual R11 particles
-    pub potential_strength_r11_r11: f64,
+    /// Attracting potential strength between individual Atg11/19 particles
+    pub potential_strength_atg11w19_atg11w19: f64,
 
-    /// Attracting potential strength between individual Cargo and R11 particles
-    pub potential_strength_cargo_r11: f64,
+    /// Attracting potential strength between individual Cargo and Atg11/19 particles
+    pub potential_strength_cargo_atg11w19: f64,
 
     /// The interaction range (beyond size of the particles) between Cargo particles
     pub interaction_range_cargo_cargo: f64,
 
-    /// The interaction range (beyond size of the particles) between R11 particles
-    pub interaction_range_r11_r11: f64,
+    /// The interaction range (beyond size of the particles) between Atg11/19 particles
+    pub interaction_range_atg11w19_atg11w19: f64,
 
-    /// The interaction range (beyond size of the particles) between Cargo and R11 particles
-    pub interaction_range_r11_cargo: f64,
+    /// The interaction range (beyond size of the particles) between Cargo and Atg11/19 particles
+    pub interaction_range_atg11w19_cargo: f64,
 }
 
 impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for TypedInteraction {
@@ -96,16 +96,16 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
         let repelling_force = dir * strength.min(0.0);
 
         match (ext_species, &self.species) {
-            // R11 will bind to cargo
-            (Species::Cargo, Species::R11) | (Species::R11, Species::Cargo) => {
-                let cutoff = calculate_cutoff(self.interaction_range_r11_cargo);
+            // Atg11/19 will bind to cargo
+            (Species::Cargo, Species::Atg11w19) | (Species::Atg11w19, Species::Cargo) => {
+                let cutoff = calculate_cutoff(self.interaction_range_atg11w19_cargo);
                 let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
-                        + self.potential_strength_cargo_r11 * attracting_force);
+                        + self.potential_strength_cargo_atg11w19 * attracting_force);
                 Ok(force)
             }
 
-            // R11 forms clusters
+            // Atg11/19 forms clusters
             (Species::Cargo, Species::Cargo) => {
                 let cutoff = calculate_cutoff(self.interaction_range_cargo_cargo);
                 Ok(cutoff
@@ -113,11 +113,11 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
                     * (repelling_force + attracting_force))
             }
 
-            (Species::R11, Species::R11) => {
-                let cutoff = calculate_cutoff(self.interaction_range_r11_r11);
+            (Species::Atg11w19, Species::Atg11w19) => {
+                let cutoff = calculate_cutoff(self.interaction_range_atg11w19_atg11w19);
                 Ok(cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
-                        + self.potential_strength_r11_r11 * attracting_force))
+                        + self.potential_strength_atg11w19_atg11w19 * attracting_force))
             }
         }
     }
@@ -134,37 +134,37 @@ impl TypedInteraction {
         species,
         cell_radius,
         potential_strength_cargo_cargo,
-        potential_strength_r11_r11,
-        potential_strength_cargo_r11,
+        potential_strength_atg11w19_atg11w19,
+        potential_strength_cargo_atg11w19,
         interaction_range_cargo_cargo,
-        interaction_range_r11_r11,
-        interaction_range_r11_cargo,
+        interaction_range_atg11w19_atg11w19,
+        interaction_range_atg11w19_cargo,
     ))]
     /// Constructs a new TypedInteraction
     pub fn new(
         species: Species,
         cell_radius: f64,
         potential_strength_cargo_cargo: f64,
-        potential_strength_r11_r11: f64,
-        potential_strength_cargo_r11: f64,
+        potential_strength_atg11w19_atg11w19: f64,
+        potential_strength_cargo_atg11w19: f64,
         interaction_range_cargo_cargo: f64,
-        interaction_range_r11_r11: f64,
-        interaction_range_r11_cargo: f64,
+        interaction_range_atg11w19_atg11w19: f64,
+        interaction_range_atg11w19_cargo: f64,
     ) -> Self {
         Self {
             species,
             cell_radius,
             potential_strength_cargo_cargo,
-            potential_strength_r11_r11,
-            potential_strength_cargo_r11,
+            potential_strength_atg11w19_atg11w19,
+            potential_strength_cargo_atg11w19,
             interaction_range_cargo_cargo,
-            interaction_range_r11_r11,
-            interaction_range_r11_cargo,
+            interaction_range_atg11w19_atg11w19,
+            interaction_range_atg11w19_cargo,
         }
     }
 }
 
-/// Cargo or R11 particle depending on the [Species] of the interaction field.
+/// Cargo or Atg11/19 particle depending on the [Species] of the interaction field.
 #[pyclass(get_all, set_all)]
 #[derive(CellAgent, Clone, Debug, Deserialize, Serialize)]
 pub struct Particle {
