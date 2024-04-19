@@ -66,8 +66,6 @@ class TypedInteraction:
 @dataclass
 class Langevin3D:
     pos: list[float]
-    vel: list[float]
-    mass: float
-    damping: float
+    diffusion_constant: float
     kb_temperature: float
     update_interval: int

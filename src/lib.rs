@@ -21,7 +21,7 @@ fn cr_autophagy_pyo3(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SimulationSettings>()?;
     m.add_class::<Species>()?;
     m.add_class::<TypedInteraction>()?;
-    m.add_class::<cellular_raza::prelude::Langevin3D>()?;
+    m.add_class::<cellular_raza::prelude::Brownian3D>()?;
 
     Ok(())
 }
