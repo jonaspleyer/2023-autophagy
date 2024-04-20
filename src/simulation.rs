@@ -23,6 +23,21 @@ pub const ANGSTROM: f64 = 1e-10;
 /// One nanometre in SI units.
 pub const NANOMETRE: f64 = 1e-9;
 
+/// One micrometre in SI units.
+pub const MICROMETRE: f64 = 1e-6;
+
+/// One second in SI units
+pub const SECOND: f64 = 1.0;
+
+/// One minute in SI units
+pub const MINUTE: f64 = 60.0 * SECOND;
+
+/// One hour in SI units
+pub const HOUR: f64 = 60.0 * MINUTE;
+
+/// One day in SI units
+pub const DAY: f64 = 24.0 * HOUR;
+
 /// The Boltzmann-constant in SI units.
 pub const BOLTZMANN_CONSTANT: f64 = 1.380649e-23;
 
