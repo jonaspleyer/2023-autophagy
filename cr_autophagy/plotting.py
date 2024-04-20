@@ -19,23 +19,23 @@ def _generate_spheres(output_path: Path, iteration):
 
     # Create a dataset for pyvista for plotting
     pos_cargo = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
-    pos_r11 = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
+    pos_atg11w19 = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     pset_cargo = pv.PolyData(np.array([np.array(x) for x in pos_cargo]))
-    pset_r11 = pv.PolyData(np.array([np.array(x) for x in pos_r11]))
+    pset_atg11w19 = pv.PolyData(np.array([np.array(x) for x in pos_atg11w19]))
 
     # Extend dataset by species and diameter
     pset_cargo.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.cell_radius"]
     pset_cargo.point_data["species"] = df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.species"]
 
-    pset_r11.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.cell_radius"]
-    pset_r11.point_data["species"] = df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.species"]
+    pset_atg11w19.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.cell_radius"]
+    pset_atg11w19.point_data["species"] = df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.species"]
 
     # Create spheres glyphs from dataset
     sphere = pv.Sphere()
     spheres_cargo = pset_cargo.glyph(geom=sphere, scale="diameter", orient=False)
-    spheres_r11 = pset_r11.glyph(geom=sphere, scale="diameter", orient=False)
+    spheres_atg11w19 = pset_atg11w19.glyph(geom=sphere, scale="diameter", orient=False)
 
-    return spheres_cargo, spheres_r11
+    return spheres_cargo, spheres_atg11w19
 
 
 def create_save_path(output_path, subfolder, iteration):
@@ -51,7 +51,7 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     opath = create_save_path(output_path, "snapshots", iteration)
     if os.path.isfile(opath) and not overwrite:
         return
-    (cargo, r11) = _generate_spheres(output_path, iteration)
+    (cargo, atg11w19) = _generate_spheres(output_path, iteration)
 
     try:
         if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
@@ -61,6 +61,13 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
 
     # Now display all information
     plotter = pv.Plotter(off_screen=True)
+
+    # General settings for the image
+    plotter.set_background([100, 100, 100])
+    plotter.enable_ssao(radius=12)
+    plotter.enable_anti_aliasing()
+
+    # Set up the camera
     ds = 1.5*simulation_settings.domain_size
     plotter.camera_position = [
         (-ds, -ds, -ds),
@@ -80,10 +87,12 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     plotter.add_mesh(
         cargo,
         color=bfp_high,
+        show_edges=False,
     )
     plotter.add_mesh(
-        r11,
+        atg11w19,
         color=gfp_high,
+        show_edges=False,
     )
     img = plotter.screenshot(opath)
     plotter.close()
@@ -287,7 +296,7 @@ def save_kernel_density(
     if os.path.isfile(save_path) and overwrite==False:
         return None
 
-    density_cargo, density_r11 = calculate_kernel_densities(
+    density_cargo, density_atg11w19 = calculate_kernel_densities(
         output_path,
         iteration,
         discretization_factor,
@@ -295,29 +304,29 @@ def save_kernel_density(
     )
 
     fig, ax = plt.subplots(3, 4, figsize=(12, 9))
-    ax[0,0].set_title("R11 Density")
-    ax[0,1].set_title("R11 Mask")
+    ax[0,0].set_title("Atg11w19 Density")
+    ax[0,1].set_title("Atg11w19 Mask")
     ax[0,2].set_title("Cargo Density")
     ax[0,3].set_title("Cargo Mask")
 
     for i in range(3):
-        lims_low = [0 if i!=j else round(density_r11.shape[0]/2) for j in range(3)]
-        lims_high = [-1 if i!=j else round(density_r11.shape[0]/2)+1 for j in range(3)]
+        lims_low = [0 if i!=j else round(density_atg11w19.shape[0]/2) for j in range(3)]
+        lims_high = [-1 if i!=j else round(density_atg11w19.shape[0]/2)+1 for j in range(3)]
 
-        data_r11 = density_r11[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
-        data_r11 = data_r11.squeeze(axis=i)
-        mask_r11, _ = calculate_mask(data_r11, threshold)
+        data_atg11w19 = density_atg11w19[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
+        data_atg11w19 = data_atg11w19.squeeze(axis=i)
+        mask_atg11w19, _ = calculate_mask(data_atg11w19, threshold)
 
         data_cargo = density_cargo[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
         data_cargo = data_cargo.squeeze(axis=i)
         mask_cargo, _ = calculate_mask(data_cargo, threshold)
 
-        # Plot density of R11
-        ax[i,0].imshow(data_r11)
+        # Plot density of Atg11w19
+        ax[i,0].imshow(data_atg11w19)
         ax[i,0].axis('off')
 
-        # Plot mask of R11
-        ax[i,1].imshow(mask_r11, cmap="grey")
+        # Plot mask of Atg11w19
+        ax[i,1].imshow(mask_atg11w19, cmap="grey")
         ax[i,1].axis('off')
 
         # Plot Density of Cargo

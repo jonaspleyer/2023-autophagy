@@ -11,7 +11,7 @@ from .storage import *
 
 
 def calculate_graph_clusters(
-        r11_positions: np.ndarray,
+        atg11w19_positions: np.ndarray,
         distance: float,
         cargo_position: np.ndarray
     ) -> tuple:
@@ -23,8 +23,8 @@ def calculate_graph_clusters(
 
     Parameters
     ----------
-    r11_positions : np.ndarray
-        A numpy array of shape (N,3) which holds all positions of R11 particles.
+    atg11w19_positions : np.ndarray
+        A numpy array of shape (N,3) which holds all positions of Atg11w19 particles.
     distance : float
         Distance for which particles should be considered connected
     cargo_position : np.ndarray
@@ -43,9 +43,9 @@ def calculate_graph_clusters(
         Minimum distance of cluster to cargo center.
     """
     # Calculate the combined matrix of all positions
-    combined_matrix = np.array(list(itertools.product(r11_positions, r11_positions)))
+    combined_matrix = np.array(list(itertools.product(atg11w19_positions, atg11w19_positions)))
     combined_matrix = combined_matrix.reshape(
-        (r11_positions.shape[0], r11_positions.shape[0], *combined_matrix.shape[1:])
+        (atg11w19_positions.shape[0], atg11w19_positions.shape[0], *combined_matrix.shape[1:])
     )
 
     # Calculate the distances between individual positions in two steps
@@ -78,10 +78,10 @@ def calculate_graph_clusters(
 
     # Also calculate the minimum distance from cluster center to cargo center
     cluster_positions = np.array([
-        np.average(r11_positions[labels==label], axis=0) for label in np.sort(np.unique(labels))
+        np.average(atg11w19_positions[labels==label], axis=0) for label in np.sort(np.unique(labels))
     ])
     min_cluster_distances_to_cargo = np.array([
-        np.min([_helper(x) for x in r11_positions[labels==label]], axis=0)
+        np.min([_helper(x) for x in atg11w19_positions[labels==label]], axis=0)
         for label in np.sort(np.unique(labels))
     ])
 
@@ -177,7 +177,7 @@ def calculate_spatial_discretization(domain_size: float, discretization: float) 
 
 
 def calculate_spatial_density(
-        r11_positions:np.ndarray,
+        atg11w19_positions:np.ndarray,
         domain_size:float,
         discretization:float,
         bw_method:float=None
@@ -190,8 +190,8 @@ def calculate_spatial_density(
 
     Parameters
     ----------
-    r11_positions : np.ndarray
-        A numpy array of shape (N,3) which holds all positions of R11 particles.
+    atg11w19_positions : np.ndarray
+        A numpy array of shape (N,3) which holds all positions of Atg11w19 particles.
     domain_size : float
         See :py:meth:`calculate_spatial_discretization`
     discretization : float
@@ -204,9 +204,9 @@ def calculate_spatial_density(
     np.ndarray
         The spatial density as (N,N,N) array where N depends on the discretization chosen.
     """
-    x = r11_positions[:,0]
-    y = r11_positions[:,1]
-    z = r11_positions[:,2]
+    x = atg11w19_positions[:,0]
+    y = atg11w19_positions[:,1]
+    z = atg11w19_positions[:,2]
 
     X, Y, Z, space_discretization = calculate_spatial_discretization(domain_size, discretization)
 
@@ -243,8 +243,8 @@ def calculate_mask(density: np.ndarray, threshold: float) -> tuple:
 def _get_discretization(output_path, discretization_factor):
     simulation_settings = get_simulation_settings(output_path)
     radius_cargo = simulation_settings.cell_radius_cargo
-    radius_r11 = simulation_settings.cell_radius_r11
-    return discretization_factor*radius_cargo, discretization_factor*radius_r11
+    radius_atg11w19 = simulation_settings.cell_radius_atg11w19
+    return discretization_factor*radius_cargo, discretization_factor*radius_atg11w19
 
 
 def calculate_kernel_densities(
@@ -254,7 +254,7 @@ def calculate_kernel_densities(
         bw_method
     ) -> tuple:
     """
-    Computes the kerneld densities of R11 and Cargo particles.
+    Computes the kerneld densities of Atg11w19 and Cargo particles.
 
     Parameters
     ----------
@@ -272,14 +272,14 @@ def calculate_kernel_densities(
     density_cargo
         Denstiy of the Cargo particles as (N,N,N) array where N
         depends on the discretization chosen.
-    density_r11
-        Denstiy of the R11 particles as (N,N,N) array where N
+    density_atg11w19
+        Denstiy of the Atg11w19 particles as (N,N,N) array where N
         depends on the discretization chosen.
     """
     simulation_settings = get_simulation_settings(output_path)
     domain_size = simulation_settings.domain_size
 
-    discr_cargo, discr_r11 = _get_discretization(output_path, discretization_factor)
+    discr_cargo, discr_atg11w19 = _get_discretization(output_path, discretization_factor)
 
     df_cells = get_particles_at_iter(output_path, iteration)
     positions_cargo = np.array([x
@@ -287,7 +287,7 @@ def calculate_kernel_densities(
             df_cells["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"
         ]
     ])
-    positions_r11 = np.array([x
+    positions_atg11w19 = np.array([x
         for x in df_cells[
             df_cells["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"
         ]
@@ -299,13 +299,13 @@ def calculate_kernel_densities(
         discr_cargo,
         bw_method
     )
-    density_r11 = calculate_spatial_density(
-        positions_r11,
+    density_atg11w19 = calculate_spatial_density(
+        positions_atg11w19,
         domain_size,
-        discr_r11,
+        discr_atg11w19,
         bw_method
     )
-    return density_cargo, density_r11
+    return density_cargo, density_atg11w19
 
 
 
@@ -400,9 +400,9 @@ class KDEClusterResult:
         return self.cluster_positions[mask]
 
 
-def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> KDEClusterResult:
+def calculate_cargo_atg11w19_cluster_distances(mask_atg11w19, mask_cargo, domain_size) -> KDEClusterResult:
     _, labels_cargo, identifiers_cargo, _ = calcualte_3d_connected_components(mask_cargo)
-    n_clusters, labels_r11, identifiers_r11, cluster_sizes = calcualte_3d_connected_components(mask_r11)
+    n_clusters, labels_atg11w19, identifiers_atg11w19, cluster_sizes = calcualte_3d_connected_components(mask_atg11w19)
 
     _helper_x = domain_size/np.array([*labels_cargo.shape])
     _helper_y = np.product(_helper_x)**(1/3)
@@ -427,14 +427,14 @@ def calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size) -> 
     if cargo_position.shape != (3,):
         return
 
-    # Now gather positions of R11 clusters
+    # Now gather positions of Atg11w19 clusters
     cluster_positions = np.array([])
-    for ident in identifiers_r11[1:]:
-        indices = np.argwhere(labels_r11==ident)
-        middle = np.average(indices, axis=0)*domain_size/np.array([*labels_r11.shape])
+    for ident in identifiers_atg11w19[1:]:
+        indices = np.argwhere(labels_atg11w19==ident)
+        middle = np.average(indices, axis=0)*domain_size/np.array([*labels_atg11w19.shape])
         cluster_positions = np.vstack([*cluster_positions, middle])
 
-    # Make sure that we really have some R11 clusters
+    # Make sure that we really have some Atg11w19 clusters
     if cluster_positions.shape[0] == 0:
         return
 
@@ -458,13 +458,13 @@ def get_clusters_kde(output_path, iteration, threshold=None, **kwargs) -> KDEClu
             **kwargs,
         )
 
-    density_cargo, density_r11 = calculate_kernel_densities(
+    density_cargo, density_atg11w19 = calculate_kernel_densities(
         output_path,
         iteration,
         **kwargs,
     )
 
-    mask_r11,   _ = calculate_mask(density_r11,   threshold)
+    mask_atg11w19,   _ = calculate_mask(density_atg11w19,   threshold)
     mask_cargo, _ = calculate_mask(density_cargo, threshold)
 
-    return calculate_cargo_r11_cluster_distances(mask_r11, mask_cargo, domain_size)
+    return calculate_cargo_atg11w19_cluster_distances(mask_atg11w19, mask_cargo, domain_size)
