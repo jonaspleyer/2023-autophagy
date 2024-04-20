@@ -104,9 +104,6 @@ pub struct SimulationSettings {
     /// See TypedInteraction
     pub interaction_range_atg11w19_cargo: f64,
 
-    /// See TypedInteraction
-    pub interaction_relative_neighbour_distance: f64,
-
     /// Integration step of the numerical simulation.
     pub dt: f64,
 
@@ -195,7 +192,6 @@ impl SimulationSettings {
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
-            interaction_relative_neighbour_distance: 2.0,
             dt,
             n_times: 40_001,
             save_interval: 100,
@@ -203,17 +199,10 @@ impl SimulationSettings {
 
             n_threads: 1,
 
-            // domain_size: 20.0,
-            // domain_cargo_radius_max: 6.0,
-            // domain_atg11w19_radius_min: 6.5,
             domain_size: 200.0,
             domain_cargo_radius_max: 60.0,
             domain_atg11w19_radius_min: 65.0,
 
-            // TODO For the future
-            // domain_size: 100_f64 * NANOMETRE,
-            // domain_cargo_radius_max: 20_f64 * NANOMETRE,
-            // domain_atg11w19_radius_min: 40_f64 * NANOMETRE,
             domain_n_voxels: Some(4),
 
             storage_name: "out/autophagy".into(),
@@ -368,10 +357,10 @@ fn create_particle_interaction(
             simulation_settings.cell_radius_atg11w19
         },
         simulation_settings.potential_strength_cargo_cargo, // potential_strength_cargo_cargo
-        simulation_settings.potential_strength_atg11w19_atg11w19,     // potential_strength_atg11w19_atg11w19
-        simulation_settings.potential_strength_cargo_atg11w19,   // potential_strength_cargo_atg11w19
-        simulation_settings.interaction_range_cargo_cargo,  // interaction_range_cargo_cargo
-        simulation_settings.interaction_range_atg11w19_atg11w19,      // interaction_range_atg11w19_atg11w19
+        simulation_settings.potential_strength_atg11w19_atg11w19, // potential_strength_atg11w19_atg11w19
+        simulation_settings.potential_strength_cargo_atg11w19, // potential_strength_cargo_atg11w19
+        simulation_settings.interaction_range_cargo_cargo,     // interaction_range_cargo_cargo
+        simulation_settings.interaction_range_atg11w19_atg11w19, // interaction_range_atg11w19_atg11w19
         simulation_settings.interaction_range_atg11w19_cargo,    // interaction_range_atg11w19_cargo
     )
 }
@@ -608,7 +597,6 @@ where
         settings: settings,
         aspects: [Mechanics, Interaction],
     )?;
-    Ok(Storager {
-        manager: storage_access.cells,
-    })
+    let manager = storage_access.cells;
+    Ok(Storager { manager })
 }
