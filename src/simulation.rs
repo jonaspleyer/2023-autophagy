@@ -107,12 +107,12 @@ pub struct SimulationSettings {
     /// Integration step of the numerical simulation.
     pub dt: f64,
 
-    /// Number of intgration steps done totally.
-    pub n_times: u64,
+    /// Maximum time until which to solve
+    pub t_max: f64,
 
     /// Specifies the frequency at which results are saved as json files.
     /// Lower the number for more saved results.
-    pub save_interval: u64,
+    pub save_interval: f64,
 
     /// Extra iterations at which the simulation should be saved
     pub extra_saves: Vec<usize>,
@@ -193,8 +193,8 @@ impl SimulationSettings {
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             dt,
-            n_times: 40_001,
-            save_interval: 100,
+            t_max: 40000.0,
+            save_interval: 100.0,
             extra_saves: Vec::new(),
 
             n_threads: 1,
@@ -462,7 +462,7 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
         let mut sim_settings_cargo_initials = simulation_settings.clone();
         sim_settings_cargo_initials.storage_name_add_date = false;
         sim_settings_cargo_initials.storage_name = CARGO_INITIALS_ODIR.into();
-        sim_settings_cargo_initials.save_interval = simulation_settings.n_times;
+        sim_settings_cargo_initials.save_interval = simulation_settings.t_max;
         sim_settings_cargo_initials
     };
 
@@ -567,10 +567,10 @@ where
         ),
     }?;
 
-    let time = cellular_raza::core::time::FixedStepsize::from_partial_save_steps(
+    let time = cellular_raza::core::time::FixedStepsize::from_partial_save_interval(
         0.0,
         simulation_settings.dt,
-        simulation_settings.n_times,
+        simulation_settings.t_max,
         simulation_settings.save_interval,
     )?;
 
