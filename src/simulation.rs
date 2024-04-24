@@ -37,9 +37,6 @@ pub const KELVIN: f64 = 1.0;
 /// Name of the simulation_settings file
 const SIM_SETTINGS: &str = "simulation_settings.json";
 
-/// Path where the cargo initial positions will be stored.
-const CARGO_INITIALS_ODIR: &str = "out/cargo_initials";
-
 /// All settings which can be configured by the Python interface.
 ///
 /// We aim to provide access to even the more lower-level settings
@@ -126,8 +123,8 @@ pub struct SimulationSettings {
     /// Name of the folder to store the results in.
     pub storage_name: std::path::PathBuf,
 
-    /// Determines if to add the current date at the end of the save path
-    pub storage_name_add_date: bool,
+    /// Path where the cargo initial positions will be stored.
+    pub cargo_initials_dir: std::path::PathBuf,
 
     /// Do we want to show a progress bar
     pub show_progressbar: bool,
@@ -189,7 +186,7 @@ impl SimulationSettings {
             domain_n_voxels: Some(4),
 
             storage_name: "out/autophagy".into(),
-            storage_name_add_date: true,
+            cargo_initials_dir: "out/cargo_initials".into(),
 
             show_progressbar: true,
 
