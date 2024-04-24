@@ -457,18 +457,46 @@ fn compare_cargo_properties(
     settings1: &SimulationSettings,
     settings2: &SimulationSettings,
 ) -> bool {
-    settings1.n_cells_cargo == settings2.n_cells_cargo
-        && settings1.cell_radius_cargo == settings2.cell_radius_cargo
-        && settings1.diffusion_cargo == settings2.diffusion_cargo
-        && settings1.temperature_cargo == settings1.temperature_cargo
+    approx::abs_diff_eq!(settings1.n_cells_cargo, settings2.n_cells_cargo)
+        && approx::abs_diff_eq!(
+            settings1.cell_radius_cargo,
+            settings2.cell_radius_cargo,
+            epsilon = NANOMETRE
+        )
+        && approx::abs_diff_eq!(
+            settings1.diffusion_cargo,
+            settings2.diffusion_cargo,
+            epsilon = NANOMETRE
+        )
+        && approx::abs_diff_eq!(
+            settings1.temperature_cargo,
+            settings1.temperature_cargo,
+            epsilon = NANOMETRE
+        )
         && settings1.update_interval == settings2.update_interval
-        && settings1.potential_strength_cargo_cargo == settings2.potential_strength_cargo_cargo
-        && settings1.interaction_range_cargo_cargo == settings2.interaction_range_cargo_cargo
-        && settings1.dt == settings2.dt
-        && settings1.t_max == settings2.t_max
+        && approx::abs_diff_eq!(
+            settings1.potential_strength_cargo_cargo,
+            settings2.potential_strength_cargo_cargo,
+            epsilon = NANOMETRE
+        )
+        && approx::abs_diff_eq!(
+            settings1.interaction_range_cargo_cargo,
+            settings2.interaction_range_cargo_cargo,
+            epsilon = NANOMETRE
+        )
+        && approx::abs_diff_eq!(settings1.dt, settings2.dt, epsilon = NANOMETRE)
+        && approx::abs_diff_eq!(settings1.t_max, settings2.t_max, epsilon = NANOMETRE)
         && settings1.n_threads == settings2.n_threads
-        && settings1.domain_size == settings2.domain_size
-        && settings1.domain_cargo_radius_max == settings2.domain_cargo_radius_max
+        && approx::abs_diff_eq!(
+            settings1.domain_size,
+            settings2.domain_size,
+            epsilon = NANOMETRE
+        )
+        && approx::abs_diff_eq!(
+            settings1.domain_cargo_radius_max,
+            settings2.domain_cargo_radius_max,
+            epsilon = NANOMETRE
+        )
         && settings1.domain_n_voxels == settings2.domain_n_voxels
         && settings1.random_seed == settings2.random_seed
 }
