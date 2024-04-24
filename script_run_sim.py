@@ -1,19 +1,33 @@
 from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
-import json
+import os
 
 if __name__ == "__main__":
     simulation_settings = SimulationSettings()
-    simulation_settings.n_threads = 2
-    
-    storager = run_simulation(simulation_settings)
+    simulation_settings.n_threads = 4
+    simulation_settings.t_max = 4 * cra.MINUTE
+    simulation_settings.save_interval = 0.1 * cra.MINUTE
+    simulation_settings.dt = 0.001 * cra.MINUTE
 
-    import os
-    from pathlib import Path
-    output_path = Path(cra.get_last_output_path())
+    factor = 2e-2 * cra.NANOMETRE**2 / cra.SECOND**2
+    simulation_settings.potential_strength_cargo_cargo          = factor * 0.03
+    simulation_settings.potential_strength_cargo_atg11w19       = factor * 0.01
+    simulation_settings.potential_strength_atg11w19_atg11w19    = factor * 0.005
+
+    simulation_settings.domain_size = 2000 * cra.NANOMETRE
+    simulation_settings.domain_cargo_radius_max = 450 * cra.NANOMETRE
+    # simulation_settings.domain_atg11w19_radius_min = 550 * cra.NANOMETRE
+
+    simulation_settings.diffusion_atg11w19 = 5e-4  * cra.MICROMETRE**2 / cra.SECOND
+    simulation_settings.diffusion_cargo = 2e-4  * cra.MICROMETRE**2 / cra.SECOND
+
+    # storager = run_simulation(simulation_settings)
+
+    output_path = cra.get_last_output_path()
 
     print("Saving Snapshots")
-    cra.save_all_snapshots(output_path, threads=14)#simulation_settings.n_threads)
+    cra.save_all_snapshots(output_path, threads=14, overwrite=True)#simulation_settings.n_threads)
+    # cra.save_snapshot(output_path, 100, overwrite=True)
 
     # print("Saving cluster analysis plots")
     # cra.save_all_cluster_information_plots(
@@ -23,12 +37,12 @@ if __name__ == "__main__":
     #     connection_distance=2.5
     # )
 
-    print("Saving kde plots")
-    cra.save_all_kernel_density(
-        output_path,
-        threads=0,
-        bw_method=0.25
-    )
+    # print("Saving kde plots")
+    # cra.save_all_kernel_density(
+    #     output_path,
+    #     threads=0,
+    #     bw_method=0.25
+    # )
 
     # Also create a movie with ffmpeg
     print("Generating Snapshot Movie")
