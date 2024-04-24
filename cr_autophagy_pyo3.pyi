@@ -1,6 +1,17 @@
+from typing import Final
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
+# SI Constants
+NANOMETRE: Final[float] = 1e-9
+MICROMETRE: Final[float] = 1e-6
+SECOND: Final[float] = 1.0
+MINUTE: Final[float] = 60.0 * SECOND
+HOUR: Final[float] = 60.0 * MINUTE
+DAY: Final[float] = 24.0 * HOUR
+BOLTZMANN_CONSTANT: Final[float] = 1.380649e-23
+KELVIN: Final[float] = 1.0
 
 def run_simulation(SimulationSettings) -> str:
     pass
@@ -8,38 +19,34 @@ def run_simulation(SimulationSettings) -> str:
 
 @dataclass
 class SimulationSettings:
-    n_cells_cargo: int
-    n_cells_r11: int
-    cell_radius_cargo: float
-    cell_radius_r11: float
-    mass_cargo: float
-    mass_r11: float
-    damping_cargo: float
-    damping_r11: float
-    kb_temperature_cargo: float
-    kb_temperature_r11: float
-    update_interval: int
-    potential_strength_cargo_cargo: float
-    potential_strength_r11_r11: float
-    potential_strength_cargo_r11: float
-    potential_strength_cargo_r11_avidity: float
-    interaction_range_cargo_cargo: float
-    interaction_range_r11_r11: float
-    interaction_range_r11_cargo: float
-    interaction_relative_neighbour_distance: float
-    dt: float
-    n_times: int
-    save_interval: int
-    extra_saves: list[int]
-    n_threads: int
-    domain_size: float
-    domain_cargo_radius_max: float
-    domain_r11_radius_min: float
-    domain_n_voxels: int
-    storage_name: str
-    storage_name_add_date: bool
-    show_progressbar: bool
-    random_seed: int
+    # TODO add default values
+    n_cells_cargo: int = 200
+    n_cells_atg11w19: int = 200
+    cell_radius_cargo: float = 100 * NANOMETRE
+    cell_radius_atg11w19: float = 100 * NANOMETRE
+    diffusion_atg11w19: float = 2e-3 * MICROMETRE**2 / SECOND
+    diffusion_cargo: float = 2e-3 * MICROMETRE**2 / SECOND
+    temperature_atg11w19: float = 300 * KELVIN
+    temperature_cargo: float = 300 * KELVIN
+    update_interval: int = 5
+    potential_strength_cargo_cargo: float = 6e-4 * MICROMETRE**2 / SECOND**2
+    potential_strength_atg11w19_atg11w19: float = 2e-4 * MICROMETRE**2 / SECOND**2
+    potential_strength_cargo_atg11w19: float = 1e-4 * MICROMETRE**2 / SECOND**2
+    interaction_range_cargo_cargo: float = 0.4 * (cell_radius_cargo + cell_radius_atg11w19)
+    interaction_range_atg11w19_atg11w19: float = 0.4 * (cell_radius_cargo + cell_radius_atg11w19)
+    interaction_range_atg11w19_cargo: float = 0.4 * (cell_radius_cargo + cell_radius_atg11w19)
+    dt: float = 0.001 * MINUTE
+    t_max: float = 40 * MINUTE
+    save_interval: float = 0.1 * MINUTE
+    extra_saves: list[float] = []
+    n_threads: int = 1
+    domain_size: float = 2000 * NANOMETRE
+    domain_cargo_radius_max: float = 600 * NANOMETRE
+    domain_atg11w19_radius_min: float = 650 * NANOMETRE
+    domain_n_voxels: Optional[int] = 4
+    storage_name: str = "out/autophagy"
+    show_progressbar: bool = True
+    random_seed: int = 1
 
     def load_from_file(path: Path) -> SimulationSettings:
         pass
@@ -54,17 +61,15 @@ class TypedInteraction:
     species: Species
     cell_radius: float
     potential_strength_cargo_cargo: float
-    potential_strength_r11_r11: float
-    potential_strength_cargo_r11: float
-    potential_strength_cargo_r11_avidity: float
+    potential_strength_atg11w19_atg11w19: float
+    potential_strength_cargo_atg11w19: float
     interaction_range_cargo_cargo: float
-    interaction_range_r11_r11: float
-    interaction_range_r11_cargo: float
-    relative_neighbour_distance: float
+    interaction_range_atg11w19_atg11w19: float
+    interaction_range_atg11w19_cargo: float
 
 
 @dataclass
-class Langevin3D:
+class Brownian3D:
     pos: list[float]
     diffusion_constant: float
     kb_temperature: float
