@@ -329,11 +329,19 @@ def save_kernel_density(
         lims_low = [0 if i!=j else round(density_atg11w19.shape[0]/2) for j in range(3)]
         lims_high = [-1 if i!=j else round(density_atg11w19.shape[0]/2)+1 for j in range(3)]
 
-        data_atg11w19 = density_atg11w19[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
+        data_atg11w19 = density_atg11w19[
+            lims_low[0]:lims_high[0],
+            lims_low[1]:lims_high[1],
+            lims_low[2]:lims_high[2]
+        ]
         data_atg11w19 = data_atg11w19.squeeze(axis=i)
         mask_atg11w19, _ = calculate_mask(data_atg11w19, threshold)
 
-        data_cargo = density_cargo[lims_low[0]:lims_high[0],lims_low[1]:lims_high[1],lims_low[2]:lims_high[2]]
+        data_cargo = density_cargo[
+            lims_low[0]:lims_high[0],
+            lims_low[1]:lims_high[1],
+            lims_low[2]:lims_high[2]
+        ]
         data_cargo = data_cargo.squeeze(axis=i)
         mask_cargo, _ = calculate_mask(data_cargo, threshold)
 
@@ -370,8 +378,20 @@ def save_all_kernel_density(output_path, threads=1, **kwargs):
     _ = list(tqdm.tqdm(pool.imap_unordered(_save_kernel_density_helper, args), total=len(args)))
 
 
-def plot_cluster_distribution(output_path, iteration, threshold, discretization_factor, bw_method):
-    clrs = get_clusters_kde(output_path, iteration, threshold=threshold, discretization_factor=discretization_factor, bw_method=bw_method)
+def plot_cluster_distribution(
+        output_path,
+        iteration,
+        threshold,
+        discretization_factor,
+        bw_method
+    ):
+    clrs = get_clusters_kde(
+        output_path,
+        iteration,
+        threshold=threshold,
+        discretization_factor=discretization_factor,
+        bw_method=bw_method,
+    )
 
     # Calculate percentiles for plotting
     percentiles = [clrs.get_cargo_distance_percentile(perc) for perc in [70, 80, 90]]
