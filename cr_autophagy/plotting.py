@@ -98,6 +98,16 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     bfp_high = np.array([33, 113, 181])/255
     bfp_low = np.array([255, 255, 255])/255
     bfp_cols = np.linspace(bfp_low, bfp_high, 12)
+    ds = np.full((3,), simulation_settings.domain_size / cra.NANOMETRE)
+    position = 2.5 * ds
+    focal_point = 0.5 * ds
+    viewup = (0,0,1)
+    plotter.disable()
+    plotter.camera_position = [position, focal_point, viewup]
+    plotter.camera.thickness = 4 * ds[0]
+    plotter.parallel_scale = ds[0]
+    plotter.camera.clipping_range = (1.5 * ds[0], 6 * ds[0])
+
     # '#79c877'
 
     plotter.add_mesh(
