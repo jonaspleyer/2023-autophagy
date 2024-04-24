@@ -160,7 +160,7 @@ impl SimulationSettings {
             interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
 
             dt: 0.1 * MINUTE,
-            t_max: 1.0 * HOUR,
+            t_max: 30.0 * MINUTE,
             save_interval: 10.0 * MINUTE,
             extra_saves: Vec::new(),
 
@@ -451,44 +451,45 @@ fn compare_cargo_properties(
     settings1: &SimulationSettings,
     settings2: &SimulationSettings,
 ) -> bool {
+    let uncertainty = 1e-5;
     approx::abs_diff_eq!(settings1.n_cells_cargo, settings2.n_cells_cargo)
         && approx::abs_diff_eq!(
             settings1.cell_radius_cargo,
             settings2.cell_radius_cargo,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * NANOMETRE
         )
         && approx::abs_diff_eq!(
             settings1.diffusion_cargo,
             settings2.diffusion_cargo,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * MICROMETRE.powf(2.0) / SECOND
         )
         && approx::abs_diff_eq!(
             settings1.temperature_cargo,
             settings1.temperature_cargo,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * KELVIN
         )
         && approx::abs_diff_eq!(
             settings1.potential_strength_cargo_cargo,
             settings2.potential_strength_cargo_cargo,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * NANOMETRE.powf(2.0) / SECOND.powf(2.0)
         )
         && approx::abs_diff_eq!(
             settings1.interaction_range_cargo_cargo,
             settings2.interaction_range_cargo_cargo,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * NANOMETRE
         )
-        && approx::abs_diff_eq!(settings1.dt, settings2.dt, epsilon = NANOMETRE)
-        && approx::abs_diff_eq!(settings1.t_max, settings2.t_max, epsilon = NANOMETRE)
+        && approx::abs_diff_eq!(settings1.dt, settings2.dt, epsilon = uncertainty * SECOND)
+        && approx::abs_diff_eq!(settings1.t_max, settings2.t_max, epsilon = uncertainty * SECOND)
         && settings1.n_threads == settings2.n_threads
         && approx::abs_diff_eq!(
             settings1.domain_size,
             settings2.domain_size,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * NANOMETRE
         )
         && approx::abs_diff_eq!(
             settings1.domain_cargo_radius_max,
             settings2.domain_cargo_radius_max,
-            epsilon = NANOMETRE
+            epsilon = uncertainty * NANOMETRE
         )
         && settings1.domain_n_voxels == settings2.domain_n_voxels
         && settings1.random_seed == settings2.random_seed
