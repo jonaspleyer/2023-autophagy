@@ -40,8 +40,16 @@ def _generate_spheres(output_path: Path, iteration):
 
     # Create spheres glyphs from dataset
     sphere = pv.Sphere()
-    spheres_cargo = pset_cargo.glyph(geom=sphere, scale="diameter", orient=False)
-    spheres_atg11w19 = pset_atg11w19.glyph(geom=sphere, scale="diameter", orient=False)
+    spheres_cargo = pset_cargo.glyph(
+        geom=sphere,
+        scale="diameter",
+        orient=False
+    )
+    spheres_atg11w19 = pset_atg11w19.glyph(
+        geom=sphere,
+        scale="diameter",
+        orient=False
+    )
 
     return spheres_cargo, spheres_atg11w19
 
