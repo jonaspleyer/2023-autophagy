@@ -139,20 +139,8 @@ pub struct SimulationSettings {
 impl SimulationSettings {
     #[new]
     fn new() -> Self {
-        // TODO for the future
-        // let temperature = 300_f64 * KELVIN;
-        // let thermodynamic_energy = BOLTZMANN_CONSTANT * temperature;
-        // TODO for the future
-        // let cell_radius_atg11w19: f64 = 0.5*(22.938 + 16.259) * NANOMETRE;
-        // let cell_radius_atg11w19: f64 = 1.0;
-        let cell_radius_atg11w19: f64 = 10.0 * NANOMETRE;
-
-        // TODO for the future
-        // let mass_atg11w19 = 135002.0 * DALTON;
-        // let mass_atg11w19 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_atg11w19.powf(3.0);
-        // let mass_cargo = 3.0 * mass_atg11w19;
+        let cell_radius_atg11w19: f64 = 100.0 * NANOMETRE;
         let cell_radius_cargo: f64 = 1.0 * cell_radius_atg11w19;
-        let dt = 0.0000000000001 * MINUTE;
 
         SimulationSettings {
             n_cells_cargo: 200,
@@ -160,30 +148,32 @@ impl SimulationSettings {
             cell_radius_cargo,
             cell_radius_atg11w19,
 
-            diffusion_atg11w19: 4.0 / 1.5 * MICROMETRE.powf(2.0) / SECOND,
+            diffusion_atg11w19: 2e-3 * MICROMETRE.powf(2.0) / SECOND,
+            diffusion_cargo: 2e-3 * MICROMETRE.powf(2.0) / SECOND,
 
-            kb_temperature_cargo: 0.1 * KELVIN,
-            kb_temperature_atg11w19: 0.003 * KELVIN,
+            temperature_atg11w19: 300.0 * KELVIN,
+            temperature_cargo: 300.0 * KELVIN,
 
             update_interval: 5,
 
-            potential_strength_cargo_cargo: 0.03 * NANOMETRE.powf(2.0) / MINUTE,
-            potential_strength_atg11w19_atg11w19: 0.001 * NANOMETRE.powf(2.0) / MINUTE,
-            potential_strength_cargo_atg11w19: 0.01 * NANOMETRE.powf(2.0) / MINUTE,
+            potential_strength_cargo_cargo: 0.03 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
+            potential_strength_atg11w19_atg11w19: 0.01 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
+            potential_strength_cargo_atg11w19: 0.02 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
 
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
-            dt,
+
+            dt: 0.1 * MINUTE,
             t_max: 1.0 * HOUR,
             save_interval: 10.0 * MINUTE,
             extra_saves: Vec::new(),
 
             n_threads: 1,
 
-            domain_size: 200.0 * MICROMETRE,
-            domain_cargo_radius_max: 60.0 * MICROMETRE,
-            domain_atg11w19_radius_min: 65.0 * MICROMETRE,
+            domain_size: 2000.0 * NANOMETRE,
+            domain_cargo_radius_max: 600.0 * NANOMETRE,
+            domain_atg11w19_radius_min: 650.0 * NANOMETRE,
 
             domain_n_voxels: Some(4),
 
