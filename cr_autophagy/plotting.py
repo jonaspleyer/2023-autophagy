@@ -84,20 +84,6 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     plotter.enable_anti_aliasing()
 
     # Set up the camera
-    ds = 1.5*simulation_settings.domain_size
-    plotter.camera_position = [
-        (-ds, -ds, -ds),
-        (ds, ds, ds),
-        (0, 0, 0)
-    ]
-
-    gfp_high = np.array([121, 200, 119])/255
-    gfp_low = np.array([255, 255, 255])/255
-    gfp_cols = np.linspace(gfp_low, gfp_high, 12)
-
-    bfp_high = np.array([33, 113, 181])/255
-    bfp_low = np.array([255, 255, 255])/255
-    bfp_cols = np.linspace(bfp_low, bfp_high, 12)
     ds = np.full((3,), simulation_settings.domain_size / cra.NANOMETRE)
     position = 2.5 * ds
     focal_point = 0.5 * ds
@@ -108,16 +94,18 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     plotter.parallel_scale = ds[0]
     plotter.camera.clipping_range = (1.5 * ds[0], 6 * ds[0])
 
+    gfp = np.array([121, 200, 119])/255
+    bfp = np.array([33, 113, 181])/255
     # '#79c877'
 
     plotter.add_mesh(
         cargo,
-        color=bfp_high,
+        color=bfp,
         show_edges=False,
     )
     plotter.add_mesh(
         atg11w19,
-        color=gfp_high,
+        color=gfp,
         show_edges=False,
     )
     img = plotter.screenshot(opath)
