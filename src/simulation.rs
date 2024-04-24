@@ -243,7 +243,7 @@ impl SimulationSettings {
 fn generate_particle_pos_spherical(
     simulation_settings: &SimulationSettings,
     rng: &mut ChaCha8Rng,
-    n: usize,
+    is_cargo: bool,
 ) -> [f64; 3] {
     let middle = simulation_settings.domain_size / 2.0;
     let mut generate_position = |lower_radius: f64, upper_radius: f64| -> [f64; 3] {
@@ -256,7 +256,7 @@ fn generate_particle_pos_spherical(
             middle + r * theta.cos(),
         ]
     };
-    let pos = if n < simulation_settings.n_cells_cargo {
+    let pos = if is_cargo {
         generate_position(0.0, simulation_settings.domain_cargo_radius_max)
     } else {
         generate_position(
@@ -298,20 +298,16 @@ fn calculate_interaction_range_max(simulation_settings: &SimulationSettings) -> 
 fn create_particle_mechanics(
     simulation_settings: &SimulationSettings,
     rng: &mut ChaCha8Rng,
-    n: usize,
-    position: Option<Vector3<f64>>,
+    is_cargo: bool,
 ) -> Brownian3D {
-    let pos = match position {
-        Some(pos) => pos.into(),
-        None => generate_particle_pos_spherical(simulation_settings, rng, n),
-    };
-    let kb_temperature = if n < simulation_settings.n_cells_cargo {
-        simulation_settings.kb_temperature_cargo
+    let pos = generate_particle_pos_spherical(simulation_settings, rng, is_cargo);
+    let kb_temperature = if is_cargo {
+        simulation_settings.temperature_cargo * BOLTZMANN_CONSTANT
     } else {
-        simulation_settings.kb_temperature_atg11w19
+        simulation_settings.temperature_atg11w19 * BOLTZMANN_CONSTANT
     };
-    let diffusion = if n < simulation_settings.n_cells_cargo {
-        0.0
+    let diffusion = if is_cargo {
+        simulation_settings.diffusion_cargo
     } else {
         simulation_settings.diffusion_atg11w19
     };
@@ -325,15 +321,15 @@ fn create_particle_mechanics(
 
 fn create_particle_interaction(
     simulation_settings: &SimulationSettings,
-    n: usize,
+    is_cargo: bool,
 ) -> TypedInteraction {
     TypedInteraction::new(
-        if n < simulation_settings.n_cells_cargo {
+        if is_cargo {
             Species::Cargo
         } else {
             Species::Atg11w19
         },
-        if n < simulation_settings.n_cells_cargo {
+        if is_cargo {
             simulation_settings.cell_radius_cargo
         } else {
             simulation_settings.cell_radius_atg11w19
@@ -366,7 +362,7 @@ impl Storager {
     #[staticmethod]
     pub fn from_path(path: std::path::PathBuf, date: Option<std::path::PathBuf>) -> PyResult<Self> {
         let simulation_settings = SimulationSettings::load_from_file(path.join(SIM_SETTINGS))?;
-        let builder = construct_storage_builder(&simulation_settings).suffix("cells");
+        let builder = construct_storage_builder(&simulation_settings, false).suffix("cells");
         let manager = match date {
             Some(date) => {
                 let builder = builder.init_with_date(&date);
@@ -556,7 +552,7 @@ where
         simulation_settings.save_interval,
     )?;
 
-    let storage = construct_storage_builder(&simulation_settings).init();
+    let storage = construct_storage_builder(&simulation_settings, calculate_cargo).init();
     let path = storage.get_full_path();
     simulation_settings.save_to_file(path)?;
 
