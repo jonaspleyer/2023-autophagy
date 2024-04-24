@@ -23,16 +23,14 @@ fn cr_autophagy_pyo3(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TypedInteraction>()?;
     m.add_class::<cellular_raza::prelude::Brownian3D>()?;
 
-    m.add("dalton", DALTON)?;
-    m.add("angstrom", ANGSTROM)?;
-    m.add("nanometre", NANOMETRE)?;
-    m.add("micrometre", MICROMETRE)?;
-    m.add("second", SECOND)?;
-    m.add("minute", MINUTE)?;
-    m.add("hour", HOUR)?;
-    m.add("day", DAY)?;
-    m.add("boltzmann_constant", BOLTZMANN_CONSTANT)?;
-    m.add("kelvin", KELVIN)?;
+    m.add("NANOMETRE", NANOMETRE)?;
+    m.add("MICROMETRE", MICROMETRE)?;
+    m.add("SECOND", SECOND)?;
+    m.add("MINUTE", MINUTE)?;
+    m.add("HOUR", HOUR)?;
+    m.add("DAY", DAY)?;
+    m.add("BOLTZMANN_CONSTANT", BOLTZMANN_CONSTANT)?;
+    m.add("KELVIN", KELVIN)?;
 
     Ok(())
 }

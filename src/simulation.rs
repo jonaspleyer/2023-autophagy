@@ -10,16 +10,6 @@ use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
-/// One Dalton in SI units.
-///
-/// For a full description see [wikipedia](https://en.wikipedia.org/wiki/Dalton_(unit)).
-pub const DALTON: f64 = 1.66053906660e-27;
-
-/// One Angström in SI units.
-///
-/// For a description see [wikipedia](https://en.wikipedia.org/wiki/Angstrom).
-pub const ANGSTROM: f64 = 1e-10;
-
 /// One nanometre in SI units.
 pub const NANOMETRE: f64 = 1e-9;
 
