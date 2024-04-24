@@ -197,9 +197,9 @@ impl SimulationSettings {
     /// of this object.
     #[staticmethod]
     pub fn load_from_file(path: std::path::PathBuf) -> PyResult<Self> {
-        let file = std::fs::File::open(path).or_else(|e| {
+        let file = std::fs::File::open(&path).or_else(|e| {
             Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
-                format!("serde_json error in loading simulation settings from file: {e}"),
+                format!("std::fs::File error: {e} while opening file: {:?}", path),
             ))
         })?;
         let reader = std::io::BufReader::new(file);
@@ -263,7 +263,11 @@ fn test_particle_pos_config() {
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
 
     for n in 0..simulation_settings.n_cells_cargo + simulation_settings.n_cells_atg11w19 {
-        let pos = generate_particle_pos_spherical(&simulation_settings, &mut rng, n);
+        let pos = generate_particle_pos_spherical(
+            &simulation_settings,
+            &mut rng,
+            n < simulation_settings.n_cells_cargo,
+        );
         for i in 0..3 {
             assert!(0.0 <= pos[i]);
             assert!(pos[i] <= simulation_settings.domain_size);
@@ -350,15 +354,20 @@ pub struct Storager {
 impl Storager {
     /// Construct a [Storager] from the given path.
     #[staticmethod]
-    pub fn from_path(path: std::path::PathBuf, date: Option<std::path::PathBuf>) -> PyResult<Self> {
-        let simulation_settings = SimulationSettings::load_from_file(path.join(SIM_SETTINGS))?;
-        let builder = construct_storage_builder(&simulation_settings, false).suffix("cells");
+    pub fn from_path(path: std::path::PathBuf, cargo: bool, date: Option<std::path::PathBuf>) -> PyResult<Self> {
+        let full_path = match &date {
+            Some(date) => path.join(date),
+            None => path,
+        };
+        let simulation_settings = SimulationSettings::load_from_file(full_path.join(SIM_SETTINGS))?;
+        let builder = construct_storage_builder(&simulation_settings, cargo).suffix("cells");
         let manager = match date {
             Some(date) => {
                 let builder = builder.init_with_date(&date);
                 StorageManager::open_or_create(builder, 0)
             }
             None => {
+                println!("no date");
                 let builder = builder.add_date(false).init();
                 StorageManager::open_or_create(builder, 0)
             }
@@ -430,7 +439,8 @@ fn get_all_cargo_simulation_settings(
     let mut action = || -> Result<(), std::io::Error> {
         for subfolder in std::fs::read_dir(&simulation_settings.cargo_initials_dir)?.into_iter() {
             let path = subfolder?.path();
-            let sim_settings = SimulationSettings::load_from_file(path.join(SIM_SETTINGS))?;
+            let new_path = path.join(SIM_SETTINGS);
+            let sim_settings = SimulationSettings::load_from_file(new_path)?;
             outputs.push((path, sim_settings));
         }
         Ok(())
@@ -483,7 +493,20 @@ fn prepare_cargo_particles(
         // If so load positions from there
         Storager::from_path(
             loaded_settings.cargo_initials_dir.clone(),
-            Some(loaded_path),
+            true,
+            Some(
+                loaded_path
+                    .strip_prefix(&loaded_settings.cargo_initials_dir)
+                    .or_else(|e| {
+                        Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                            format!(
+                                "StripPrefixError: {e} for paths: {:?} and {:?}",
+                                loaded_path, loaded_settings.cargo_initials_dir
+                            ),
+                        ))
+                    })?
+                    .into(),
+            ),
         )?
     } else {
         // If not run new simulation
