@@ -113,21 +113,23 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
     return img
 
 
-def __save_snapshot_helper(args):
-    return save_snapshot(*args)
+def __save_snapshot_helper(args_kwargs):
+    args, kwargs = args_kwargs
+    return save_snapshot(*args, **kwargs)
 
 
-def save_all_snapshots(output_path: Path, threads=1, show_bar=True):
+def save_all_snapshots(output_path: Path, threads=1, show_bar=True, **kwargs):
     if threads<=0:
         threads = os.cpu_count()
-    output_iterations = [(output_path, iteration) for iteration in get_all_iterations(output_path)]
-    if show_bar:
-        list(tqdm.tqdm(mp.Pool(threads).imap(
-            __save_snapshot_helper,
-            output_iterations
-        ), total=len(output_iterations)))
-    else:
-        mp.Pool(threads).imap(__save_snapshot_helper, output_iterations)
+    output_iterations = [((output_path, iteration), kwargs) for iteration in get_all_iterations(output_path)]
+    with mp.Pool(threads) as pool:
+        if show_bar:
+            list(tqdm.tqdm(pool.imap(
+                __save_snapshot_helper,
+                output_iterations
+            ), total=len(output_iterations)))
+        else:
+            pool.imap(__save_snapshot_helper, output_iterations)
 
 
 def save_scatter_snapshot(output_path: Path, iteration):
