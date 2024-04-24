@@ -72,9 +72,6 @@ pub struct SimulationSettings {
     /// Brownian mechanics model for Atg11/19 particles.
     pub temperature_cargo: f64,
 
-    /// See [Brownian3D]
-    pub update_interval: usize,
-
     /// See TypedInteraction
     pub potential_strength_cargo_cargo: f64,
 
@@ -153,8 +150,6 @@ impl SimulationSettings {
 
             temperature_atg11w19: 300.0 * KELVIN,
             temperature_cargo: 300.0 * KELVIN,
-
-            update_interval: 5,
 
             potential_strength_cargo_cargo: 0.03 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
             potential_strength_atg11w19_atg11w19: 0.01 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
@@ -309,7 +304,6 @@ fn create_particle_mechanics(
         pos,
         diffusion,
         kb_temperature,
-        simulation_settings.update_interval,
     )
 }
 
@@ -473,7 +467,6 @@ fn compare_cargo_properties(
             settings1.temperature_cargo,
             epsilon = NANOMETRE
         )
-        && settings1.update_interval == settings2.update_interval
         && approx::abs_diff_eq!(
             settings1.potential_strength_cargo_cargo,
             settings2.potential_strength_cargo_cargo,
