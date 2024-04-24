@@ -3,6 +3,7 @@ import scipy as sp
 import itertools
 import multiprocessing as mp
 import cc3d
+from typing import Optional
 
 from dataclasses import dataclass
 
@@ -180,7 +181,7 @@ def calculate_spatial_density(
         atg11w19_positions:np.ndarray,
         domain_size:float,
         discretization:float,
-        bw_method:float=None
+        bw_method:Optional[float]
     ):
     """
     Calculate the spatial density of particles.
@@ -400,7 +401,7 @@ class KDEClusterResult:
         return self.cluster_positions[mask]
 
 
-def calculate_cargo_atg11w19_cluster_distances(mask_atg11w19, mask_cargo, domain_size) -> KDEClusterResult:
+def calculate_cargo_atg11w19_cluster_distances(mask_atg11w19, mask_cargo, domain_size) -> Optional[KDEClusterResult]:
     _, labels_cargo, identifiers_cargo, _ = calcualte_3d_connected_components(mask_cargo)
     n_clusters, labels_atg11w19, identifiers_atg11w19, cluster_sizes = calcualte_3d_connected_components(mask_atg11w19)
 
