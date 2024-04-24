@@ -339,7 +339,7 @@ pub struct Storager {
         chili::CellIdentifier,
         (
             chili::CellBox<Particle>,
-            _CrAuxStorage<Vector3<f64>, Vector3<f64>, Vector3<f64>, f64, 2>,
+            _CrAuxStorage<Vector3<f64>, Vector3<f64>, Vector3<f64>, 2>,
         ),
     >,
 }
