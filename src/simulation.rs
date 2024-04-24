@@ -61,16 +61,18 @@ pub struct SimulationSettings {
     /// Diffusion as given in the [Brownian3D] struct.
     pub diffusion_atg11w19: f64,
 
-    /// Product of Boltzmann-Constant and temperature of the
-    /// Langevin mechanics model for Cargo particles.
-    pub kb_temperature_cargo: f64,
+    /// Diffusion as given in the [Brownian3D] struct.
+    pub diffusion_cargo: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
-    /// Langevin mechanics model for Atg11/19 particles.
-    pub kb_temperature_atg11w19: f64,
+    /// Brownian mechanics model for Atg11/19 particles.
+    pub temperature_atg11w19: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
-    /// Langevin mechanics model for Atg11/19 particles.
+    /// Brownian mechanics model for Atg11/19 particles.
+    pub temperature_cargo: f64,
+
+    /// See [Brownian3D]
     pub update_interval: usize,
 
     /// See TypedInteraction
