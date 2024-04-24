@@ -18,17 +18,25 @@ def _generate_spheres(output_path: Path, iteration):
     # df = df[df["iteration"]==iteration]
 
     # Create a dataset for pyvista for plotting
-    pos_cargo = df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
-    pos_atg11w19 = df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
+    pos_cargo = 1/cra.NANOMETRE * df[df["cell.interaction.species"]=="Cargo"]["cell.mechanics.pos"]
+    pos_atg11w19 = 1/cra.NANOMETRE * df[df["cell.interaction.species"]!="Cargo"]["cell.mechanics.pos"]
     pset_cargo = pv.PolyData(np.array([np.array(x) for x in pos_cargo]))
     pset_atg11w19 = pv.PolyData(np.array([np.array(x) for x in pos_atg11w19]))
 
     # Extend dataset by species and diameter
-    pset_cargo.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.cell_radius"]
-    pset_cargo.point_data["species"] = df[df["cell.interaction.species"]=="Cargo"]["cell.interaction.species"]
+    pset_cargo.point_data["diameter"] = 2.0 / cra.NANOMETRE * df[
+        df["cell.interaction.species"]=="Cargo"
+    ]["cell.interaction.cell_radius"]
+    pset_cargo.point_data["species"] = df[
+        df["cell.interaction.species"]=="Cargo"
+    ]["cell.interaction.species"]
 
-    pset_atg11w19.point_data["diameter"] = 2.0*df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.cell_radius"]
-    pset_atg11w19.point_data["species"] = df[df["cell.interaction.species"]!="Cargo"]["cell.interaction.species"]
+    pset_atg11w19.point_data["diameter"] = 2.0 / cra.NANOMETRE * df[
+        df["cell.interaction.species"]!="Cargo"
+    ]["cell.interaction.cell_radius"]
+    pset_atg11w19.point_data["species"] = df[
+        df["cell.interaction.species"]!="Cargo"
+    ]["cell.interaction.species"]
 
     # Create spheres glyphs from dataset
     sphere = pv.Sphere()

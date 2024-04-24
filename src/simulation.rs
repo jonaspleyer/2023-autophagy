@@ -156,52 +156,45 @@ impl SimulationSettings {
         // TODO for the future
         // let cell_radius_atg11w19: f64 = 0.5*(22.938 + 16.259) * NANOMETRE;
         // let cell_radius_atg11w19: f64 = 1.0;
-        let cell_radius_atg11w19: f64 = 10.0;
+        let cell_radius_atg11w19: f64 = 10.0 * NANOMETRE;
 
         // TODO for the future
         // let mass_atg11w19 = 135002.0 * DALTON;
         // let mass_atg11w19 = 4.0 / 3.0 * std::f64::consts::PI * cell_radius_atg11w19.powf(3.0);
         // let mass_cargo = 3.0 * mass_atg11w19;
         let cell_radius_cargo: f64 = 1.0 * cell_radius_atg11w19;
-        let dt = 1.0;
+        let dt = 0.0000000000001 * MINUTE;
 
         SimulationSettings {
             n_cells_cargo: 200,
             n_cells_atg11w19: 200,
-            // n_cells_cargo: 420,
-            // n_cells_atg11w19: 55,
             cell_radius_cargo,
             cell_radius_atg11w19,
 
-            // mass_cargo,
-            // mass_atg11w19,
+            diffusion_atg11w19: 4.0 / 1.5 * MICROMETRE.powf(2.0) / SECOND,
 
-            // damping_cargo: 1.5,
-            // damping_atg11w19: 1.5,
-            diffusion_atg11w19: 0.003 / 1.5,
-
-            kb_temperature_cargo: 0.1,
-            kb_temperature_atg11w19: 0.003,
+            kb_temperature_cargo: 0.1 * KELVIN,
+            kb_temperature_atg11w19: 0.003 * KELVIN,
 
             update_interval: 5,
 
-            potential_strength_cargo_cargo: 0.03,
-            potential_strength_atg11w19_atg11w19: 0.001,
-            potential_strength_cargo_atg11w19: 0.0,
+            potential_strength_cargo_cargo: 0.03 * NANOMETRE.powf(2.0) / MINUTE,
+            potential_strength_atg11w19_atg11w19: 0.001 * NANOMETRE.powf(2.0) / MINUTE,
+            potential_strength_cargo_atg11w19: 0.01 * NANOMETRE.powf(2.0) / MINUTE,
 
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             dt,
-            t_max: 40000.0,
-            save_interval: 100.0,
+            t_max: 1.0 * HOUR,
+            save_interval: 10.0 * MINUTE,
             extra_saves: Vec::new(),
 
             n_threads: 1,
 
-            domain_size: 200.0,
-            domain_cargo_radius_max: 60.0,
-            domain_atg11w19_radius_min: 65.0,
+            domain_size: 200.0 * MICROMETRE,
+            domain_cargo_radius_max: 60.0 * MICROMETRE,
+            domain_atg11w19_radius_min: 65.0 * MICROMETRE,
 
             domain_n_voxels: Some(4),
 
