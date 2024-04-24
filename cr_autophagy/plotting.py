@@ -3,7 +3,8 @@ import pyvista as pv
 import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing as mp
-import matplotlib
+import cr_autophagy_pyo3 as cra
+import os
 
 from pathlib import Path
 
