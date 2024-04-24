@@ -432,104 +432,148 @@ impl Storager {
     }
 }
 
+/// Returns dates and the settings structs which are currently present
+fn get_all_cargo_simulation_settings(
+    simulation_settings: &SimulationSettings,
+) -> Vec<(std::path::PathBuf, SimulationSettings)> {
+    let mut outputs = Vec::new();
+    let mut action = || -> Result<(), std::io::Error> {
+        for subfolder in std::fs::read_dir(&simulation_settings.cargo_initials_dir)?.into_iter() {
+            let path = subfolder?.path();
+            let sim_settings = SimulationSettings::load_from_file(path.join(SIM_SETTINGS))?;
+            outputs.push((path, sim_settings));
+        }
+        Ok(())
+    };
+    match action() {
+        Err(_) => outputs,
+        Ok(()) => outputs,
+    }
+}
+
+/// Returns true if both simulation settings contain equal parameters specifically for the cargo
+/// particles but only interactions between cargo particles (not cargo - atg11w19).
+fn compare_cargo_properties(
+    settings1: &SimulationSettings,
+    settings2: &SimulationSettings,
+) -> bool {
+    settings1.n_cells_cargo == settings2.n_cells_cargo
+        && settings1.cell_radius_cargo == settings2.cell_radius_cargo
+        && settings1.diffusion_cargo == settings2.diffusion_cargo
+        && settings1.temperature_cargo == settings1.temperature_cargo
+        && settings1.update_interval == settings2.update_interval
+        && settings1.potential_strength_cargo_cargo == settings2.potential_strength_cargo_cargo
+        && settings1.interaction_range_cargo_cargo == settings2.interaction_range_cargo_cargo
+        && settings1.dt == settings2.dt
+        && settings1.t_max == settings2.t_max
+        && settings1.n_threads == settings2.n_threads
+        && settings1.domain_size == settings2.domain_size
+        && settings1.domain_cargo_radius_max == settings2.domain_cargo_radius_max
+        && settings1.domain_n_voxels == settings2.domain_n_voxels
+        && settings1.random_seed == settings2.random_seed
+}
+
+/// Returns either loaded or calculated positions of cargo particles.
+/// Will also return if these were loaded
+fn prepare_cargo_particles(
+    simulation_settings: &SimulationSettings,
+) -> Result<impl IntoIterator<Item = Particle>, pyo3::PyErr> {
+    // Define Rng
+    let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(1);
+
+    // Get settings for all previous runs
+    let cargo_sim_settings = get_all_cargo_simulation_settings(simulation_settings);
+    // Check if a previous simulation is present with parameters which match current settings
+    let cargo_initials_storager: Storager = if let Some((loaded_path, loaded_settings)) =
+        cargo_sim_settings
+            .into_iter()
+            .find(|(_, previous_run_settings)| {
+                compare_cargo_properties(&previous_run_settings, simulation_settings)
+            }) {
+        // If so load positions from there
+        Storager::from_path(
+            loaded_settings.cargo_initials_dir.clone(),
+            Some(loaded_path),
+        )?
+    } else {
+        // If not run new simulation
+        println!("Calculating cargo initial positions");
+        let mut simulation_settings_cargo_initials = simulation_settings.clone();
+        simulation_settings_cargo_initials.save_interval = simulation_settings.t_max;
+        let cargo_agents = (0..simulation_settings_cargo_initials.n_cells_cargo).map(|_| {
+            let mechanics =
+                create_particle_mechanics(&simulation_settings_cargo_initials, &mut rng, true);
+            let interaction =
+                create_particle_interaction(&simulation_settings_cargo_initials, true);
+            Particle {
+                mechanics,
+                interaction,
+            }
+        });
+        run_simulation_single(&simulation_settings_cargo_initials, cargo_agents, true)?
+    };
+
+    let iterations = cargo_initials_storager.get_all_iterations()?;
+    let max_iter = iterations.into_iter().max().unwrap();
+    let cells_last_iter = cargo_initials_storager.load_all_particles_at_iteration(max_iter)?;
+
+    // Return obtained positions
+    Ok(cells_last_iter.into_iter().map(|(_, cell)| cell))
+}
+
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output
 /// directory.
 #[pyfunction]
 pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storager, pyo3::PyErr> {
-    let simulation_settings_cargo_initials = {
-        let mut sim_settings_cargo_initials = simulation_settings.clone();
-        sim_settings_cargo_initials.storage_name_add_date = false;
-        sim_settings_cargo_initials.storage_name = CARGO_INITIALS_ODIR.into();
-        sim_settings_cargo_initials.save_interval = simulation_settings.t_max;
-        sim_settings_cargo_initials
-    };
+    let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
+    let cargo_positions = prepare_cargo_particles(&simulation_settings)?;
 
-    // Check if folder exists
-    let mut path = std::path::PathBuf::from(&simulation_settings_cargo_initials.storage_name);
-    path.push(SIM_SETTINGS);
-    let cargo_initials_storager: Storager = if SimulationSettings::load_from_file(path)
-        .is_ok_and(|sim_settings| sim_settings == simulation_settings_cargo_initials)
-    {
-        Storager::from_path(
-            simulation_settings_cargo_initials.storage_name.clone(),
-            None,
-        )?
-    } else {
-        run_simulation_single::<Vec<_>>(simulation_settings_cargo_initials, None)?
-    };
+    let particles = cargo_positions
+        .into_iter()
+        .map(|p| {
+            // Set the diffusion constant of the cargo particles to zero in order to fix them in
+            // space.
+            let mut particle = p;
+            particle.mechanics.diffusion_constant = 0.0;
+            particle
+        })
+        .chain((0..simulation_settings.n_cells_atg11w19).map(|_| {
+            let mechanics = create_particle_mechanics(&simulation_settings, &mut rng, false);
+            let interaction = create_particle_interaction(&simulation_settings, false);
+            Particle {
+                mechanics,
+                interaction,
+            }
+        }));
 
-    let cargo_initials_positions = {
-        let iterations = cargo_initials_storager.get_all_iterations()?;
-        let max_iter = iterations.into_iter().max().unwrap();
-        let cells_last_iter = cargo_initials_storager.load_all_particles_at_iteration(max_iter)?;
-        cells_last_iter
-            .into_iter()
-            .map(|(_, cell)| cell.mechanics.pos)
-    };
-
-    run_simulation_single(simulation_settings, Some(cargo_initials_positions))
-        .or_else(|e| Err(PyErr::from(chili::SimulationError::from(e))))
+    println!("Running Simulation");
+    let storager = run_simulation_single(&simulation_settings, particles, false)?;
+    Ok(storager)
 }
 
-fn construct_storage_builder(simulation_settings: &SimulationSettings) -> StorageBuilder {
+fn construct_storage_builder(
+    simulation_settings: &SimulationSettings,
+    access_cargo: bool,
+) -> StorageBuilder {
     StorageBuilder::new()
-        .location(simulation_settings.storage_name.clone())
+        .location(if access_cargo {
+            simulation_settings.cargo_initials_dir.clone()
+        } else {
+            simulation_settings.storage_name.clone()
+        })
         .priority([cellular_raza::core::storage::StorageOption::SerdeJson])
-        .add_date(simulation_settings.storage_name_add_date)
+        .add_date(true)
 }
 
 chili::prepare_types!(
     aspects: [Mechanics, Interaction]
 );
 
-// TODO can we modularize this function even more?
-fn run_simulation_single<I>(
-    simulation_settings: SimulationSettings,
-    cargo_positions: Option<I>,
-) -> Result<Storager, chili::SimulationError>
-where
-    I: IntoIterator<Item = Vector3<f64>>,
-    <I as IntoIterator>::IntoIter: ExactSizeIterator,
-{
-    let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
-
-    let particles = match cargo_positions {
-        // Cargo positions were given -> Use them in our simulation
-        Some(positions) => {
-            let mut positions = positions.into_iter();
-            let n_positions = positions.len();
-            (0..n_positions + simulation_settings.n_cells_atg11w19)
-                .map(|n| {
-                    let pos = positions.next();
-                    let mechanics =
-                        create_particle_mechanics(&simulation_settings, &mut rng, n, pos);
-                    let interaction = create_particle_interaction(&simulation_settings, n);
-                    Particle {
-                        mechanics,
-                        interaction,
-                    }
-                })
-                .collect::<Vec<_>>()
-        }
-        // Cargo positions were not given -> calculate them without putting Atg11/19 particles in there
-        None => {
-            println!("Calculating cargo initial positions");
-            let mut simulation_settings_new = simulation_settings.clone();
-            simulation_settings_new.n_cells_atg11w19 = 0;
-            (0..simulation_settings_new.n_cells_cargo)
-                .map(|n| {
-                    let mechanics =
-                        create_particle_mechanics(&simulation_settings_new, &mut rng, n, None);
-                    let interaction = create_particle_interaction(&simulation_settings_new, n);
-                    Particle {
-                        mechanics,
-                        interaction,
-                    }
-                })
-                .collect::<Vec<_>>()
-        }
-    };
-
+fn run_simulation_single(
+    simulation_settings: &SimulationSettings,
+    particles: impl IntoIterator<Item = Particle>,
+    calculate_cargo: bool,
+) -> Result<Storager, chili::SimulationError> {
     let interaction_range_max = calculate_interaction_range_max(&simulation_settings);
 
     let domain = match simulation_settings.domain_n_voxels {
