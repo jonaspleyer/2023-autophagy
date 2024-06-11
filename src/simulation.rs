@@ -223,6 +223,12 @@ impl SimulationSettings {
         };
         Ok(())
     }
+
+    /// Compares with other [SimulationSettings] instance and checks if they are approximately
+    /// equal.
+    pub fn approx_eq(&self, other: &SimulationSettings) -> bool {
+        compare_all_properties(self, other) && compare_all_properties(self, other)
+    }
 }
 
 fn generate_particle_pos_spherical(
@@ -499,6 +505,128 @@ fn compare_cargo_properties(
         )
         && settings1.domain_n_voxels == settings2.domain_n_voxels
         && settings1.random_seed == settings2.random_seed
+}
+
+fn compare_all_properties(settings1: &SimulationSettings, settings2: &SimulationSettings) -> bool {
+    approx::abs_diff_eq!(
+        settings1.n_cells_cargo,
+        settings2.n_cells_cargo,
+        epsilon = 0
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.n_cells_atg11w19,
+        settings2.n_cells_atg11w19,
+        epsilon = 0
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.cell_radius_cargo,
+        settings2.cell_radius_cargo,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.cell_radius_atg11w19,
+        settings2.cell_radius_atg11w19,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.diffusion_cargo,
+        settings2.diffusion_cargo,
+        epsilon = NANOMETRE.powf(2.0) / SECOND
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.diffusion_atg11w19,
+        settings2.diffusion_atg11w19,
+        epsilon = NANOMETRE.powf(2.0) / SECOND
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.temperature_atg11w19,
+        settings2.temperature_atg11w19,
+        epsilon = 0.01 * KELVIN
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.temperature_cargo,
+        settings2.temperature_cargo,
+        epsilon = 0.01 * KELVIN
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.potential_strength_cargo_cargo,
+        settings2.potential_strength_cargo_cargo,
+        epsilon = NANOMETRE.powf(2.0) / SECOND.powf(2.0)
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.potential_strength_cargo_atg11w19,
+        settings2.potential_strength_cargo_atg11w19,
+        epsilon = NANOMETRE.powf(2.0) / SECOND.powf(2.0)
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.potential_strength_atg11w19_atg11w19,
+        settings2.potential_strength_atg11w19_atg11w19,
+        epsilon = NANOMETRE.powf(2.0) / SECOND.powf(2.0)
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.interaction_range_cargo_cargo,
+        settings2.interaction_range_cargo_cargo,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.interaction_range_atg11w19_cargo,
+        settings2.interaction_range_atg11w19_cargo,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.interaction_range_atg11w19_atg11w19,
+        settings2.interaction_range_atg11w19_atg11w19,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.dt,
+        settings2.dt,
+        epsilon = 1e-5 * SECOND
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.t_max,
+        settings2.t_max,
+        epsilon = SECOND
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.save_interval,
+        settings2.save_interval,
+        epsilon = 1e-2 * SECOND
+    ) &&
+    // approx::abs_diff_eq
+    // !(settings1.extra_saves
+    // , settings2.extra_saves
+    // , epsilon = 1
+    //) &&
+    approx::abs_diff_eq!(
+        settings1.n_threads,
+        settings2.n_threads,
+        epsilon = 0
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.domain_size,
+        settings2.domain_size,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.domain_cargo_radius_max,
+        settings2.domain_cargo_radius_max,
+        epsilon = NANOMETRE
+    ) &&
+    approx::abs_diff_eq!(
+        settings1.domain_atg11w19_radius_min,
+        settings2.domain_atg11w19_radius_min,
+        epsilon = NANOMETRE
+    ) &&
+    match (settings1.domain_n_voxels, settings2.domain_n_voxels) {
+        (Some(n), Some(m)) => n == m,
+        _ => false,
+    } &&
+    // approx::abs_diff_eq!(settings1.domain_n_voxels, settings2.domain_n_voxels, epsilon = 0) &&
+    settings1.storage_name == settings2.storage_name &&
+    // settings1.cargo_initials_dir == settings2.cargo_initials_dir, epsilon = 1) &&
+    // approx::abs_diff_eq!(settings1.show_progressbar, settings2.show_progressbar, epsilon = 1) &&
+    approx::abs_diff_eq!(settings1.random_seed, settings2.random_seed, epsilon = 0)
 }
 
 /// Returns either loaded or calculated positions of cargo particles.
