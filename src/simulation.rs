@@ -306,11 +306,7 @@ fn create_particle_mechanics(
     } else {
         simulation_settings.diffusion_atg11w19
     };
-    Brownian3D::new(
-        pos,
-        diffusion,
-        kb_temperature,
-    )
+    Brownian3D::new(pos, diffusion, kb_temperature)
 }
 
 fn create_particle_interaction(
@@ -360,7 +356,11 @@ impl Storager {
 
     /// Construct a [Storager] from the given path.
     #[staticmethod]
-    pub fn from_path(path: std::path::PathBuf, cargo: bool, date: Option<std::path::PathBuf>) -> PyResult<Self> {
+    pub fn from_path(
+        path: std::path::PathBuf,
+        cargo: bool,
+        date: Option<std::path::PathBuf>,
+    ) -> PyResult<Self> {
         let full_path = match &date {
             Some(date) => path.join(date),
             None => path,
@@ -491,7 +491,11 @@ fn compare_cargo_properties(
             epsilon = uncertainty * NANOMETRE
         )
         && approx::abs_diff_eq!(settings1.dt, settings2.dt, epsilon = uncertainty * SECOND)
-        && approx::abs_diff_eq!(settings1.t_max, settings2.t_max, epsilon = uncertainty * SECOND)
+        && approx::abs_diff_eq!(
+            settings1.t_max,
+            settings2.t_max,
+            epsilon = uncertainty * SECOND
+        )
         && settings1.n_threads == settings2.n_threads
         && approx::abs_diff_eq!(
             settings1.domain_size,
