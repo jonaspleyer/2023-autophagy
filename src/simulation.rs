@@ -59,10 +59,10 @@ pub struct SimulationSettings {
     pub cell_radius_atg11w19: f64,
 
     /// Diffusion as given in the [Brownian3D] struct.
-    pub diffusion_atg11w19: f64,
+    pub diffusion_cargo: f64,
 
     /// Diffusion as given in the [Brownian3D] struct.
-    pub diffusion_cargo: f64,
+    pub diffusion_atg11w19: f64,
 
     /// Product of Boltzmann-Constant and temperature of the
     /// Brownian mechanics model for Atg11/19 particles.
@@ -76,19 +76,19 @@ pub struct SimulationSettings {
     pub potential_strength_cargo_cargo: f64,
 
     /// See TypedInteraction
-    pub potential_strength_atg11w19_atg11w19: f64,
+    pub potential_strength_cargo_atg11w19: f64,
 
     /// See TypedInteraction
-    pub potential_strength_cargo_atg11w19: f64,
+    pub potential_strength_atg11w19_atg11w19: f64,
 
     /// See TypedInteraction
     pub interaction_range_cargo_cargo: f64,
 
     /// See TypedInteraction
-    pub interaction_range_atg11w19_atg11w19: f64,
+    pub interaction_range_atg11w19_cargo: f64,
 
     /// See TypedInteraction
-    pub interaction_range_atg11w19_cargo: f64,
+    pub interaction_range_atg11w19_atg11w19: f64,
 
     /// Integration step of the numerical simulation.
     pub dt: f64,
