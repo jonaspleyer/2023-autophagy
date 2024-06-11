@@ -53,7 +53,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
         ext_pos: &Vector3<f64>,
         _ext_vel: &Vector3<f64>,
         ext_info: &(f64, Species),
-    ) -> Result<Vector3<f64>, CalcError> {
+    ) -> Result<(Vector3<f64>, Vector3<f64>), CalcError> {
         // Calculate radius and direction
         let min_relative_distance_to_center = 0.3162277660168379;
         let (r, dir) =
@@ -66,7 +66,7 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
                 true => {
                     let dir = match own_pos == ext_pos {
                         true => {
-                            return Ok([0.0; 3].into());
+                            return Ok((Vector3::zeros(), Vector3::zeros()));
                         }
                         false => (own_pos - ext_pos).normalize(),
                     };
@@ -102,22 +102,24 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
                 let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
                         + self.potential_strength_cargo_atg11w19 * attracting_force);
-                Ok(force)
+                Ok((-force, force))
             }
 
             // Atg11/19 forms clusters
             (Species::Cargo, Species::Cargo) => {
                 let cutoff = calculate_cutoff(self.interaction_range_cargo_cargo);
-                Ok(cutoff
+                let force = cutoff
                     * self.potential_strength_cargo_cargo
-                    * (repelling_force + attracting_force))
+                    * (repelling_force + attracting_force);
+                Ok((-force, force))
             }
 
             (Species::Atg11w19, Species::Atg11w19) => {
                 let cutoff = calculate_cutoff(self.interaction_range_atg11w19_atg11w19);
-                Ok(cutoff
+                let force = cutoff
                     * (self.potential_strength_cargo_cargo * repelling_force
-                        + self.potential_strength_atg11w19_atg11w19 * attracting_force))
+                        + self.potential_strength_atg11w19_atg11w19 * attracting_force);
+                Ok((-force, force))
             }
         }
     }
