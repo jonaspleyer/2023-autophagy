@@ -8,6 +8,9 @@ from pathlib import Path
 import glob
 from pathlib import Path
 from typing import Optional
+import multiprocessing as mp
+import math
+import itertools
 
 def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Optional[Path]:
     for opath in list(glob.glob("out/autophagy/*")):
@@ -28,7 +31,7 @@ def generate_results(simulation_settings: SimulationSettings):
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([1e-1, 2e-1, 3e-1])
+    values_potential_strength_cargo_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
     values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
 
     def _run_sim(pot_aa, pot_ac, n_threads:int=1):
@@ -42,14 +45,25 @@ if __name__ == "__main__":
         simulation_settings.potential_strength_atg11w19_atg11w19 = pot_aa
 
         output_path = generate_results(simulation_settings)
-        return (output_path, simulation_settings)
+        return output_path
 
-    results = []
+    n_threads = 5
+    n_cores = mp.cpu_count()
+    n_workers = max(1, math.floor(n_cores / n_threads))
 
-    for pot_aa in values_potential_strength_atg11w19_atg11w19:
-        for pot_ac in values_potential_strength_cargo_atg11w19:
-            out = _run_sim(pot_aa, pot_ac, 5)
-            results.append(out)
+    def __run_sim_helper(args):
+        return _run_sim(*args)
+
+    values = list(map(lambda x: (*x[0], *x[1:]),
+        zip(itertools.product(
+            values_potential_strength_atg11w19_atg11w19,
+            values_potential_strength_cargo_atg11w19),
+        itertools.repeat(n_threads),
+    )))
+
+    pool = mp.Pool(n_workers)
+    results = list(pool.imap(__run_sim_helper, values))
+    results = [(opath, cra.get_simulation_settings(opath)) for opath in results]
 
     fig, ax = plt.subplots(figsize=(8, 6))
     pot_ac_max = np.max(values_potential_strength_cargo_atg11w19)
