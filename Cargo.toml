@@ -15,7 +15,7 @@ serde_json = { version = "1.0" }
 rand = { version="0.8", features=["small_rng"] }
 rand_chacha = { version="0.3.1" }
 nalgebra = { version="0.32" }
-cellular_raza = { git="https://github.com/jonaspleyer/cellular_raza/", features=["pyo3"] }
+cellular_raza = { version="0.0.10", features=["pyo3"] }
 num = { version="0.4" }
 itertools = { version="0.12" }
 rayon = "1.7"
