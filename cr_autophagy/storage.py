@@ -34,14 +34,13 @@ def get_last_output_path(name = "out/autophagy") -> Path:
     return Path(name) / sorted(os.listdir(Path(name)))[-1]
 
 
-def get_simulation_settings(output_path) -> SimpleNamespace:
+def get_simulation_settings(output_path: Path) -> SimulationSettings:
     """
     This function loads the `simulation_settings.json` file corresponding to the
     given ``output_path``. It is a wrapper for the ``json.load`` function.
     (See https://docs.python.org/3/library/json.html)
     """
-    f = open(output_path / "simulation_settings.json")
-    return json.load(f, object_hook=lambda d: SimpleNamespace(**d))
+    return SimulationSettings.load_from_file(output_path / "simulation_settings.json")
 
 
 def _combine_batches(run_directory):
