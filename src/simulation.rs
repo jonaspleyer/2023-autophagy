@@ -346,6 +346,12 @@ pub struct Storager {
 
 #[pymethods]
 impl Storager {
+    /// Retrieves the current output path of the simulation results.
+    pub fn get_output_path(&self) -> std::path::PathBuf {
+        let builder = self.manager.extract_builder();
+        builder.get_full_path().parent().unwrap().to_path_buf()
+    }
+
     /// Construct a [Storager] from the given path.
     #[staticmethod]
     pub fn from_path(path: std::path::PathBuf, cargo: bool, date: Option<std::path::PathBuf>) -> PyResult<Self> {
