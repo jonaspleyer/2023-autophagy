@@ -61,6 +61,9 @@ class SimulationSettings:
     def load_from_file(path: Path) -> SimulationSettings:
         pass
 
+    def approx_eq(self, sim_settings: SimulationSettings) -> bool:
+        pass
+
 
 class Species():
     pass
