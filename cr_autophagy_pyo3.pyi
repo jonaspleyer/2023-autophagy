@@ -13,7 +13,17 @@ DAY: Final[float] = 24.0 * HOUR
 BOLTZMANN_CONSTANT: Final[float] = 1.380649e-23
 KELVIN: Final[float] = 1.0
 
-def run_simulation(SimulationSettings) -> str:
+
+class Storager:
+    @staticmethod
+    def from_path(path: Path) -> Storager:
+        pass
+
+    def get_output_path(self) -> Path:
+        pass
+
+
+def run_simulation(simulation_settings: SimulationSettings) -> Storager:
     pass
 
 
