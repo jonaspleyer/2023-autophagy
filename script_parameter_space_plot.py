@@ -1,7 +1,9 @@
+import matplotlib
 from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 from pathlib import Path
 import glob
 from pathlib import Path
@@ -58,6 +60,17 @@ if __name__ == "__main__":
     dpot_aa = 0.3 * (pot_aa_max - pot_aa_min)
     ax.set_xlim([pot_ac_min - dpot_ac, pot_ac_max + dpot_ac])
     ax.set_ylim([pot_aa_min - dpot_aa, pot_aa_max + dpot_aa])
+
+    for i in np.linspace(0, 1, 4):
+        width = 9 * dpot_ac
+        height = 9 * dpot_aa
+        ellipse = Ellipse(
+            (pot_ac_min + dpot_ac / 2, pot_aa_max + 2 * dpot_aa),
+            i * width,
+            i * height,
+            alpha=0.2,
+        )
+        ax.add_patch(ellipse)
 
     for opath, settings in results:
         # Retrieve information and plot last iteration
