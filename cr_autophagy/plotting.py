@@ -63,7 +63,12 @@ def create_save_path(output_path, subfolder, iteration):
     return save_path
 
 
-def save_snapshot(output_path: Path, iteration, overwrite=False):
+def save_snapshot(
+        output_path: Path,
+        iteration,
+        overwrite: bool = False,
+        transparent_background: bool = False
+    ):
     simulation_settings = get_simulation_settings(output_path)
     opath = create_save_path(output_path, "snapshots", iteration)
     if os.path.isfile(opath) and not overwrite:
@@ -109,7 +114,7 @@ def save_snapshot(output_path: Path, iteration, overwrite=False):
         color=gfp,
         show_edges=False,
     )
-    img = plotter.screenshot(opath)
+    img = plotter.screenshot(opath, transparent_background)
     plotter.close()
     return img
 
