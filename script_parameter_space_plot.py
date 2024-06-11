@@ -26,7 +26,7 @@ def generate_results(simulation_settings: SimulationSettings):
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([2e-1, 4e-1])#, 6e-1, 1e-1]) * units
+    values_potential_strength_cargo_atg11w19 = units * np.array([1e-1, 2e-1, 3e-1])
     values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
 
     def _run_sim(pot_aa, pot_ac, n_threads:int=1):
@@ -34,8 +34,6 @@ if __name__ == "__main__":
         simulation_settings.n_threads = n_threads
         simulation_settings.n_threads = n_threads
         
-        # FIXME this should only be here temporarily
-        # simulation_settings.t_max = 0.05 * cra.MINUTE
         simulation_settings.t_max = 4 * cra.MINUTE
 
         simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
@@ -53,9 +51,13 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots(figsize=(8, 6))
     pot_ac_max = np.max(values_potential_strength_cargo_atg11w19)
+    pot_ac_min = np.min(values_potential_strength_cargo_atg11w19)
+    dpot_ac = 0.3 * (pot_ac_max - pot_ac_min)
     pot_aa_max = np.max(values_potential_strength_atg11w19_atg11w19)
-    ax.set_xlim([0, 1.2 * pot_ac_max])
-    ax.set_ylim([0, 1.2 * pot_aa_max])
+    pot_aa_min = np.min(values_potential_strength_atg11w19_atg11w19)
+    dpot_aa = 0.3 * (pot_aa_max - pot_aa_min)
+    ax.set_xlim([pot_ac_min - dpot_ac, pot_ac_max + dpot_ac])
+    ax.set_ylim([pot_aa_min - dpot_aa, pot_aa_max + dpot_aa])
 
     for opath, settings in results:
         # Retrieve information and plot last iteration
@@ -69,7 +71,7 @@ if __name__ == "__main__":
 
         # Plot the box of the result
         from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-        img = OffsetImage(arr_img, zoom=0.25)
+        img = OffsetImage(arr_img, zoom=0.2)
         ab = AnnotationBbox(
             img,
             (pot_ac, pot_aa),
@@ -79,9 +81,8 @@ if __name__ == "__main__":
             frameon=False,
         )
         ax.add_artist(ab)
-    ax.plot(np.linspace(0, pot_ac_max), np.linspace(0, pot_aa_max))
 
     ax.set_xlabel("Potential Strength Cargo-Protein")
     ax.set_ylabel("Potential Strength Protein-Protein")
     fig.tight_layout()
-    plt.show()
+    fig.savefig("parameter_space_plt.png")
