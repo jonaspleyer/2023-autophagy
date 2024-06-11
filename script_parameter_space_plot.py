@@ -3,6 +3,26 @@ import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+import glob
+from pathlib import Path
+from typing import Optional
+
+def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Optional[Path]:
+    for opath in list(glob.glob("out/autophagy/*")):
+        opath = Path(opath)
+        sim_settings_prev = cra.get_simulation_settings(opath)
+        if sim_settings_prev.approx_eq(simulation_settings):
+            return opath
+    return None
+
+def generate_results(simulation_settings: SimulationSettings):
+    # Check if a previous simulation was run with identical settings
+    prev_output_path = get_previous_simulation_run_opath(simulation_settings)
+    if prev_output_path == None:
+        storager = run_simulation(simulation_settings)
+        return Path(storager.get_output_path())
+    else:
+        return prev_output_path
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
@@ -21,8 +41,7 @@ if __name__ == "__main__":
         simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
         simulation_settings.potential_strength_atg11w19_atg11w19 = pot_aa
 
-        storager = run_simulation(simulation_settings)
-        output_path = Path(storager.get_output_path())
+        output_path = generate_results(simulation_settings)
         return (output_path, simulation_settings)
 
     results = []
