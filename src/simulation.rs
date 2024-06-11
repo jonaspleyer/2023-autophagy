@@ -140,37 +140,37 @@ impl SimulationSettings {
         let cell_radius_cargo: f64 = 1.0 * cell_radius_atg11w19;
 
         SimulationSettings {
-            n_cells_cargo: 200,
-            n_cells_atg11w19: 200,
+            n_cells_cargo: 220,
+            n_cells_atg11w19: 180,
             cell_radius_cargo,
             cell_radius_atg11w19,
 
-            diffusion_atg11w19: 2e-3 * MICROMETRE.powf(2.0) / SECOND,
-            diffusion_cargo: 2e-3 * MICROMETRE.powf(2.0) / SECOND,
+            diffusion_cargo: 5e-5 * MICROMETRE.powf(2.0) / SECOND,
+            diffusion_atg11w19: 8e-5 * MICROMETRE.powf(2.0) / SECOND,
 
             temperature_atg11w19: 300.0 * KELVIN,
             temperature_cargo: 300.0 * KELVIN,
 
-            potential_strength_cargo_cargo: 0.03 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
-            potential_strength_atg11w19_atg11w19: 0.01 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
-            potential_strength_cargo_atg11w19: 0.02 * NANOMETRE.powf(2.0) / SECOND.powf(2.0),
+            potential_strength_cargo_cargo: 3e0 * MICROMETRE.powf(2.0) / SECOND.powf(2.0),
+            potential_strength_cargo_atg11w19: 1e0 * MICROMETRE.powf(2.0) / SECOND.powf(2.0),
+            potential_strength_atg11w19_atg11w19: 5e-1 * MICROMETRE.powf(2.0) / SECOND.powf(2.0),
 
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
+            interaction_range_atg11w19_cargo: 0.8 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
-            interaction_range_atg11w19_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
 
-            dt: 0.1 * MINUTE,
-            t_max: 30.0 * MINUTE,
-            save_interval: 10.0 * MINUTE,
+            dt: 0.00025 * MINUTE,
+            t_max: 2.0 * MINUTE,
+            save_interval: 0.01 * MINUTE,
             extra_saves: Vec::new(),
 
             n_threads: 1,
 
-            domain_size: 2000.0 * NANOMETRE,
+            domain_size: 2500.0 * NANOMETRE,
             domain_cargo_radius_max: 600.0 * NANOMETRE,
             domain_atg11w19_radius_min: 650.0 * NANOMETRE,
 
-            domain_n_voxels: Some(4),
+            domain_n_voxels: Some(5),
 
             storage_name: "out/autophagy".into(),
             cargo_initials_dir: "out/cargo_initials".into(),
