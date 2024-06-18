@@ -1,7 +1,6 @@
 from typing import Final
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 # SI Constants
 NANOMETRE: Final[float] = 1e-9
@@ -53,8 +52,8 @@ class SimulationSettings:
     domain_size: float = 2000 * NANOMETRE
     domain_cargo_radius_max: float = 600 * NANOMETRE
     domain_atg11w19_radius_min: float = 650 * NANOMETRE
-    domain_n_voxels: Optional[int] = 4
-    storage_name: str = "out/autophagy"
+    domain_n_voxels: int | None = 4
+    storage_name: Path = Path("out/autophagy")
     show_progressbar: bool = True
     random_seed: int = 1
 
