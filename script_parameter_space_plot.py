@@ -12,8 +12,10 @@ import multiprocessing as mp
 import math
 import itertools
 
-def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Optional[Path]:
-    for opath in list(glob.glob("out/autophagy/*")):
+OUT_PATH: Path = Path("out/autophagy_param_space")
+
+def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Path | None:
+    for opath in list(glob.glob(str(OUT_PATH) + "/*")):
         opath = Path(opath)
         sim_settings_prev = cra.get_simulation_settings(opath)
         if sim_settings_prev.approx_eq(simulation_settings):
@@ -34,11 +36,13 @@ if __name__ == "__main__":
     values_potential_strength_cargo_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
     values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
 
-    def _run_sim(pot_aa, pot_ac, n_threads:int=1):
+    def _run_sim(n_run: int, pot_aa: float, pot_ac: float, n_threads:int=1):
         simulation_settings = SimulationSettings()
+        simulation_settings.storage_name = OUT_PATH
+        simulation_settings.substitute_date = str("{:010}".format(n_run))
         simulation_settings.n_threads = n_threads
-        simulation_settings.n_threads = n_threads
-        
+        simulation_settings.show_progressbar = False
+
         simulation_settings.t_max = 4 * cra.MINUTE
 
         simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
@@ -51,14 +55,18 @@ if __name__ == "__main__":
     n_cores = mp.cpu_count()
     n_workers = max(1, math.floor(n_cores / n_threads))
 
-    def __run_sim_helper(args):
+    def __run_sim_helper(args: list):
         return _run_sim(*args)
 
-    values = list(map(lambda x: (*x[0], *x[1:]),
-        zip(itertools.product(
-            values_potential_strength_atg11w19_atg11w19,
-            values_potential_strength_cargo_atg11w19),
-        itertools.repeat(n_threads),
+    n_prev_runs = len(glob.glob(str(OUT_PATH) + "/*"))
+    values = list(map(lambda x: (x[0], *x[1], *x[2:]),
+        zip(
+            itertools.count(n_prev_runs),
+            itertools.product(
+                values_potential_strength_atg11w19_atg11w19,
+                values_potential_strength_cargo_atg11w19
+            ),
+            itertools.repeat(n_threads),
     )))
 
     pool = mp.Pool(n_workers)
