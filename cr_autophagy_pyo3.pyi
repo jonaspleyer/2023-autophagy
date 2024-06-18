@@ -54,6 +54,7 @@ class SimulationSettings:
     domain_atg11w19_radius_min: float = 650 * NANOMETRE
     domain_n_voxels: int | None = 4
     storage_name: Path = Path("out/autophagy")
+    substitute_date: str | None = None
     show_progressbar: bool = True
     random_seed: int = 1
 

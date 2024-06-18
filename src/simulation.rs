@@ -122,6 +122,9 @@ pub struct SimulationSettings {
     /// Name of the folder to store the results in.
     pub storage_name: std::path::PathBuf,
 
+    /// Possible substitution for the date to store the results
+    pub substitute_date: Option<std::path::PathBuf>,
+
     /// Path where the cargo initial positions will be stored.
     pub cargo_initials_dir: std::path::PathBuf,
 
@@ -173,6 +176,7 @@ impl SimulationSettings {
             domain_n_voxels: Some(5),
 
             storage_name: "out/autophagy".into(),
+            substitute_date: None,
             cargo_initials_dir: "out/cargo_initials".into(),
 
             show_progressbar: true,
@@ -728,14 +732,21 @@ fn construct_storage_builder(
     simulation_settings: &SimulationSettings,
     access_cargo: bool,
 ) -> StorageBuilder {
-    StorageBuilder::new()
+    let builder = StorageBuilder::new()
         .location(if access_cargo {
             simulation_settings.cargo_initials_dir.clone()
         } else {
             simulation_settings.storage_name.clone()
         })
-        .priority([cellular_raza::core::storage::StorageOption::SerdeJson])
-        .add_date(true)
+        .priority([cellular_raza::core::storage::StorageOption::SerdeJson]);
+    match &simulation_settings.substitute_date {
+        Some(substitution) => {
+            let new_location = builder.get_location().join(substitution);
+            builder.location(new_location)
+                .add_date(false)
+        },
+        None => builder.add_date(true),
+    }
 }
 
 chili::prepare_types!(
