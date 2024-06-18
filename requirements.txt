@@ -4,9 +4,9 @@ jupyter_client==8.6
 jupyter_core==5.5
 matplotlib==3.8
 numpy==1.26
-pandas==2.1
+pandas==2.2
 pyvista==0.42
 tqdm==4.66
-scipy==1.11
+scipy==1.13
 connected-components-3d==3.12.4
 seaborn==0.13
