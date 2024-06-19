@@ -785,7 +785,6 @@ fn run_simulation_single(
 
     let storage = construct_storage_builder(&simulation_settings, calculate_cargo).init();
     let path = storage.get_full_path();
-    simulation_settings.save_to_file(path)?;
 
     let settings = chili::Settings {
         n_threads: simulation_settings.n_threads.try_into().unwrap(),
@@ -806,6 +805,7 @@ fn run_simulation_single(
         settings: settings,
         aspects: [Mechanics, Interaction],
     )?;
+    simulation_settings.save_to_file(path)?;
     let manager = storage_access.cells;
     Ok(Storager { manager })
 }
