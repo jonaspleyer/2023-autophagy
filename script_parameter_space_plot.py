@@ -17,9 +17,12 @@ OUT_PATH: Path = Path("out/autophagy_param_space")
 def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Path | None:
     for opath in list(glob.glob(str(OUT_PATH) + "/*")):
         opath = Path(opath)
-        sim_settings_prev = cra.get_simulation_settings(opath)
-        if sim_settings_prev.approx_eq(simulation_settings):
-            return opath
+        try:
+            sim_settings_prev = cra.get_simulation_settings(opath)
+            if sim_settings_prev.approx_eq(simulation_settings):
+                return opath
+        finally:
+            pass
     return None
 
 def generate_results(simulation_settings: SimulationSettings):
