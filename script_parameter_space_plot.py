@@ -3,6 +3,7 @@ from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from pathlib import Path
 import glob
 from pathlib import Path
@@ -104,8 +105,7 @@ if __name__ == "__main__":
         pot_aa = sim_settings.potential_strength_atg11w19_atg11w19
 
         # Plot the box of the result
-        from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-        img = OffsetImage(arr_img, zoom=0.2)
+        img = OffsetImage(arr_img, zoom=0.45)
         ab = AnnotationBbox(
             img,
             (pot_ac, pot_aa),
