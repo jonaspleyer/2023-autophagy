@@ -93,8 +93,11 @@ if __name__ == "__main__":
     for opath, settings in results:
         # Retrieve information and plot last iteration
         last_iter = np.sort(cra.get_all_iterations(opath))[-1]
-        cra.save_snapshot(opath, last_iter, transparent_background=True)
-        arr_img = plt.imread("{}/snapshots/snapshot_{:08}.png".format(opath, last_iter))
+        try:
+            arr_img = cra.save_snapshot(opath, last_iter, transparent_background=True, overwrite=True)
+        except:
+            print("Failed to plot results from {}".format(opath))
+            continue
 
         sim_settings = cra.get_simulation_settings(opath)
         pot_ac = sim_settings.potential_strength_cargo_atg11w19
