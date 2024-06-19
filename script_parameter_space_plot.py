@@ -3,7 +3,6 @@ from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 from pathlib import Path
 import glob
 from pathlib import Path
@@ -81,26 +80,15 @@ if __name__ == "__main__":
     results = list(pool.imap(__run_sim_helper, values))
     results = [(opath, cra.get_simulation_settings(opath)) for opath in results]
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    pot_ac_max = np.max(values_potential_strength_cargo_atg11w19)
-    pot_ac_min = np.min(values_potential_strength_cargo_atg11w19)
-    dpot_ac = 0.3 * (pot_ac_max - pot_ac_min)
-    pot_aa_max = np.max(values_potential_strength_atg11w19_atg11w19)
-    pot_aa_min = np.min(values_potential_strength_atg11w19_atg11w19)
-    dpot_aa = 0.3 * (pot_aa_max - pot_aa_min)
-    ax.set_xlim([pot_ac_min - dpot_ac, pot_ac_max + dpot_ac])
-    ax.set_ylim([pot_aa_min - dpot_aa, pot_aa_max + dpot_aa])
-
-    for i in np.linspace(0, 1, 4):
-        width = 9 * dpot_ac
-        height = 9 * dpot_aa
-        ellipse = Ellipse(
-            (pot_ac_min + dpot_ac / 2, pot_aa_max + 2 * dpot_aa),
-            i * width,
-            i * height,
-            alpha=0.2,
-        )
-        ax.add_patch(ellipse)
+    fig, ax = plt.subplots(figsize=(16, 12))
+    pot_ac_max = np.max([sims[1].potential_strength_cargo_atg11w19 for sims in results])
+    pot_ac_min = np.min([sims[1].potential_strength_cargo_atg11w19 for sims in results])
+    pot_aa_max = np.max([sims[1].potential_strength_atg11w19_atg11w19 for sims in results])
+    pot_aa_min = np.min([sims[1].potential_strength_atg11w19_atg11w19 for sims in results])
+    ax.set_xlim([pot_ac_min / 5, 5 * pot_ac_max])
+    ax.set_ylim([pot_aa_min / 5, 5 * pot_aa_max])
+    ax.set_xscale("log")
+    ax.set_yscale("log")
 
     for opath, settings in results:
         # Retrieve information and plot last iteration
