@@ -66,7 +66,7 @@ if __name__ == "__main__":
     def __run_sim_helper(args: list):
         return _run_sim(*args)
 
-    n_prev_runs = len(glob.glob(str(OUT_PATH) + "/*"))
+    n_prev_runs = max([int(str(Path(p)).split("/")[-1]) for p in glob.glob(str(OUT_PATH) + "/*")] + [0]) + 1
     values = list(map(lambda x: (x[0], *x[1], *x[2:]),
         zip(
             itertools.count(n_prev_runs),
