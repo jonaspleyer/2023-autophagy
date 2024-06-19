@@ -72,22 +72,22 @@ pub struct SimulationSettings {
     /// Brownian mechanics model for Atg11/19 particles.
     pub temperature_cargo: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub potential_strength_cargo_cargo: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub potential_strength_cargo_atg11w19: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub potential_strength_atg11w19_atg11w19: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub interaction_range_cargo_cargo: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub interaction_range_atg11w19_cargo: f64,
 
-    /// See TypedInteraction
+    /// See [TypedInteraction]
     pub interaction_range_atg11w19_atg11w19: f64,
 
     /// See [TypedInteraction]
@@ -382,7 +382,6 @@ impl Storager {
                 StorageManager::open_or_create(builder, 0)
             }
             None => {
-                println!("no date");
                 let builder = builder.add_date(false).init();
                 StorageManager::open_or_create(builder, 0)
             }
@@ -747,9 +746,8 @@ fn construct_storage_builder(
     match &simulation_settings.substitute_date {
         Some(substitution) => {
             let new_location = builder.get_location().join(substitution);
-            builder.location(new_location)
-                .add_date(false)
-        },
+            builder.location(new_location).add_date(false)
+        }
         None => builder.add_date(true),
     }
 }
