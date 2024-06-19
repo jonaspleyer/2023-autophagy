@@ -43,6 +43,12 @@ pub struct TypedInteraction {
 
     /// The interaction range (beyond size of the particles) between Cargo and Atg11/19 particles
     pub interaction_range_atg11w19_cargo: f64,
+
+    /// Relative length in units of the diameter of a particle until when to treat nearby particles
+    /// of the same species as neighbours
+    pub relative_neighbour_distance: f64,
+
+    neighbour_count: usize,
 }
 
 impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for TypedInteraction {
@@ -132,12 +138,11 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
         &self,
         own_pos: &Vector3<f64>,
         ext_pos: &Vector3<f64>,
-        ext_inf: &(f64, usize, Species),
+        ext_inf: &(f64, Species),
     ) -> Result<bool, CalcError> {
-        match (&self.species, &ext_inf.2) {
-            (Species::R11, Species::R11) | (Species::Cargo, Species::Cargo) => {
-                Ok((own_pos - ext_pos).norm()
-                    <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
+        match (&self.species, &ext_inf.1) {
+            (Species::Atg11w19, Species::Atg11w19) | (Species::Cargo, Species::Cargo) => {
+                Ok((own_pos - ext_pos).norm() <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
             }
             _ => Ok(false),
         }
@@ -166,6 +171,7 @@ impl TypedInteraction {
         interaction_range_cargo_cargo,
         interaction_range_atg11w19_atg11w19,
         interaction_range_atg11w19_cargo,
+        relative_neighbour_distance,
     ))]
     /// Constructs a new TypedInteraction
     pub fn new(
@@ -177,6 +183,7 @@ impl TypedInteraction {
         interaction_range_cargo_cargo: f64,
         interaction_range_atg11w19_atg11w19: f64,
         interaction_range_atg11w19_cargo: f64,
+        relative_neighbour_distance: f64,
     ) -> Self {
         Self {
             species,
@@ -187,6 +194,8 @@ impl TypedInteraction {
             interaction_range_cargo_cargo,
             interaction_range_atg11w19_atg11w19,
             interaction_range_atg11w19_cargo,
+            relative_neighbour_distance,
+            neighbour_count: 0,
         }
     }
 }

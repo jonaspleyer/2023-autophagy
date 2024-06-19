@@ -90,6 +90,9 @@ pub struct SimulationSettings {
     /// See TypedInteraction
     pub interaction_range_atg11w19_atg11w19: f64,
 
+    /// See [TypedInteraction]
+    pub relative_neighbour_distance: f64,
+
     /// Integration step of the numerical simulation.
     pub dt: f64,
 
@@ -161,6 +164,7 @@ impl SimulationSettings {
             interaction_range_cargo_cargo: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_cargo: 0.8 * (cell_radius_cargo + cell_radius_atg11w19),
             interaction_range_atg11w19_atg11w19: 0.4 * (cell_radius_cargo + cell_radius_atg11w19),
+            relative_neighbour_distance: 1.5,
 
             dt: 0.00025 * MINUTE,
             t_max: 2.0 * MINUTE,
@@ -328,12 +332,13 @@ fn create_particle_interaction(
         } else {
             simulation_settings.cell_radius_atg11w19
         },
-        simulation_settings.potential_strength_cargo_cargo, // potential_strength_cargo_cargo
-        simulation_settings.potential_strength_atg11w19_atg11w19, // potential_strength_atg11w19_atg11w19
-        simulation_settings.potential_strength_cargo_atg11w19, // potential_strength_cargo_atg11w19
-        simulation_settings.interaction_range_cargo_cargo,     // interaction_range_cargo_cargo
-        simulation_settings.interaction_range_atg11w19_atg11w19, // interaction_range_atg11w19_atg11w19
-        simulation_settings.interaction_range_atg11w19_cargo,    // interaction_range_atg11w19_cargo
+        simulation_settings.potential_strength_cargo_cargo,
+        simulation_settings.potential_strength_atg11w19_atg11w19,
+        simulation_settings.potential_strength_cargo_atg11w19,
+        simulation_settings.interaction_range_cargo_cargo,
+        simulation_settings.interaction_range_atg11w19_atg11w19,
+        simulation_settings.interaction_range_atg11w19_cargo,
+        simulation_settings.relative_neighbour_distance,
     )
 }
 
