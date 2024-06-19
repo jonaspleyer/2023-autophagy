@@ -1,13 +1,10 @@
-import matplotlib
-from cr_autophagy_pyo3 import SimulationSettings, run_simulation
+from cr_autophagy_pyo3 import MICROMETRE, SECOND, SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from pathlib import Path
 import glob
-from pathlib import Path
-from typing import Optional
 import multiprocessing as mp
 import math
 import itertools
