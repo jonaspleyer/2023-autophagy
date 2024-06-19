@@ -5,6 +5,7 @@ import numpy as np
 import multiprocessing as mp
 import cr_autophagy_pyo3 as cra
 import os
+import matplotlib
 
 from pathlib import Path
 
@@ -31,6 +32,9 @@ def _generate_spheres(output_path: Path, iteration):
     pset_cargo.point_data["species"] = df[
         df["cell.interaction.species"]=="Cargo"
     ]["cell.interaction.species"]
+    pset_cargo.point_data["neighbour_count1"] = df[
+        df["cell.interaction.species"]=="Cargo"
+    ]["cell.interaction.neighbour_count"]
 
     pset_atg11w19.point_data["diameter"] = 2.0 / cra.NANOMETRE * df[
         df["cell.interaction.species"]!="Cargo"
@@ -38,6 +42,9 @@ def _generate_spheres(output_path: Path, iteration):
     pset_atg11w19.point_data["species"] = df[
         df["cell.interaction.species"]!="Cargo"
     ]["cell.interaction.species"]
+    pset_atg11w19.point_data["neighbour_count2"] = df[
+        df["cell.interaction.species"]!="Cargo"
+    ]["cell.interaction.neighbour_count"]
 
     # Create spheres glyphs from dataset
     sphere = pv.Sphere()
@@ -65,10 +72,10 @@ def create_save_path(output_path, subfolder, iteration):
 
 def save_snapshot(
         output_path: Path,
-        iteration,
+        iteration: int,
         overwrite: bool = False,
         transparent_background: bool = False
-    ):
+    ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
     opath = create_save_path(output_path, "snapshots", iteration)
     if os.path.isfile(opath) and not overwrite:
@@ -104,15 +111,47 @@ def save_snapshot(
     bfp = np.array([33, 113, 181])/255
     # '#79c877'
 
+    scalar_bar_args1=dict(
+        title="Neighbours",
+        title_font_size=20,
+        width=0.4,
+        position_x=0.55,
+        label_font_size=16,
+        shadow=True,
+        italic=True,
+        fmt="%.0f",
+        font_family="arial",
+    )
+
+    gfp_high = np.array([121, 200, 119])/255
+    gfp_low = np.array([255, 255, 255])/255
+    gfp_cols = np.linspace(gfp_low, gfp_high, 12)
+    gfp_cmap = matplotlib.colors.ListedColormap(gfp_cols)
+
+    bfp_high = np.array([33, 113, 181])/255
+    bfp_low = np.array([255, 255, 255])/255
+    bfp_cols = np.linspace(bfp_low, bfp_high, 12)
+    bfp_cmap = matplotlib.colors.ListedColormap(bfp_cols)
+
     plotter.add_mesh(
         cargo,
         color=bfp,
         show_edges=False,
+        scalars="neighbour_count1",
+        cmap=bfp_cmap,
+        clim=[0,12],
+        scalar_bar_args=scalar_bar_args1,
+        show_scalar_bar=False,
     )
     plotter.add_mesh(
         atg11w19,
         color=gfp,
         show_edges=False,
+        scalars="neighbour_count2",
+        cmap=gfp_cmap,
+        clim=[0,12],
+        scalar_bar_args=scalar_bar_args1,
+        show_scalar_bar=False,
     )
     img = plotter.screenshot(opath, transparent_background)
     plotter.close()

@@ -127,6 +127,31 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
     fn get_interaction_information(&self) -> (f64, Species) {
         (self.cell_radius, self.species.clone())
     }
+
+    fn is_neighbour(
+        &self,
+        own_pos: &Vector3<f64>,
+        ext_pos: &Vector3<f64>,
+        ext_inf: &(f64, usize, Species),
+    ) -> Result<bool, CalcError> {
+        match (&self.species, &ext_inf.2) {
+            (Species::R11, Species::R11) | (Species::Cargo, Species::Cargo) => {
+                Ok((own_pos - ext_pos).norm()
+                    <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
+            }
+            _ => Ok(false),
+        }
+    }
+
+    fn react_to_neighbours(&mut self, neighbours: usize) -> Result<(), CalcError> {
+        Ok(self.neighbour_count = neighbours)
+    }
+}
+
+impl Volume for Particle {
+    fn get_volume(&self) -> f64 {
+        1.0
+    }
 }
 
 #[pymethods]
