@@ -36,8 +36,8 @@ def generate_results(simulation_settings: SimulationSettings):
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 6e-1, 1e0])
+    values_potential_strength_cargo_atg11w19 = units * np.array([1e-2, 4e-1, 16e0])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 1e0, 5e0])
 
     def _run_sim(n_run: int, pot_aa: float, pot_ac: float, n_threads:int=1):
         simulation_settings = SimulationSettings()
@@ -45,16 +45,21 @@ if __name__ == "__main__":
         simulation_settings.substitute_date = str("{:010}".format(n_run))
         simulation_settings.n_threads = n_threads
         simulation_settings.show_progressbar = False
+        simulation_settings.domain_size *= 1.5
 
-        simulation_settings.t_max = 4 * cra.MINUTE
+        simulation_settings.t_max = 6 * cra.MINUTE
+        simulation_settings.dt *= 10
 
         simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
         simulation_settings.potential_strength_atg11w19_atg11w19 = pot_aa
+        # simulation_settings.diffusion_atg11w19 = 8e-5 * MICROMETRE**2 / SECOND
+
+        simulation_settings.interaction_range_atg11w19_cargo *= 0.5
 
         output_path = generate_results(simulation_settings)
         return output_path
 
-    n_threads = 5
+    n_threads = 2
     n_cores = mp.cpu_count()
     n_workers = max(1, math.floor(n_cores / n_threads))
 
