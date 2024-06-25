@@ -145,6 +145,37 @@ unsafe impl Sync for SimulationSettings {}
 #[pymethods]
 impl SimulationSettings {
     #[new]
+    #[pyo3(text_signature = "(
+        n_cells_cargo,
+        n_cells_atg11w19,
+        cell_radius_cargo,
+        cell_radius_atg11w19,
+        diffusion_cargo,
+        diffusion_atg11w19,
+        temperature_atg11w19,
+        temperature_cargo,
+        potential_strength_cargo_cargo,
+        potential_strength_cargo_atg11w19,
+        potential_strength_atg11w19_atg11w19,
+        interaction_range_cargo_cargo,
+        interaction_range_atg11w19_cargo,
+        interaction_range_atg11w19_atg11w19,
+        relative_neighbour_distance,
+        dt,
+        t_max,
+        save_interval,
+        extra_saves,
+        n_threads,
+        domain_size,
+        domain_cargo_radius_max,
+        domain_atg11w19_radius_min,
+        domain_n_voxels,
+        storage_name,
+        substitute_date,
+        cargo_initials_dir,
+        show_progressbar,
+        random_seed,
+    )")]
     fn new() -> Self {
         let cell_radius_atg11w19: f64 = 100.0 * NANOMETRE;
         let cell_radius_cargo: f64 = 1.0 * cell_radius_atg11w19;
