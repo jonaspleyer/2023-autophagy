@@ -763,7 +763,7 @@ fn prepare_cargo_particles(
                 interaction,
             }
         });
-        run_simulation_single(&simulation_settings_cargo_initials, cargo_agents, true)?
+        run_simulation_single(&simulation_settings_cargo_initials, cargo_agents, true)?.1
     };
 
     let iterations = cargo_initials_storager.get_all_iterations()?;
@@ -777,7 +777,9 @@ fn prepare_cargo_particles(
 /// Takes [SimulationSettings], runs the full simulation and returns the string of the output
 /// directory.
 #[pyfunction]
-pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storager, pyo3::PyErr> {
+pub fn run_simulation(
+    simulation_settings: SimulationSettings,
+) -> Result<(SimulationSettings, Storager), pyo3::PyErr> {
     let mut rng = ChaCha8Rng::seed_from_u64(simulation_settings.random_seed);
     let cargo_positions = prepare_cargo_particles(&simulation_settings)?;
 
@@ -800,8 +802,11 @@ pub fn run_simulation(simulation_settings: SimulationSettings) -> Result<Storage
         }));
 
     println!("Running Simulation");
-    let storager = run_simulation_single(&simulation_settings, particles, false)?;
-    Ok(storager)
+    Ok(run_simulation_single(
+        &simulation_settings,
+        particles,
+        false,
+    )?)
 }
 
 fn construct_storage_builder(
@@ -832,7 +837,7 @@ fn run_simulation_single(
     simulation_settings: &SimulationSettings,
     particles: impl IntoIterator<Item = Particle>,
     calculate_cargo: bool,
-) -> Result<Storager, chili::SimulationError> {
+) -> Result<(SimulationSettings, Storager), chili::SimulationError> {
     let interaction_range_max = calculate_interaction_range_max(&simulation_settings);
 
     let domain = match simulation_settings.domain_n_voxels {
@@ -879,5 +884,5 @@ fn run_simulation_single(
     )?;
     simulation_settings.save_to_file(path)?;
     let manager = storage_access.cells;
-    Ok(Storager { manager })
+    Ok((simulation_settings.clone(), Storager { manager }))
 }

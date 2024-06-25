@@ -22,7 +22,7 @@ class Storager:
         pass
 
 
-def run_simulation(simulation_settings: SimulationSettings) -> Storager:
+def run_simulation(simulation_settings: SimulationSettings) -> tuple[SimulationSettings, Storager]:
     pass
 
 
