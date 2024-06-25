@@ -139,6 +139,9 @@ pub struct SimulationSettings {
     pub random_seed: u64,
 }
 
+unsafe impl Send for SimulationSettings {}
+unsafe impl Sync for SimulationSettings {}
+
 #[pymethods]
 impl SimulationSettings {
     #[new]
