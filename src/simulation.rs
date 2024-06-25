@@ -45,7 +45,7 @@ const SIM_SETTINGS: &str = "simulation_settings.json";
 /// Not all settings do make sense and some combinations can lead
 /// to numerical integration problems.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[pyclass(get_all, set_all)]
+#[pyclass(get_all, set_all, module = "cr_autophagy_pyo3")]
 pub struct SimulationSettings {
     /// Number of cargo particles in the simulation.
     pub n_cells_cargo: usize,
@@ -381,7 +381,7 @@ fn create_particle_interaction(
 }
 
 ///
-#[pyclass]
+#[pyclass(module = "cr_autophagy_pyo3")]
 #[derive(Clone)]
 pub struct Storager {
     manager: StorageManager<
