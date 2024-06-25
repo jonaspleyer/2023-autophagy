@@ -142,7 +142,8 @@ impl Interaction<Vector3<f64>, Vector3<f64>, Vector3<f64>, (f64, Species)> for T
     ) -> Result<bool, CalcError> {
         match (&self.species, &ext_inf.1) {
             (Species::Atg11w19, Species::Atg11w19) | (Species::Cargo, Species::Cargo) => {
-                Ok((own_pos - ext_pos).norm() <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
+                Ok((own_pos - ext_pos).norm()
+                    <= self.relative_neighbour_distance * (self.cell_radius + ext_inf.0))
             }
             _ => Ok(false),
         }

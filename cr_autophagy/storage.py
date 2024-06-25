@@ -5,7 +5,6 @@ import multiprocessing as mp
 
 from pathlib import Path
 from cr_autophagy_pyo3 import *
-from types import SimpleNamespace
 
 
 def get_last_output_path(name = "out/autophagy") -> Path:
@@ -69,7 +68,7 @@ def get_particles_at_iter(output_path: Path, iteration) -> pd.DataFrame:
         if int(x) == iteration:
             run_directory = dir / x
             break
-    if run_directory != None:
+    if run_directory is not None:
         df = pd.json_normalize(_combine_batches(run_directory))
         df["identifier"] = df["identifier"].apply(lambda x: tuple(x))
         df["cell.mechanics.pos"] = df["cell.mechanics.pos"].apply(lambda x: np.array(x, dtype=float))
