@@ -20,4 +20,5 @@ num = { version="0.4" }
 itertools = { version="0.12" }
 rayon = "1.7"
 approx = "0.5.1"
+serde-pickle = "1.1.1"
 

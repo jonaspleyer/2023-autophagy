@@ -6,6 +6,7 @@ use cellular_raza::{building_blocks::*, core::storage::StorageManager};
 use pyo3::prelude::*;
 
 use nalgebra::Vector3;
+use pyo3::types::PyTuple;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
@@ -187,6 +188,43 @@ impl SimulationSettings {
 
             random_seed: 1,
         }
+    }
+
+    /// Copies the struct identically
+    pub fn copy(&self) -> Self {
+        self.clone()
+    }
+
+    /// Copies the struct identically
+    pub fn __copy__(&self) -> Self {
+        self.clone()
+    }
+
+    /// Copies the struct identically
+    pub fn __deepcopy__(&self, _memo: &Bound<'_, SimulationSettings>) -> Self {
+        self.clone()
+    }
+
+    /// Used to [pickle](https://docs.python.org/3/library/pickle.html) this object
+    pub fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
+        use pyo3::types::PyBytes;
+        match state.extract::<Bound<PyBytes>>(py) {
+            Ok(s) => {
+                *self = serde_pickle::from_slice(&s.as_bytes(), Default::default()).unwrap();
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Used to [pickle](https://docs.python.org/3/library/pickle.html) this object
+    pub fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
+        use pyo3::types::PyBytes;
+        Ok(PyBytes::new_bound(
+            py,
+            &serde_pickle::to_vec(&self, Default::default()).unwrap(),
+        )
+        .to_object(py))
     }
 
     /// Formats the object
