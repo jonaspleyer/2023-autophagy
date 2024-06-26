@@ -6,7 +6,6 @@ use cellular_raza::{building_blocks::*, core::storage::StorageManager};
 use pyo3::prelude::*;
 
 use nalgebra::Vector3;
-use pyo3::types::PyTuple;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
