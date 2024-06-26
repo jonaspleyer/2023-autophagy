@@ -74,8 +74,9 @@ if __name__ == "__main__":
     )))
 
     pool = mp.Pool(n_workers)
-    results = list(pool.imap(__run_sim_helper, values))
-    results = [(opath, cra.get_simulation_settings(opath)) for opath in results]
+    import tqdm
+    print("Get Results")
+    results = list(tqdm.tqdm(pool.imap(__run_sim_helper, values), total=len(values)))
 
     fig, ax = plt.subplots(figsize=(16, 12))
     pot_ac_max = np.max([sims[1].potential_strength_cargo_atg11w19 for sims in results])
