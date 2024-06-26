@@ -750,7 +750,9 @@ fn prepare_cargo_particles(
         )?
     } else {
         // If not run new simulation
-        println!("Calculating cargo initial positions");
+        if simulation_settings.show_progressbar {
+            println!("Calculating cargo initial positions");
+        }
         let mut simulation_settings_cargo_initials = simulation_settings.clone();
         simulation_settings_cargo_initials.save_interval = simulation_settings.t_max;
         let cargo_agents = (0..simulation_settings_cargo_initials.n_cells_cargo).map(|_| {
@@ -801,7 +803,9 @@ pub fn run_simulation(
             }
         }));
 
-    println!("Running Simulation");
+    if simulation_settings.show_progressbar {
+        println!("Running Simulation");
+    }
     Ok(run_simulation_single(
         &simulation_settings,
         particles,
