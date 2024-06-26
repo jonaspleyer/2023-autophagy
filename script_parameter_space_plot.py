@@ -1,4 +1,4 @@
-from cr_autophagy_pyo3 import MICROMETRE, SECOND, SimulationSettings, run_simulation
+from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
