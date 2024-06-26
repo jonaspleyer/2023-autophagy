@@ -11,32 +11,32 @@ import itertools
 
 OUT_PATH: Path = Path("out/autophagy_param_space")
 
-def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> Path | None:
+def get_previous_simulation_run_opath(simulation_settings: SimulationSettings) -> tuple[Path, SimulationSettings] | None:
     for opath in list(glob.glob(str(OUT_PATH) + "/*")):
         opath = Path(opath)
         try:
             sim_settings_prev = cra.get_simulation_settings(opath)
-            if sim_settings_prev.approx_eq(simulation_settings):
-                return opath
+            if sim_settings_prev is not None and sim_settings_prev.approx_eq(simulation_settings):
+                return opath, sim_settings_prev
         finally:
             pass
     return None
 
-def generate_results(simulation_settings: SimulationSettings):
+def generate_results(simulation_settings: SimulationSettings) -> tuple[Path, SimulationSettings]:
     # Check if a previous simulation was run with identical settings
-    prev_output_path = get_previous_simulation_run_opath(simulation_settings)
-    if prev_output_path == None:
-        storager = run_simulation(simulation_settings)
-        return Path(storager.get_output_path())
+    previous_result = get_previous_simulation_run_opath(simulation_settings)
+    if previous_result is None:
+        sim_settings, storager = run_simulation(simulation_settings)
+        return (Path(storager.get_output_path()), sim_settings)
     else:
-        return prev_output_path
+        return previous_result
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
     values_potential_strength_cargo_atg11w19 = units * np.array([1e-2, 4e-1, 16e0])
     values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 1e0, 5e0])
 
-    def _run_sim(n_run: int, pot_aa: float, pot_ac: float, n_threads:int=1):
+    def _run_sim(n_run: int, pot_aa: float, pot_ac: float, n_threads:int=1) -> tuple[Path, SimulationSettings]:
         simulation_settings = SimulationSettings()
         simulation_settings.storage_name = OUT_PATH
         simulation_settings.substitute_date = str("{:010}".format(n_run))
@@ -53,8 +53,7 @@ if __name__ == "__main__":
 
         simulation_settings.interaction_range_atg11w19_cargo *= 0.5
 
-        output_path = generate_results(simulation_settings)
-        return output_path
+        return generate_results(simulation_settings)
 
     n_threads = 2
     n_cores = mp.cpu_count()
