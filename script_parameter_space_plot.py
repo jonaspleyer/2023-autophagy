@@ -94,7 +94,7 @@ if __name__ == "__main__":
     ax.set_yscale("log")
 
     print("Create Plot")
-    for opath, settings in tqdm.tqdm(results, total=len(results)):
+    for opath, sim_settings in tqdm.tqdm(results, total=len(results)):
         # Retrieve information and plot last iteration
         last_iter = np.sort(cra.get_all_iterations(opath))[-1]
         try:
@@ -102,7 +102,6 @@ if __name__ == "__main__":
         except:
             print("Failed to plot results from {}".format(opath))
 
-        sim_settings = cra.get_simulation_settings(opath)
         pot_ac = sim_settings.potential_strength_cargo_atg11w19
         pot_aa = sim_settings.potential_strength_atg11w19_atg11w19
 
