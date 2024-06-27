@@ -33,8 +33,8 @@ def generate_results(simulation_settings: SimulationSettings) -> tuple[Path, Sim
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([1e-2, 4e-1, 16e0])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([2e-1, 1e0, 5e0])
+    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 1e-2, 1e-1, 1e0, 1e1])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.2, 0.4, 0.6, 0.8, 1.0, 1.5])
 
     def _run_sim(
         n_run: int,
@@ -47,14 +47,15 @@ if __name__ == "__main__":
         simulation_settings.substitute_date = str("{:010}".format(n_run))
         simulation_settings.n_threads = n_threads
         simulation_settings.show_progressbar = False
-        simulation_settings.domain_size *= 1.5
+        simulation_settings.domain_size *= 3
+        simulation_settings.n_cells_atg11w19 *= 2
 
         factor = 2
-        simulation_settings.t_max = 20 * cra.MINUTE
+        simulation_settings.t_max = 40 * cra.MINUTE
         simulation_settings.dt *= 10 / factor
 
-        simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
-        simulation_settings.potential_strength_atg11w19_atg11w19 = pot_aa
+        simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
+        simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
         simulation_settings.potential_strength_cargo_cargo *= factor
         # simulation_settings.diffusion_atg11w19 = 8e-5 * MICROMETRE**2 / SECOND
 
