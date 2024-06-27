@@ -33,8 +33,8 @@ def generate_results(simulation_settings: SimulationSettings) -> tuple[Path, Sim
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 1e-2, 1e-1, 1e0, 1e1])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.2, 0.4, 0.6, 0.8, 1.0, 1.5])
+    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 5e-2, 1e-1, 5e-1, 1e1])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.5, 0.6, 0.7, 0.8, 0.9])
 
     def _run_sim(
         n_run: int,
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             print("Failed to plot results from {}".format(opath))
 
         # Plot the box of the result
-        img = OffsetImage(arr_img, zoom=0.4)
+        img = OffsetImage(arr_img, zoom=0.35)
         ab = AnnotationBbox(
             img,
             (nx+1, ny+1),# (pot_ac, pot_aa),
