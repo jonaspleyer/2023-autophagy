@@ -61,7 +61,7 @@ if __name__ == "__main__":
     n_cores = mp.cpu_count()
     n_workers = max(1, math.floor(n_cores / n_threads))
 
-    def __run_sim_helper(args: list):
+    def __run_sim_helper(args: list) -> tuple[Path, SimulationSettings]:
         return _run_sim(*args)
 
     n_prev_runs = max([int(str(Path(p)).split("/")[-1]) for p in glob.glob(str(OUT_PATH) + "/*")] + [0]) + 1
