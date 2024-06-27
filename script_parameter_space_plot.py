@@ -99,9 +99,16 @@ if __name__ == "__main__":
     print("Create Plot")
     for ny, nx, opath, sim_settings in tqdm.tqdm(results, total=len(results)):
         # Retrieve information and plot last iteration
-        last_iter = np.sort(cra.get_all_iterations(opath))[-1]
+        iterations = np.sort(cra.get_all_iterations(opath))
+        last_iter = iterations[-1]
+        first_iter = iterations[0]
         try:
-            print(opath)
+            cra.save_snapshot(
+                opath,
+                first_iter,
+                transparent_background=True,
+                overwrite=True
+            )
             arr_img = cra.save_snapshot(
                 opath,
                 last_iter,
