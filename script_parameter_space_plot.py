@@ -33,8 +33,8 @@ def generate_results(simulation_settings: SimulationSettings) -> tuple[Path, Sim
 
 if __name__ == "__main__":
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 5e-2, 1e-1, 5e-1, 1e1])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.5, 0.6, 0.7, 0.8, 0.9])
+    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 5e-1, 1e1])# 2.5e-1, 5e-1, 7.5e-1, 1e0, 2.5e0, 5e0, 7.5e0, 1e1])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.7])# 0.5, 0.6, 0.7, 0.8, 0.9])
 
     def _run_sim(
         n_run: int,
@@ -50,14 +50,13 @@ if __name__ == "__main__":
         simulation_settings.domain_size *= 3
         simulation_settings.n_cells_atg11w19 *= 2
 
-        factor = 2
+        factor = 4
         simulation_settings.t_max = 40 * cra.MINUTE
         simulation_settings.dt *= 10 / factor
 
         simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
         simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
         simulation_settings.potential_strength_cargo_cargo *= factor
-        # simulation_settings.diffusion_atg11w19 = 8e-5 * MICROMETRE**2 / SECOND
 
         simulation_settings.interaction_range_atg11w19_cargo *= 0.5
 
@@ -89,7 +88,7 @@ if __name__ == "__main__":
     print("Get Results")
     results = list(tqdm.tqdm(pool.imap(__run_sim_helper, values), total=len(values)))
 
-    figsize_x = 12
+    figsize_x = len(values_potential_strength_cargo_atg11w19) * 3
     figsize_y = (1 + len(values_potential_strength_atg11w19_atg11w19))\
         / (1 + len(values_potential_strength_cargo_atg11w19))\
         * figsize_x
@@ -102,6 +101,7 @@ if __name__ == "__main__":
         # Retrieve information and plot last iteration
         last_iter = np.sort(cra.get_all_iterations(opath))[-1]
         try:
+            print(opath)
             arr_img = cra.save_snapshot(
                 opath,
                 last_iter,
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             print("Failed to plot results from {}".format(opath))
 
         # Plot the box of the result
-        img = OffsetImage(arr_img, zoom=0.35)
+        img = OffsetImage(arr_img, zoom=0.45)
         ab = AnnotationBbox(
             img,
             (nx+1, ny+1),# (pot_ac, pot_aa),
@@ -125,11 +125,11 @@ if __name__ == "__main__":
 
     ax.set_xticks(
             range(1, 1+len(values_potential_strength_cargo_atg11w19)),
-        values_potential_strength_cargo_atg11w19
+            ["{:5.2e}".format(v) for v in values_potential_strength_cargo_atg11w19]
     )
     ax.set_yticks(
         range(1, 1+len(values_potential_strength_atg11w19_atg11w19)),
-        values_potential_strength_atg11w19_atg11w19
+        ["{:5.2e}".format(v) for v in values_potential_strength_atg11w19_atg11w19]
     )
 
     ax.set_xlabel("Potential Strength Cargo-Protein")
