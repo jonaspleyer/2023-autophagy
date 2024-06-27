@@ -44,11 +44,13 @@ if __name__ == "__main__":
         simulation_settings.show_progressbar = False
         simulation_settings.domain_size *= 1.5
 
-        simulation_settings.t_max = 6 * cra.MINUTE
-        simulation_settings.dt *= 10
+        factor = 2
+        simulation_settings.t_max = 20 * cra.MINUTE
+        simulation_settings.dt *= 10 / factor
 
         simulation_settings.potential_strength_cargo_atg11w19 = pot_ac
         simulation_settings.potential_strength_atg11w19_atg11w19 = pot_aa
+        simulation_settings.potential_strength_cargo_cargo *= factor
         # simulation_settings.diffusion_atg11w19 = 8e-5 * MICROMETRE**2 / SECOND
 
         simulation_settings.interaction_range_atg11w19_cargo *= 0.5
@@ -83,26 +85,29 @@ if __name__ == "__main__":
     pot_ac_min = np.min([sims[1].potential_strength_cargo_atg11w19 for sims in results])
     pot_aa_max = np.max([sims[1].potential_strength_atg11w19_atg11w19 for sims in results])
     pot_aa_min = np.min([sims[1].potential_strength_atg11w19_atg11w19 for sims in results])
-    ax.set_xlim([pot_ac_min / 5, 5 * pot_ac_max])
-    ax.set_ylim([pot_aa_min / 5, 5 * pot_aa_max])
+    base = 10
+    dn_ac = np.log(pot_ac_max / pot_ac_min) / np.log(base) / len(values_potential_strength_cargo_atg11w19)
+    dn_aa = np.log(pot_aa_max / pot_aa_min) / np.log(base) / len(values_potential_strength_atg11w19_atg11w19)
+    ax.set_xlim([pot_ac_min * base**(-dn_ac), pot_ac_max * base**dn_ac])
+    ax.set_ylim([pot_aa_min * base**(-dn_aa), pot_aa_max * base**dn_aa])
     ax.set_xscale("log")
     ax.set_yscale("log")
 
-    for opath, settings in results:
+    print("Create Plot")
+    for opath, settings in tqdm.tqdm(results, total=len(results)):
         # Retrieve information and plot last iteration
         last_iter = np.sort(cra.get_all_iterations(opath))[-1]
         try:
             arr_img = cra.save_snapshot(opath, last_iter, transparent_background=True, overwrite=True)
         except:
             print("Failed to plot results from {}".format(opath))
-            continue
 
         sim_settings = cra.get_simulation_settings(opath)
         pot_ac = sim_settings.potential_strength_cargo_atg11w19
         pot_aa = sim_settings.potential_strength_atg11w19_atg11w19
 
         # Plot the box of the result
-        img = OffsetImage(arr_img, zoom=0.45)
+        img = OffsetImage(arr_img, zoom=0.35)
         ab = AnnotationBbox(
             img,
             (pot_ac, pot_aa),
