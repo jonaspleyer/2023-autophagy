@@ -108,7 +108,8 @@ if __name__ == "__main__":
                 opath,
                 first_iter,
                 transparent_background=True,
-                overwrite=True
+                overwrite=True,
+                view_angles=(0, 0, 0),
             )
             arr_img = cra.save_snapshot(
                 opath,
