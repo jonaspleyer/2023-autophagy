@@ -109,14 +109,14 @@ if __name__ == "__main__":
                 first_iter,
                 transparent_background=True,
                 overwrite=True,
-                view_angles=(45, 0, 0),
+                view_angles=(90, 0, 0),
             )
             arr_img = cra.save_snapshot(
                 opath,
                 last_iter,
                 transparent_background=True,
                 overwrite=True,
-                view_angles=(45, 0, 0),
+                view_angles=(90, 0, 0),
             )
         except:
             print("Failed to plot results from {}".format(opath))
@@ -145,4 +145,4 @@ if __name__ == "__main__":
     ax.set_xlabel("Potential Strength Cargo-Protein")
     ax.set_ylabel("Potential Strength Protein-Protein")
     fig.tight_layout()
-    fig.savefig("parameter_space_plt-seed-2-angle-2.png")
+    fig.savefig("parameter_space_plt-seed-2-angle-3.png")
