@@ -139,7 +139,7 @@ def save_snapshot(
         show_edges=False,
         scalars="neighbour_count1",
         cmap=bfp_cmap,
-        clim=[0,12],
+        clim=[0,6],
         scalar_bar_args=scalar_bar_args1,
         show_scalar_bar=False,
     )
@@ -149,7 +149,7 @@ def save_snapshot(
         show_edges=False,
         scalars="neighbour_count2",
         cmap=gfp_cmap,
-        clim=[0,12],
+        clim=[0,6],
         scalar_bar_args=scalar_bar_args1,
         show_scalar_bar=False,
     )
