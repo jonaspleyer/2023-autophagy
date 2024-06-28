@@ -43,15 +43,16 @@ if __name__ == "__main__":
         n_threads:int=1
     ) -> tuple[int, int, Path, SimulationSettings]:
         simulation_settings = SimulationSettings()
+        simulation_settings.random_seed += 2
         simulation_settings.storage_name = OUT_PATH
         simulation_settings.substitute_date = str("{:010}".format(n_run))
         simulation_settings.n_threads = n_threads
         simulation_settings.show_progressbar = False
-        simulation_settings.domain_size *= 3
-        simulation_settings.n_cells_atg11w19 *= 2
+        simulation_settings.domain_size *= 2
+        simulation_settings.n_cells_atg11w19 = round(1.5 * simulation_settings.n_cells_atg11w19)
 
         factor = 4
-        simulation_settings.t_max = 40 * cra.MINUTE
+        simulation_settings.t_max = 60 * cra.MINUTE
         simulation_settings.dt *= 10 / factor
 
         simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
@@ -62,7 +63,7 @@ if __name__ == "__main__":
 
         return (ny_pot_aa[0], nx_pot_ac[0], *generate_results(simulation_settings))
 
-    n_threads = 2
+    n_threads = 4
     n_cores = mp.cpu_count()
     n_workers = max(1, math.floor(n_cores / n_threads))
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
             print("Failed to plot results from {}".format(opath))
 
         # Plot the box of the result
-        img = OffsetImage(arr_img, zoom=0.45)
+        img = OffsetImage(arr_img, zoom=0.35)
         ab = AnnotationBbox(
             img,
             (nx+1, ny+1),# (pot_ac, pot_aa),
@@ -142,4 +143,4 @@ if __name__ == "__main__":
     ax.set_xlabel("Potential Strength Cargo-Protein")
     ax.set_ylabel("Potential Strength Protein-Protein")
     fig.tight_layout()
-    fig.savefig("parameter_space_plt.png")
+    fig.savefig("parameter_space_plt-seed-2-angle-1.png")
