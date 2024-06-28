@@ -78,6 +78,8 @@ def save_snapshot(
         view_angles: tuple[float, float, float] = (0, 0)
     ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
+    if simulation_settings is None:
+        return
     opath = create_save_path(output_path, "snapshots", iteration)
     if os.path.isfile(opath) and not overwrite:
         return
