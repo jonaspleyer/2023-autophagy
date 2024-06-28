@@ -74,7 +74,8 @@ def save_snapshot(
         output_path: Path,
         iteration: int,
         overwrite: bool = False,
-        transparent_background: bool = False
+        transparent_background: bool = False,
+        view_angles: tuple[float, float, float] = (0, 0)
     ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
     opath = create_save_path(output_path, "snapshots", iteration)
@@ -99,6 +100,11 @@ def save_snapshot(
     # Set up the camera
     ds = np.full((3,), simulation_settings.domain_size / cra.NANOMETRE)
     position = 2.5 * ds
+    if view_angles != (0, 0):
+        from scipy.spatial.transform import Rotation
+        middle = ds / 2.0
+        rotation_matrix = Rotation.from_euler('zyx', view_angles, degrees=True)
+        position = middle + rotation_matrix.as_matrix().dot(position - middle)
     focal_point = 0.5 * ds
     viewup = (0,0,1)
     plotter.disable()
