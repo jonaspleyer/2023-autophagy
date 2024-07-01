@@ -129,6 +129,7 @@ def plot_with_angle(
                 transparent_background=True,
                 overwrite=True,
                 view_angles=(90, 0, 0),
+                scale=2,
             )
             arr_img = cra.save_snapshot(
                 opath,
@@ -136,10 +137,11 @@ def plot_with_angle(
                 transparent_background=True,
                 overwrite=True,
                 view_angles=(angle, 0, 0),
+                scale=2,
             )
             # Plot the box of the result
             if arr_img is not None:
-                img = OffsetImage(arr_img, zoom=0.35)
+                img = OffsetImage(arr_img, zoom=0.2)
                 ab = AnnotationBbox(
                     img,
                     (nx+1, ny+1),# (pot_ac, pot_aa),
