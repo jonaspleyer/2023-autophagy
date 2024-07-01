@@ -75,7 +75,8 @@ def save_snapshot(
         iteration: int,
         overwrite: bool = False,
         transparent_background: bool = False,
-        view_angles: tuple[float, float, float] = (0, 0)
+        view_angles: tuple[float, float, float] | tuple[float, float] | tuple[float] = (0, 0, 0),
+        scale: float | None = None,
     ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
     if simulation_settings is None:
@@ -161,7 +162,7 @@ def save_snapshot(
         scalar_bar_args=scalar_bar_args1,
         show_scalar_bar=False,
     )
-    img = plotter.screenshot(opath, transparent_background)
+    img = plotter.screenshot(opath, transparent_background, scale=scale)
     plotter.close()
     return img
 
