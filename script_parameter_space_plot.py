@@ -8,6 +8,8 @@ import glob
 import multiprocessing as mp
 import math
 import itertools
+import tqdm
+import os
 
 OUT_PATH: Path = Path("out/autophagy_param_space")
 
@@ -31,44 +33,50 @@ def generate_results(simulation_settings: SimulationSettings) -> tuple[Path, Sim
     else:
         return previous_result
 
-if __name__ == "__main__":
+def _run_sim(
+    n_run: int,
+    ny_pot_aa: tuple[int, float],
+    nx_pot_ac: tuple[int, float],
+    n_threads:int=1
+) -> tuple[int, int, Path, SimulationSettings]:
+    simulation_settings = SimulationSettings()
+    simulation_settings.random_seed += 3
+    simulation_settings.storage_name = OUT_PATH
+    simulation_settings.substitute_date = str("{:010}".format(n_run))
+    simulation_settings.n_threads = n_threads
+    simulation_settings.show_progressbar = False
+    simulation_settings.domain_size *= 2
+    simulation_settings.n_cells_atg11w19 = round(2 * simulation_settings.n_cells_atg11w19)
+    simulation_settings.save_interval *= 10
+    # simulation_settings.diffusion_atg11w19 *= 0.75
+
+    factor = 1
+    simulation_settings.t_max = 80 * cra.MINUTE
+    simulation_settings.dt *= 10 / factor
+
+    simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
+    simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
+    simulation_settings.potential_strength_cargo_cargo *= factor
+
+    simulation_settings.interaction_range_atg11w19_cargo *= 0.75
+    return (ny_pot_aa[0], nx_pot_ac[0], *generate_results(simulation_settings))
+
+def __run_sim_helper(args: list) -> tuple[int, int, Path, SimulationSettings]:
+    return _run_sim(*args)
+
+def plot_with_angle(
+        angle: float = 0.0,
+        show_progressbar: bool = True,
+        parallelize: bool = True,
+        custom_suffix: str | None = None
+    ):
     units = cra.MICROMETRE**2 / cra.SECOND**2
-    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 5e-1, 1e1])# 2.5e-1, 5e-1, 7.5e-1, 1e0, 2.5e0, 5e0, 7.5e0, 1e1])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.7])# 0.5, 0.6, 0.7, 0.8, 0.9])
-
-    def _run_sim(
-        n_run: int,
-        ny_pot_aa: tuple[int, float],
-        nx_pot_ac: tuple[int, float],
-        n_threads:int=1
-    ) -> tuple[int, int, Path, SimulationSettings]:
-        simulation_settings = SimulationSettings()
-        simulation_settings.random_seed += 2
-        simulation_settings.storage_name = OUT_PATH
-        simulation_settings.substitute_date = str("{:010}".format(n_run))
-        simulation_settings.n_threads = n_threads
-        simulation_settings.show_progressbar = False
-        simulation_settings.domain_size *= 2
-        simulation_settings.n_cells_atg11w19 = round(1.5 * simulation_settings.n_cells_atg11w19)
-
-        factor = 4
-        simulation_settings.t_max = 60 * cra.MINUTE
-        simulation_settings.dt *= 10 / factor
-
-        simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
-        simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
-        simulation_settings.potential_strength_cargo_cargo *= factor
-
-        simulation_settings.interaction_range_atg11w19_cargo *= 0.5
-
-        return (ny_pot_aa[0], nx_pot_ac[0], *generate_results(simulation_settings))
+    values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 1e-1, 1e0])# 2.5e-1, 5e-1, 7.5e-1, 1e0, 2.5e0, 5e0, 7.5e0, 1e1])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.0, 0.55, 0.6])# 0.5, 0.6, 0.7, 0.8, 0.9])
 
     n_threads = 4
     n_cores = mp.cpu_count()
     n_workers = max(1, math.floor(n_cores / n_threads))
-
-    def __run_sim_helper(args: list) -> tuple[int, int, Path, SimulationSettings]:
-        return _run_sim(*args)
 
     n_prev_runs = max([
         int(str(Path(p)).split("/")[-1])
@@ -84,13 +92,20 @@ if __name__ == "__main__":
             itertools.repeat(n_threads),
     )))
 
-    pool = mp.Pool(n_workers)
-    import tqdm
     print("Get Results")
-    results = list(tqdm.tqdm(pool.imap(__run_sim_helper, values), total=len(values)))
+    if parallelize and show_progressbar:
+        pool = mp.Pool(n_workers)
+        results = list(tqdm.tqdm(pool.imap(__run_sim_helper, values), total=len(values)))
+    elif not parallelize and show_progressbar:
+        results = [__run_sim_helper(v) for v in values]
+    elif parallelize and not show_progressbar:
+        pool = mp.Pool(n_workers)
+        results = list(pool.imap(__run_sim_helper, values), total=len(values))
+    else:
+        results = [__run_sim_helper(v) for v in values]
 
-    figsize_x = len(values_potential_strength_cargo_atg11w19) * 3
-    figsize_y = (1 + len(values_potential_strength_atg11w19_atg11w19))\
+    figsize_x = len(values_potential_strength_cargo_atg11w19) * 4
+    figsize_y = 1.2 * (1 + len(values_potential_strength_atg11w19_atg11w19))\
         / (1 + len(values_potential_strength_cargo_atg11w19))\
         * figsize_x
     fig, ax = plt.subplots(figsize=(figsize_x, figsize_y))
@@ -98,7 +113,11 @@ if __name__ == "__main__":
     ax.set_ylim([0, len(values_potential_strength_atg11w19_atg11w19)+1])
 
     print("Create Plot")
-    for ny, nx, opath, sim_settings in tqdm.tqdm(results, total=len(results)):
+    if show_progressbar:
+        iterator_list = tqdm.tqdm(results, total=len(results))
+    else:
+        iterator_list = results
+    for ny, nx, opath, sim_settings in iterator_list:
         # Retrieve information and plot last iteration
         iterations = np.sort(cra.get_all_iterations(opath))
         last_iter = iterations[-1]
@@ -116,22 +135,53 @@ if __name__ == "__main__":
                 last_iter,
                 transparent_background=True,
                 overwrite=True,
-                view_angles=(90, 0, 0),
+                view_angles=(angle, 0, 0),
             )
+            # Plot the box of the result
+            if arr_img is not None:
+                img = OffsetImage(arr_img, zoom=0.35)
+                ab = AnnotationBbox(
+                    img,
+                    (nx+1, ny+1),# (pot_ac, pot_aa),
+                    pad=0,
+                    box_alignment=(0.5, 0.5),
+                    annotation_clip=True,
+                    frameon=False,
+                )
+                ax.add_artist(ab)
         except:
             print("Failed to plot results from {}".format(opath))
 
-        # Plot the box of the result
-        img = OffsetImage(arr_img, zoom=0.35)
-        ab = AnnotationBbox(
-            img,
-            (nx+1, ny+1),# (pot_ac, pot_aa),
-            pad=0,
-            box_alignment=(0.5, 0.5),
-            annotation_clip=True,
-            frameon=False,
-        )
-        ax.add_artist(ab)
+        # Plot table with settings
+        cell_text = []
+        variables = [
+            "diffusion_atg11w19",
+            "diffusion_cargo",
+            "domain_atg11w19_radius_min",
+            "domain_cargo_radius_max",
+            "domain_n_voxels",
+            "domain_size",
+            "dt",
+            "interaction_range_atg11w19_atg11w19",
+            "interaction_range_atg11w19_cargo",
+            "interaction_range_cargo_cargo",
+            "n_cells_atg11w19",
+            "n_cells_cargo",
+            "n_threads",
+            "potential_strength_cargo_cargo",
+            "random_seed",
+            "relative_neighbour_distance",
+            "save_interval",
+            "show_progressbar",
+            "substitute_date",
+            "t_max",
+            "temperature_atg11w19",
+        ]
+        if nx + ny == 0:
+            ax.table(
+                cellText=[(var_name, getattr(sim_settings, var_name)) for var_name in variables],
+                loc='top',
+            )
 
     ax.set_xticks(
             range(1, 1+len(values_potential_strength_cargo_atg11w19)),
@@ -145,4 +195,30 @@ if __name__ == "__main__":
     ax.set_xlabel("Potential Strength Cargo-Protein")
     ax.set_ylabel("Potential Strength Protein-Protein")
     fig.tight_layout()
-    fig.savefig("parameter_space_plt-seed-2-angle-3.png")
+
+    # Create new file every time a new plot is done
+    if custom_suffix is None:
+        i = 0
+        save_name = "parameter_space_plt-{:06}.png".format(i)
+        while os.path.exists(save_name):
+            i += 1
+            save_name = "parameter_space_plt-{:06}.png".format(i)
+    else:
+        save_name = "parameter_space_plt-{}.png".format(custom_suffix)
+    print("Saving under {}".format(save_name))
+    fig.savefig(save_name)
+
+def _plotter(angle):
+    return plot_with_angle(
+        angle,
+        show_progressbar=False,
+        parallelize=False,
+        custom_suffix="angle-{:03.0f}".format(angle)
+    )
+
+if __name__ == "__main__":
+    plot_with_angle()
+    # pool = mp.Pool(20)
+    # _ = list(pool.map(_plotter, np.arange(0, 360, 4)))
+    # for angle in np.linspace(0, 360, 90):
+    #     _plotter(angle)
