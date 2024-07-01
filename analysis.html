@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analysis &mdash; cr_autophagy 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plotting" href="plotting.html" />
+    <link rel="prev" title="cellular_raza Autophagy" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/cellular_raza_dark_mode.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.GraphClusterResult"><code class="docutils literal notranslate"><span class="pre">GraphClusterResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.KDEClusterResult"><code class="docutils literal notranslate"><span class="pre">KDEClusterResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calcualte_3d_connected_components"><code class="docutils literal notranslate"><span class="pre">calcualte_3d_connected_components()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_cargo_atg11w19_cluster_distances"><code class="docutils literal notranslate"><span class="pre">calculate_cargo_atg11w19_cluster_distances()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_graph_clusters"><code class="docutils literal notranslate"><span class="pre">calculate_graph_clusters()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_kernel_densities"><code class="docutils literal notranslate"><span class="pre">calculate_kernel_densities()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_mask"><code class="docutils literal notranslate"><span class="pre">calculate_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_spatial_density"><code class="docutils literal notranslate"><span class="pre">calculate_spatial_density()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.calculate_spatial_discretization"><code class="docutils literal notranslate"><span class="pre">calculate_spatial_discretization()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.determine_optimal_thresh"><code class="docutils literal notranslate"><span class="pre">determine_optimal_thresh()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.get_clusters_graph"><code class="docutils literal notranslate"><span class="pre">get_clusters_graph()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy.analysis.get_clusters_kde"><code class="docutils literal notranslate"><span class="pre">get_clusters_kde()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="param_space.html">Parameter Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rust-bindings.html">Rust Bindings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://jonaspleyer.github.io/2023-autophagy/rust_doc/doc/cr_autophagy_pyo3/index.html">Rust Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cr_autophagy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/analysis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="analysis">
+<h1>Analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h1>
+<dl class="py class" id="module-cr_autophagy.analysis">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GraphClusterResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cluster_distances_to_cargo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.cargo_center">
+<span class="sig-name descname"><span class="pre">cargo_center</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.cargo_center" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.cargo_distances">
+<span class="sig-name descname"><span class="pre">cargo_distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.cargo_distances" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.cargo_positions">
+<span class="sig-name descname"><span class="pre">cargo_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.cargo_positions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.cluster_positions">
+<span class="sig-name descname"><span class="pre">cluster_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.cluster_positions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.cluster_sizes">
+<span class="sig-name descname"><span class="pre">cluster_sizes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.cluster_sizes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.clusters_at_cargo">
+<span class="sig-name descname"><span class="pre">clusters_at_cargo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_radial_distance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.clusters_at_cargo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.get_cargo_distance_percentile">
+<span class="sig-name descname"><span class="pre">get_cargo_distance_percentile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">percentile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.get_cargo_distance_percentile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.min_cluster_distances_to_cargo">
+<span class="sig-name descname"><span class="pre">min_cluster_distances_to_cargo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.min_cluster_distances_to_cargo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.n_clusters">
+<span class="sig-name descname"><span class="pre">n_clusters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.n_clusters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.GraphClusterResult.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.GraphClusterResult.validate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KDEClusterResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distances_cargo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.cargo_position">
+<span class="sig-name descname"><span class="pre">cargo_position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.cargo_position" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.cluster_positions">
+<span class="sig-name descname"><span class="pre">cluster_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.cluster_positions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.cluster_sizes">
+<span class="sig-name descname"><span class="pre">cluster_sizes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.cluster_sizes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.clusters_at_cargo">
+<span class="sig-name descname"><span class="pre">clusters_at_cargo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_radial_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.clusters_at_cargo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.distances_cargo">
+<span class="sig-name descname"><span class="pre">distances_cargo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.distances_cargo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.get_cargo_distance_percentile">
+<span class="sig-name descname"><span class="pre">get_cargo_distance_percentile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">percentile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.get_cargo_distance_percentile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.n_clusters">
+<span class="sig-name descname"><span class="pre">n_clusters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.n_clusters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.KDEClusterResult.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.KDEClusterResult.validate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calcualte_3d_connected_components">
+<span class="sig-name descname"><span class="pre">calcualte_3d_connected_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calcualte_3d_connected_components" title="Link to this definition"></a></dt>
+<dd><p>Calculates all connected components in a 3D mask and labels them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mask</strong> (<em>np.ndarray</em>) – An array filled with zero and ones indicating if a position belongs to
+a possible cluster region.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>n_clusters</em> – Number of clusters found</p></li>
+<li><p><em>labels</em> – numpy array of identical shape as <code class="docutils literal notranslate"><span class="pre">mask</span></code> containing increasing numbers
+from 0 indicating. All points with identical label belong to the same cluster.
+Most of the time, the largest cluster is the one with index 0.</p></li>
+<li><p><em>cluster_identifiers</em> – A list of unique labels without their spatial distribution</p></li>
+<li><p><em>cluster_sizes</em> – A numpy array containing the size of the individual clusters.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_cargo_atg11w19_cluster_distances">
+<span class="sig-name descname"><span class="pre">calculate_cargo_atg11w19_cluster_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cr_autophagy.analysis.KDEClusterResult" title="cr_autophagy.analysis.KDEClusterResult"><span class="pre">KDEClusterResult</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calculate_cargo_atg11w19_cluster_distances" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_graph_clusters">
+<span class="sig-name descname"><span class="pre">calculate_graph_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atg11w19_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calculate_graph_clusters" title="Link to this definition"></a></dt>
+<dd><p>Calculates the clusters of particles by measuring their respective distances
+and then grouping them together by who is connected with which other.</p>
+<p>This function uses the <code class="docutils literal notranslate"><span class="pre">scipy</span></code> function <code class="docutils literal notranslate"><span class="pre">scipy.sparse.csgraph.connected_components</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atg11w19_positions</strong> (<em>np.ndarray</em>) – A numpy array of shape (N,3) which holds all positions of Atg11w19 particles.</p></li>
+<li><p><strong>distance</strong> (<em>float</em>) – Distance for which particles should be considered connected</p></li>
+<li><p><strong>cargo_position</strong> (<em>np.ndarray</em>) – The position of the cargo as (3,) numpy array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>n_clusters</em> – Number of clusters that were detected</p></li>
+<li><p><em>cluster_positions</em> – Positions of clusters calculated by taking the average
+over positions in the respective cluster.</p></li>
+<li><p><em>cluster_sizes</em> – List of sizes of the individual clusters.</p></li>
+<li><p><em>min_cluster_distances_to_cargo</em> – Minimum distance of cluster to cargo center.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_kernel_densities">
+<span class="sig-name descname"><span class="pre">calculate_kernel_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bw_method</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calculate_kernel_densities" title="Link to this definition"></a></dt>
+<dd><p>Computes the kerneld densities of Atg11w19 and Cargo particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> (<em>Path</em>) – Path of output of simulation</p></li>
+<li><p><strong>iteration</strong> (<em>int</em>) – Iteration at which to calculate the densities</p></li>
+<li><p><strong>discretization_factor</strong> (<em>float</em>) – Discretization of domain to choose.</p></li>
+<li><p><strong>bw_method</strong> (<em>_type_</em>) – See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html</a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>density_cargo</em> – Denstiy of the Cargo particles as (N,N,N) array where N
+depends on the discretization chosen.</p></li>
+<li><p><em>density_atg11w19</em> – Denstiy of the Atg11w19 particles as (N,N,N) array where N
+depends on the discretization chosen.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_mask">
+<span class="sig-name descname"><span class="pre">calculate_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calculate_mask" title="Link to this definition"></a></dt>
+<dd><p>Calculate array containing 0 and 1 if the value exceeds the threshold or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<em>np.ndarray</em>) – Density of particles over discretized space  (not normalized)</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Relative value between 0 and 1 to serve as cut-off value.
+We will consider changing this to a fixed value instead of relative.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>mask</em> – Calculate mask with same shape as <code class="docutils literal notranslate"><span class="pre">density</span></code></p></li>
+<li><p><em>thresh</em> – Calculate threshold</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_spatial_density">
+<span class="sig-name descname"><span class="pre">calculate_spatial_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atg11w19_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bw_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.calculate_spatial_density" title="Link to this definition"></a></dt>
+<dd><p>Calculate the spatial density of particles.</p>
+<p>This function uses the <code class="docutils literal notranslate"><span class="pre">scipy</span></code> method <code class="xref py py-meth docutils literal notranslate"><span class="pre">sp.stats.gaussian.kde()</span></code>.
+Thus we can specify the width of gaussians to be used with the <code class="docutils literal notranslate"><span class="pre">bw_method</span></code> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atg11w19_positions</strong> (<em>np.ndarray</em>) – A numpy array of shape (N,3) which holds all positions of Atg11w19 particles.</p></li>
+<li><p><strong>domain_size</strong> (<em>float</em>) – See <a class="reference internal" href="#cr_autophagy.analysis.calculate_spatial_discretization" title="cr_autophagy.analysis.calculate_spatial_discretization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_spatial_discretization()</span></code></a></p></li>
+<li><p><strong>discretization</strong> (<em>float</em>) – See <a class="reference internal" href="#cr_autophagy.analysis.calculate_spatial_discretization" title="cr_autophagy.analysis.calculate_spatial_discretization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_spatial_discretization()</span></code></a></p></li>
+<li><p><strong>bw_method</strong> (<em>float</em><em>, </em><em>optional</em>) – See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html</a>, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The spatial density as (N,N,N) array where N depends on the discretization chosen.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.calculate_spatial_discretization">
+<span class="sig-name descname"><span class="pre">calculate_spatial_discretization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cr_autophagy.analysis.calculate_spatial_discretization" title="Link to this definition"></a></dt>
+<dd><p>This function serves as a helper function for
+<a class="reference internal" href="#cr_autophagy.analysis.calculate_spatial_density" title="cr_autophagy.analysis.calculate_spatial_density"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_spatial_density()</span></code></a>. It is exposed to the user
+in order to obtain reproducible space discretizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domain_size</strong> (<em>float</em>) – Domain size of the simulation. This quantity should be read out automatically using
+the <a class="reference internal" href="storage.html#cr_autophagy.storage.get_simulation_settings" title="cr_autophagy.storage.get_simulation_settings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cr_autophagy.storage.get_simulation_settings()</span></code></a> function.</p></li>
+<li><p><strong>discretization</strong> (<em>float</em>) – Discretization to use when creating points in space.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>X, Y, Z</em> – 3-dimensional arrays containing points representing x,y,z coordinates.</p></li>
+<li><p><em>space_discretization</em> – (N,3) array that contains a list of all points in the discretization</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.determine_optimal_thresh">
+<span class="sig-name descname"><span class="pre">determine_optimal_thresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discretization_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bw_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dthresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.determine_optimal_thresh" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.get_clusters_graph">
+<span class="sig-name descname"><span class="pre">get_clusters_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy.analysis.get_clusters_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy.analysis.get_clusters_kde">
+<span class="sig-name descname"><span class="pre">get_clusters_kde</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cr_autophagy.analysis.KDEClusterResult" title="cr_autophagy.analysis.KDEClusterResult"><span class="pre">KDEClusterResult</span></a></span></span><a class="headerlink" href="#cr_autophagy.analysis.get_clusters_kde" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="cellular_raza Autophagy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plotting.html" class="btn btn-neutral float-right" title="Plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jonas Pleyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

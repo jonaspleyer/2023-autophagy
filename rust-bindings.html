@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rust Bindings &mdash; cr_autophagy 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Storage" href="storage.html" />
+    <link rel="prev" title="Parameter Space" href="param_space.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/cellular_raza_dark_mode.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="param_space.html">Parameter Space</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rust Bindings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy_pyo3.Brownian3D"><code class="docutils literal notranslate"><span class="pre">Brownian3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy_pyo3.SimulationSettings"><code class="docutils literal notranslate"><span class="pre">SimulationSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy_pyo3.Species"><code class="docutils literal notranslate"><span class="pre">Species</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy_pyo3.TypedInteraction"><code class="docutils literal notranslate"><span class="pre">TypedInteraction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cr_autophagy_pyo3.run_simulation"><code class="docutils literal notranslate"><span class="pre">run_simulation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://jonaspleyer.github.io/2023-autophagy/rust_doc/doc/cr_autophagy_pyo3/index.html">Rust Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cr_autophagy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Rust Bindings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/rust-bindings.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rust-bindings">
+<h1>Rust Bindings<a class="headerlink" href="#rust-bindings" title="Link to this heading"></a></h1>
+<dl class="py class" id="module-cr_autophagy_pyo3">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Brownian3D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Brownian3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_constant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kb_temperature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.Brownian3D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Brownian motion of particles</p>
+<p># Parameters
+| Symbol | Parameter | Description |
+| — | — | — |
+| $vec{x}$ | <cite>pos</cite> | Position of the particle. |
+| $D$ | <cite>diffusion_constant</cite> | Damping constant of each particle. |
+| $k_BT$ | <cite>kb_temperature</cite> | Product of temperature and boltzmann constant $k_B T$. |</p>
+<p># Equations
+We integrate the standard brownian motion stochastic differential equation.
+\begin{equation}</p>
+<blockquote>
+<div><p>dot{vec{x}} = -frac{D}{k_B T}nabla V(x) + sqrt{2D}R(t)</p>
+</div></blockquote>
+<p>\end{equation}
+The new random vector is then also sampled by a distribution with greater width.
+If we choose this value larger than one, we can
+resolve smaller timesteps to more accurately solve the equations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Brownian3D.diffusion_constant">
+<span class="sig-name descname"><span class="pre">diffusion_constant</span></span><a class="headerlink" href="#cr_autophagy_pyo3.Brownian3D.diffusion_constant" title="Link to this definition"></a></dt>
+<dd><p>[pyo3] setter for <cite>diffusion_constant</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Brownian3D.kb_temperature">
+<span class="sig-name descname"><span class="pre">kb_temperature</span></span><a class="headerlink" href="#cr_autophagy_pyo3.Brownian3D.kb_temperature" title="Link to this definition"></a></dt>
+<dd><p>[pyo3] setter for <cite>kb_temperature</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Brownian3D.pos">
+<span class="sig-name descname"><span class="pre">pos</span></span><a class="headerlink" href="#cr_autophagy_pyo3.Brownian3D.pos" title="Link to this definition"></a></dt>
+<dd><p>[pyo3] setter for <cite>pos</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimulationSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cells_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cells_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_radius_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_radius_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_cargo_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_cargo_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_atg11w19_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_cargo_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_atg11w19_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_atg11w19_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_neighbour_distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_saves</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_threads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_cargo_radius_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_atg11w19_radius_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_n_voxels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitute_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cargo_initials_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progressbar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>All settings which can be configured by the Python interface.</p>
+<p>We aim to provide access to even the more lower-level settings
+that can influence the results of our simulation.
+Not all settings do make sense and some combinations can lead
+to numerical integration problems.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.approx_eq">
+<span class="sig-name descname"><span class="pre">approx_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.approx_eq" title="Link to this definition"></a></dt>
+<dd><p>Compares with other [SimulationSettings] instance and checks if they are approximately
+equal.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.cargo_initials_dir">
+<span class="sig-name descname"><span class="pre">cargo_initials_dir</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.cargo_initials_dir" title="Link to this definition"></a></dt>
+<dd><p>Path where the cargo initial positions will be stored.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.cell_radius_atg11w19">
+<span class="sig-name descname"><span class="pre">cell_radius_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.cell_radius_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Radius of the Atg11/19 particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.cell_radius_cargo">
+<span class="sig-name descname"><span class="pre">cell_radius_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.cell_radius_cargo" title="Link to this definition"></a></dt>
+<dd><p>Radius of the Cargo particles</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.copy" title="Link to this definition"></a></dt>
+<dd><p>Copies the struct identically</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.diffusion_atg11w19">
+<span class="sig-name descname"><span class="pre">diffusion_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.diffusion_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Diffusion as given in the [Brownian3D] struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.diffusion_cargo">
+<span class="sig-name descname"><span class="pre">diffusion_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.diffusion_cargo" title="Link to this definition"></a></dt>
+<dd><p>Diffusion as given in the [Brownian3D] struct.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.domain_atg11w19_radius_min">
+<span class="sig-name descname"><span class="pre">domain_atg11w19_radius_min</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.domain_atg11w19_radius_min" title="Link to this definition"></a></dt>
+<dd><p>Minimal radius outside of which atg11w19 particles will be spawned
+Must be smaller than the domain_size</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.domain_cargo_radius_max">
+<span class="sig-name descname"><span class="pre">domain_cargo_radius_max</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.domain_cargo_radius_max" title="Link to this definition"></a></dt>
+<dd><p>Upper bound of the radius in which the cargo particles will be spawned</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.domain_n_voxels">
+<span class="sig-name descname"><span class="pre">domain_n_voxels</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.domain_n_voxels" title="Link to this definition"></a></dt>
+<dd><p>See [CartesianCuboid3]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.domain_size">
+<span class="sig-name descname"><span class="pre">domain_size</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.domain_size" title="Link to this definition"></a></dt>
+<dd><p>Overall domain size of the simulation. The lower bound starts at <cite>0.0</cite>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.dt">
+<span class="sig-name descname"><span class="pre">dt</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.dt" title="Link to this definition"></a></dt>
+<dd><p>Integration step of the numerical simulation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.extra_saves">
+<span class="sig-name descname"><span class="pre">extra_saves</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.extra_saves" title="Link to this definition"></a></dt>
+<dd><p>Extra iterations at which the simulation should be saved</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.interaction_range_atg11w19_atg11w19">
+<span class="sig-name descname"><span class="pre">interaction_range_atg11w19_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.interaction_range_atg11w19_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.interaction_range_atg11w19_cargo">
+<span class="sig-name descname"><span class="pre">interaction_range_atg11w19_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.interaction_range_atg11w19_cargo" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.interaction_range_cargo_cargo">
+<span class="sig-name descname"><span class="pre">interaction_range_cargo_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.interaction_range_cargo_cargo" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.load_from_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.load_from_file" title="Link to this definition"></a></dt>
+<dd><p>Loads the settings from an existing path.</p>
+<p>Will fail if the given path is invalid or the given json file does not match memory layout
+of this object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.n_cells_atg11w19">
+<span class="sig-name descname"><span class="pre">n_cells_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.n_cells_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Number of Atg11/19 particles in the simulation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.n_cells_cargo">
+<span class="sig-name descname"><span class="pre">n_cells_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.n_cells_cargo" title="Link to this definition"></a></dt>
+<dd><p>Number of cargo particles in the simulation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.n_threads">
+<span class="sig-name descname"><span class="pre">n_threads</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.n_threads" title="Link to this definition"></a></dt>
+<dd><p>Number of threads to use in the simulation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.potential_strength_atg11w19_atg11w19">
+<span class="sig-name descname"><span class="pre">potential_strength_atg11w19_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.potential_strength_atg11w19_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.potential_strength_cargo_atg11w19">
+<span class="sig-name descname"><span class="pre">potential_strength_cargo_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.potential_strength_cargo_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.potential_strength_cargo_cargo">
+<span class="sig-name descname"><span class="pre">potential_strength_cargo_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.potential_strength_cargo_cargo" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.random_seed">
+<span class="sig-name descname"><span class="pre">random_seed</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.random_seed" title="Link to this definition"></a></dt>
+<dd><p>The seed with which the simulation is initially configured</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.relative_neighbour_distance">
+<span class="sig-name descname"><span class="pre">relative_neighbour_distance</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.relative_neighbour_distance" title="Link to this definition"></a></dt>
+<dd><p>See [TypedInteraction]</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.save_interval">
+<span class="sig-name descname"><span class="pre">save_interval</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.save_interval" title="Link to this definition"></a></dt>
+<dd><p>Specifies the frequency at which results are saved as json files.
+Lower the number for more saved results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.save_to_file">
+<span class="sig-name descname"><span class="pre">save_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.save_to_file" title="Link to this definition"></a></dt>
+<dd><p>Saves the object to a file at the given path</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.show_progressbar">
+<span class="sig-name descname"><span class="pre">show_progressbar</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.show_progressbar" title="Link to this definition"></a></dt>
+<dd><p>Do we want to show a progress bar</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.storage_name">
+<span class="sig-name descname"><span class="pre">storage_name</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.storage_name" title="Link to this definition"></a></dt>
+<dd><p>Name of the folder to store the results in.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.substitute_date">
+<span class="sig-name descname"><span class="pre">substitute_date</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.substitute_date" title="Link to this definition"></a></dt>
+<dd><p>Possible substitution for the date to store the results</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.t_max">
+<span class="sig-name descname"><span class="pre">t_max</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.t_max" title="Link to this definition"></a></dt>
+<dd><p>Maximum time until which to solve</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.temperature_atg11w19">
+<span class="sig-name descname"><span class="pre">temperature_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.temperature_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Product of Boltzmann-Constant and temperature of the
+Brownian mechanics model for Atg11/19 particles.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.SimulationSettings.temperature_cargo">
+<span class="sig-name descname"><span class="pre">temperature_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.SimulationSettings.temperature_cargo" title="Link to this definition"></a></dt>
+<dd><p>Product of Boltzmann-Constant and temperature of the
+Brownian mechanics model for Atg11/19 particles.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Species">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Species</span></span><a class="headerlink" href="#cr_autophagy_pyo3.Species" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Particle Species of type Cargo or Atg11/19</p>
+<p>We currently only distinguish between the cargo itself
+and freely moving combinations of the receptor and ATG11.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Species.Atg11w19">
+<span class="sig-name descname"><span class="pre">Atg11w19</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Species.Atg11w19</span></em><a class="headerlink" href="#cr_autophagy_pyo3.Species.Atg11w19" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.Species.Cargo">
+<span class="sig-name descname"><span class="pre">Cargo</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Species.Cargo</span></em><a class="headerlink" href="#cr_autophagy_pyo3.Species.Cargo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TypedInteraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_cargo_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_atg11w19_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_strength_cargo_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_cargo_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_atg11w19_atg11w19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_range_atg11w19_cargo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_neighbour_distance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interaction potential depending on the other cells species.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.cell_radius">
+<span class="sig-name descname"><span class="pre">cell_radius</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.cell_radius" title="Link to this definition"></a></dt>
+<dd><p>Radius of the spherical particle</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.interaction_range_atg11w19_atg11w19">
+<span class="sig-name descname"><span class="pre">interaction_range_atg11w19_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.interaction_range_atg11w19_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>The interaction range (beyond size of the particles) between Atg11/19 particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.interaction_range_atg11w19_cargo">
+<span class="sig-name descname"><span class="pre">interaction_range_atg11w19_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.interaction_range_atg11w19_cargo" title="Link to this definition"></a></dt>
+<dd><p>The interaction range (beyond size of the particles) between Cargo and Atg11/19 particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.interaction_range_cargo_cargo">
+<span class="sig-name descname"><span class="pre">interaction_range_cargo_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.interaction_range_cargo_cargo" title="Link to this definition"></a></dt>
+<dd><p>The interaction range (beyond size of the particles) between Cargo particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.neighbour_count">
+<span class="sig-name descname"><span class="pre">neighbour_count</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.neighbour_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.potential_strength_atg11w19_atg11w19">
+<span class="sig-name descname"><span class="pre">potential_strength_atg11w19_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.potential_strength_atg11w19_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Attracting potential strength between individual Atg11/19 particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.potential_strength_cargo_atg11w19">
+<span class="sig-name descname"><span class="pre">potential_strength_cargo_atg11w19</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.potential_strength_cargo_atg11w19" title="Link to this definition"></a></dt>
+<dd><p>Attracting potential strength between individual Cargo and Atg11/19 particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.potential_strength_cargo_cargo">
+<span class="sig-name descname"><span class="pre">potential_strength_cargo_cargo</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.potential_strength_cargo_cargo" title="Link to this definition"></a></dt>
+<dd><p>Attracting potential strength between individual Cargo particles</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.relative_neighbour_distance">
+<span class="sig-name descname"><span class="pre">relative_neighbour_distance</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.relative_neighbour_distance" title="Link to this definition"></a></dt>
+<dd><p>Relative length in units of the diameter of a particle until when to treat nearby particles
+of the same species as neighbours</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.TypedInteraction.species">
+<span class="sig-name descname"><span class="pre">species</span></span><a class="headerlink" href="#cr_autophagy_pyo3.TypedInteraction.species" title="Link to this definition"></a></dt>
+<dd><p>Labels particles as Cargo or Atg11/19</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cr_autophagy_pyo3.run_simulation">
+<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cr_autophagy_pyo3.run_simulation" title="Link to this definition"></a></dt>
+<dd><p>Takes [SimulationSettings], runs the full simulation and returns the string of the output
+directory.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="param_space.html" class="btn btn-neutral float-left" title="Parameter Space" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="storage.html" class="btn btn-neutral float-right" title="Storage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jonas Pleyer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

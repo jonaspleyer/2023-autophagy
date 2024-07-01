@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["BOLTZMANN_CONSTANT","DAY","HOUR","KELVIN","MICROMETRE","MINUTE","NANOMETRE","SECOND"],"enum":["Species"],"fn":["run_simulation"],"struct":["Particle","SimulationSettings","Storager","TypedInteraction"]};
