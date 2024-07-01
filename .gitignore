@@ -5,4 +5,5 @@ target
 .venv
 Cargo.lock
 docs/build
-
+*.png
+*.mp4
