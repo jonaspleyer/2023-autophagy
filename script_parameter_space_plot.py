@@ -48,11 +48,11 @@ def _run_sim(
     simulation_settings.domain_size *= 2
     simulation_settings.n_cells_atg11w19 = round(2 * simulation_settings.n_cells_atg11w19)
     simulation_settings.save_interval *= 10
-    # simulation_settings.diffusion_atg11w19 *= 0.75
+    simulation_settings.diffusion_atg11w19 *= 1.1
 
-    factor = 1
+    factor = 2
     simulation_settings.t_max = 80 * cra.MINUTE
-    simulation_settings.dt *= 10 / factor
+    simulation_settings.dt *= 8 / factor
 
     simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
     simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
@@ -72,7 +72,7 @@ def plot_with_angle(
     ):
     units = cra.MICROMETRE**2 / cra.SECOND**2
     values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 1e-1, 1e0])# 2.5e-1, 5e-1, 7.5e-1, 1e0, 2.5e0, 5e0, 7.5e0, 1e1])
-    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.0, 0.55, 0.6])# 0.5, 0.6, 0.7, 0.8, 0.9])
+    values_potential_strength_atg11w19_atg11w19 = units * np.array([0.55, 0.6])# 0.5, 0.6, 0.7, 0.8, 0.9])
 
     n_threads = 4
     n_cores = mp.cpu_count()
@@ -217,8 +217,8 @@ def _plotter(angle):
     )
 
 if __name__ == "__main__":
-    plot_with_angle()
+    plot_with_angle(112)
     # pool = mp.Pool(20)
     # _ = list(pool.map(_plotter, np.arange(0, 360, 4)))
-    # for angle in np.linspace(0, 360, 90):
+    # for angle in np.linspace(0, 360, 30):
     #     _plotter(angle)
