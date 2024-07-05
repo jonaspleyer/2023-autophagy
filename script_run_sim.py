@@ -1,6 +1,5 @@
 from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
-import os
 
 if __name__ == "__main__":
     simulation_settings = SimulationSettings()
@@ -56,18 +55,4 @@ if __name__ == "__main__":
 
     # Also create a movie with ffmpeg
     print("Generating Snapshot Movie")
-    bashcmd = f"ffmpeg\
-        -v quiet\
-        -stats\
-        -y\
-        -r 30\
-        -f image2\
-        -pattern_type glob\
-        -i '{output_path}/snapshots/*.png'\
-        -c:v h264\
-        -pix_fmt yuv420p\
-        -strict -2 {output_path}/snapshot_movie.mp4"
-    os.system(bashcmd)
-
-    bashcmd2 = f"firefox {output_path}/snapshot_movie.mp4"
-    os.system(bashcmd2)
+    cra.create_movie(output_path)
