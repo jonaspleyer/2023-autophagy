@@ -467,3 +467,28 @@ def plot_cluster_distribution(
         ax.axvspan(last_percentile, p, alpha=1-p/max_percentile, color="#072853")
         last_percentile = p
     return fig
+
+def create_movie(
+        output_path: Path,
+        framerate: int = 30,
+        threads: int = 0,
+        open_movie: bool = False
+    ):
+    print("Generating Snapshot Movie")
+    bashcmd = f"ffmpeg\
+        -v quiet\
+        -stats\
+        -y\
+        -threads {threads}\
+        -r {framerate}\
+        -f image2\
+        -pattern_type glob\
+        -i '{output_path}/snapshots/*.png'\
+        -c:v h264\
+        -pix_fmt yuv420p\
+        -strict -2 {output_path}/snapshot_movie.mp4"
+    os.system(bashcmd)
+
+    if open_movie is True:
+        bashcmd2 = f"firefox {output_path}/snapshot_movie.mp4"
+        os.system(bashcmd2)
