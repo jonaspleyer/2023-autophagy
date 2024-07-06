@@ -217,14 +217,19 @@ def plot_with_angle(
     fig.tight_layout()
 
     # Create new file every time a new plot is done
+    def set_save_name(suffix):
+        # Create folder if it does not exist
+        path = Path("parameter-space-plt")
+        path.mkdir(parents=True, exist_ok=True)
+        return path / "snapshot-{}.png".format(suffix)
     if custom_suffix is None:
         i = 0
-        save_name = "parameter_space_plt-{:06}.png".format(i)
+        save_name = set_save_name("{:06}".format(0))
         while os.path.exists(save_name):
             i += 1
-            save_name = "parameter_space_plt-{:06}.png".format(i)
+            save_name = set_save_name("{:06}".format(i))
     else:
-        save_name = "parameter_space_plt-{}.png".format(custom_suffix)
+        save_name = set_save_name(custom_suffix)
     print("Saving under {}".format(save_name))
     fig.savefig(save_name)
 
