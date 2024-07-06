@@ -69,9 +69,13 @@ def plot_with_angle(
         show_progressbar: bool = True,
         parallelize: bool = True,
         custom_suffix: str | None = None,
+        headless: bool = False,
         simulation_threads: int = 4,
         total_threads: int = mp.cpu_count(),
     ):
+    if headless:
+        import pyvista as pv
+        pv.start_xvfb()
     units = cra.MICROMETRE**2 / cra.SECOND**2
     values_potential_strength_cargo_atg11w19 = units * np.array([0.0, 0.5e-1, 1e-1, 2e-1, 3e-1, 4e-1, 1e0])# 2e-1, 3e-1, 4e-1, 5e-1, 1e0])# 2.5e-1, 5e-1, 7.5e-1, 1e0, 2.5e0, 5e0, 7.5e0, 1e1])
     values_potential_strength_atg11w19_atg11w19 = units * np.array([0.2, 0.3, 0.4, 0.5, 0.55])# , 0.56, 0.57, 0.58, 0.59, 0.6])# 0.5, 0.6, 0.7, 0.8, 0.9])
