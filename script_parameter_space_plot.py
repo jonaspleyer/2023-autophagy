@@ -144,6 +144,64 @@ def plot_with_angle(
                 annotation_clip=True,
                 frameon=False,
             )
+            ax.add_artist(ab)
+
+    # Plot table with settings
+    variables = [
+        "n_cells_atg11w19",
+        "n_cells_cargo",
+
+        "cell_radius_cargo",
+        "cell_radius_atg11w19",
+
+        "diffusion_cargo",
+        "diffusion_atg11w19",
+
+        "temperature_atg11w19",
+        "temperature_cargo",
+
+        "potential_strength_cargo_cargo",
+        "potential_strength_cargo_atg11w19",
+        "potential_strength_atg11w19_atg11w19",
+
+        "interaction_range_cargo_cargo",
+        "interaction_range_atg11w19_cargo",
+        "interaction_range_atg11w19_atg11w19",
+        "relative_neighbour_distance",
+
+        "dt",
+        "t_max",
+        "save_interval",
+        "n_threads",
+
+        "domain_size",
+        "domain_cargo_radius_max",
+        "domain_atg11w19_radius_min",
+        "domain_n_voxels",
+
+        "substitute_date",
+        "show_progressbar",
+        "random_seed",
+    ]
+    # Get variables from first element of the results list
+    if len(results) > 0:
+        _, _, _, sim_settings = results[0]
+        def format_entry(x):
+            if type(x) is float:
+                return "{:5.2e}".format(x)
+            else:
+                return str(x)
+        table = ax.table(
+                cellText=[
+                    (var_name, format_entry(getattr(sim_settings, var_name)))# "{:5.2e}".format(getattr(sim_settings, var_name)))
+                    for var_name in variables
+                ],
+            loc='right',
+            cellLoc='left',
+            fontsize=8,
+        )
+        table.auto_set_column_width(0)
+        table.auto_set_column_width(1)
 
     ax.set_xticks(
             range(1, 1+len(values_potential_strength_cargo_atg11w19)),
