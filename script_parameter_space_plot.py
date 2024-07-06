@@ -125,68 +125,24 @@ def plot_with_angle(
         # Retrieve information and plot last iteration
         iterations = np.sort(cra.get_all_iterations(opath))
         last_iter = iterations[-1]
-        first_iter = iterations[0]
-        try:
-            cra.save_snapshot(
-                opath,
-                first_iter,
-                transparent_background=True,
-                overwrite=True,
-                view_angles=(90, 0, 0),
-                scale=2,
-            )
-            arr_img = cra.save_snapshot(
-                opath,
-                last_iter,
-                transparent_background=True,
-                overwrite=True,
-                view_angles=(angle, 0, 0),
-                scale=2,
-            )
-            # Plot the box of the result
-            if arr_img is not None:
-                img = OffsetImage(arr_img, zoom=0.2)
-                ab = AnnotationBbox(
-                    img,
-                    (nx+1, ny+1),# (pot_ac, pot_aa),
-                    pad=0,
-                    box_alignment=(0.5, 0.5),
-                    annotation_clip=True,
-                    frameon=False,
-                )
-                ax.add_artist(ab)
-        except:
-            print("Failed to plot results from {}".format(opath))
-
-        # Plot table with settings
-        cell_text = []
-        variables = [
-            "diffusion_atg11w19",
-            "diffusion_cargo",
-            "domain_atg11w19_radius_min",
-            "domain_cargo_radius_max",
-            "domain_n_voxels",
-            "domain_size",
-            "dt",
-            "interaction_range_atg11w19_atg11w19",
-            "interaction_range_atg11w19_cargo",
-            "interaction_range_cargo_cargo",
-            "n_cells_atg11w19",
-            "n_cells_cargo",
-            "n_threads",
-            "potential_strength_cargo_cargo",
-            "random_seed",
-            "relative_neighbour_distance",
-            "save_interval",
-            "show_progressbar",
-            "substitute_date",
-            "t_max",
-            "temperature_atg11w19",
-        ]
-        if nx + ny == 0:
-            ax.table(
-                cellText=[(var_name, getattr(sim_settings, var_name)) for var_name in variables],
-                loc='top',
+        arr_img = cra.save_snapshot(
+            opath,
+            last_iter,
+            transparent_background=True,
+            overwrite=True,
+            view_angles=(angle, 0, 0),
+            scale=2,
+        )
+        # Plot the box of the result
+        if arr_img is not None:
+            img = OffsetImage(arr_img, zoom=0.2)
+            ab = AnnotationBbox(
+                img,
+                (nx+1, ny+1),# (pot_ac, pot_aa),
+                pad=0,
+                box_alignment=(0.5, 0.5),
+                annotation_clip=True,
+                frameon=False,
             )
 
     ax.set_xticks(
