@@ -93,7 +93,7 @@ def plot_with_angle(
                 enumerate(values_potential_strength_atg11w19_atg11w19),
                 enumerate(values_potential_strength_cargo_atg11w19),
             ),
-            itertools.repeat(n_threads),
+            itertools.repeat(simulation_threads),
     )))
 
     print("Get Results")
