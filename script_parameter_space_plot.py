@@ -61,7 +61,7 @@ def _run_sim(
     simulation_settings.interaction_range_atg11w19_cargo *= 0.75
     return (ny_pot_aa[0], nx_pot_ac[0], *generate_results(simulation_settings))
 
-def __run_sim_helper(args: list) -> tuple[int, int, Path, SimulationSettings]:
+def __run_sim_helper(args: tuple) -> tuple[int, int, Path, SimulationSettings]:
     return _run_sim(*args)
 
 def plot_with_angle(
@@ -104,7 +104,7 @@ def plot_with_angle(
         results = [__run_sim_helper(v) for v in values]
     elif parallelize and not show_progressbar:
         pool = mp.Pool(n_workers)
-        results = list(pool.imap(__run_sim_helper, values), total=len(values))
+        results = list(pool.imap(__run_sim_helper, values))
     else:
         results = [__run_sim_helper(v) for v in values]
 
