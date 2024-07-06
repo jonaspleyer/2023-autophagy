@@ -116,7 +116,7 @@ def plot_with_angle(
     ax.set_xlim([0, len(values_potential_strength_cargo_atg11w19)+1])
     ax.set_ylim([0, len(values_potential_strength_atg11w19_atg11w19)+1])
 
-    print("Create Plot")
+    print("Creating Plots")
     if show_progressbar:
         iterator_list = tqdm.tqdm(results, total=len(results))
     else:
@@ -204,8 +204,8 @@ def plot_with_angle(
         table.auto_set_column_width(1)
 
     ax.set_xticks(
-            range(1, 1+len(values_potential_strength_cargo_atg11w19)),
-            ["{:5.2e}".format(v) for v in values_potential_strength_cargo_atg11w19]
+        range(1, 1+len(values_potential_strength_cargo_atg11w19)),
+        ["{:5.2e}".format(v) for v in values_potential_strength_cargo_atg11w19]
     )
     ax.set_yticks(
         range(1, 1+len(values_potential_strength_atg11w19_atg11w19)),
@@ -242,7 +242,7 @@ def _plotter(angle):
     )
 
 if __name__ == "__main__":
-    plot_with_angle(112)
+    plot_with_angle(112, total_threads=12)
     # pool = mp.Pool(20)
     # _ = list(pool.map(_plotter, np.arange(0, 360, 4)))
     # for angle in np.linspace(0, 360, 30):
