@@ -47,12 +47,12 @@ def _run_sim(
     simulation_settings.show_progressbar = False
     simulation_settings.domain_size *= 2
     simulation_settings.n_cells_atg11w19 = round(2 * simulation_settings.n_cells_atg11w19)
-    simulation_settings.save_interval *= 10
+    simulation_settings.save_interval *= 1000
     # If in doubt change this back to 0.8 and take results
     simulation_settings.diffusion_atg11w19 *= 0.6
 
     factor = 1
-    simulation_settings.t_max = 80 * cra.MINUTE
+    simulation_settings.t_max = 120 * cra.MINUTE
     simulation_settings.dt *= 8 / factor
 
     simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
