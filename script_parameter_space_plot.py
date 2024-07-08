@@ -47,12 +47,12 @@ def _run_sim(
     simulation_settings.show_progressbar = False
     simulation_settings.domain_size *= 2
     simulation_settings.n_cells_atg11w19 = round(2 * simulation_settings.n_cells_atg11w19)
-    simulation_settings.save_interval *= 1000
+    simulation_settings.save_interval *= 10
     # If in doubt change this back to 0.8 and take results
     simulation_settings.diffusion_atg11w19 *= 0.6
 
     factor = 1
-    simulation_settings.t_max = 120 * cra.MINUTE
+    simulation_settings.t_max = 140 * cra.MINUTE
     simulation_settings.dt *= 8 / factor
 
     simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
@@ -82,16 +82,16 @@ def plot_with_angle(
         0.0,
         # 0.5e-1,
         # 0.95e-1,
-        # 1e-1,
-        # 2e-1,
+        1e-1,
+        2e-1,
         3e-1,
         4e-1,
         5e-1,
         # 6e-1,
         # 7e-1,
         # 9.5e-1,
-        # 1e0,
-        1.05e0,
+        1e0,
+        # 1.05e0,
         1.1e0,
         # 1.1e0,
         # 1.2e0,
@@ -107,11 +107,12 @@ def plot_with_angle(
         # 0.53,
         # 0.54,
         # 0.55,
-        0.56,
-        0.57,
+        # 0.56,
+        # 0.57,
         0.58,
         # 0.575,
-        # 0.6,
+        0.6,
+        0.62,
         # 0.625,
         # 0.65,
         # 0.675,
