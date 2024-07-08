@@ -62,11 +62,14 @@ def _generate_spheres(output_path: Path, iteration):
     return spheres_cargo, spheres_atg11w19
 
 
-def create_save_path(output_path, subfolder, iteration):
+def create_save_path(output_path, subfolder, iteration, suffix: str | None = None):
     # Create folder if not exists
     ofolder = Path(output_path) / subfolder
     ofolder.mkdir(parents=True, exist_ok=True)
-    save_path = ofolder / "snapshot_{:08}.png".format(iteration)
+    if suffix is not None:
+        save_path = ofolder / "snapshot_{:08}-{}.png".format(iteration, suffix)
+    else:
+        save_path = ofolder / "snapshot_{:08}.png".format(iteration)
     return save_path
 
 
@@ -78,11 +81,13 @@ def save_snapshot(
         view_angles: tuple[float, float, float] = (0, 0, 0),
         ascending_rotation_angle: float | int = 0,
         scale: float | None = None,
+        subfolder: str = "snapshots",
+        suffix: str | None = None,
     ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
     if simulation_settings is None:
         return
-    opath = create_save_path(output_path, "snapshots", iteration)
+    opath = create_save_path(output_path, subfolder, iteration, suffix)
     if os.path.isfile(opath) and not overwrite:
         return
     (cargo, atg11w19) = _generate_spheres(output_path, iteration)
@@ -481,6 +486,8 @@ def plot_cluster_distribution(
 
 def create_movie(
         output_path: Path,
+        subfolder: str = "snapshots",
+        name: str = "snapshot_movie",
         framerate: int = 30,
         threads: int = 0,
         open_movie: bool = False
@@ -494,12 +501,12 @@ def create_movie(
         -r {framerate}\
         -f image2\
         -pattern_type glob\
-        -i '{output_path}/snapshots/*.png'\
+        -i '{output_path}/{subfolder}/*.png'\
         -c:v h264\
         -pix_fmt yuv420p\
-        -strict -2 {output_path}/snapshot_movie.mp4"
+        -strict -2 {output_path}/{name}.mp4"
     os.system(bashcmd)
 
     if open_movie is True:
-        bashcmd2 = f"firefox {output_path}/snapshot_movie.mp4"
+        bashcmd2 = f"firefox {output_path}/{name}.mp4"
         os.system(bashcmd2)
