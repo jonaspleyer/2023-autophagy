@@ -2,7 +2,7 @@ from cr_autophagy_pyo3 import SimulationSettings, run_simulation
 import cr_autophagy as cra
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.offsetbox import OffsetBox, OffsetImage, AnnotationBbox, TextArea
 from pathlib import Path
 import glob
 import multiprocessing as mp
@@ -149,7 +149,6 @@ def plot_with_angle(
     else:
         iterator_list = results
     for ny, nx, opath, sim_settings in iterator_list:
-        print(opath)
         # Retrieve information and plot last iteration
         iterations = np.sort(cra.get_all_iterations(opath))
         last_iter = iterations[-1]
@@ -161,8 +160,8 @@ def plot_with_angle(
             view_angles=(angle, 0, 0),
             scale=2,
         )
-        # Plot the box of the result
         if arr_img is not None:
+            # Plot the box of the result
             img = OffsetImage(arr_img, zoom=0.2)
             ab = AnnotationBbox(
                 img,
@@ -170,6 +169,16 @@ def plot_with_angle(
                 pad=0,
                 box_alignment=(0.5, 0.5),
                 annotation_clip=True,
+                frameon=False,
+            )
+            ax.add_artist(ab)
+            # Add text
+            ob = TextArea("{}".format(opath.parts[-1]))
+            ab = AnnotationBbox(
+                ob,
+                (nx+1,ny+0.6),
+                pad=0,
+                # box_alignment=(1,1),
                 frameon=False,
             )
             ax.add_artist(ab)
