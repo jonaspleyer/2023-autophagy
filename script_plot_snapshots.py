@@ -7,6 +7,13 @@ if __name__ == "__main__":
 
     for opath in opaths:
         opath = Path(opath)
-        cra.save_all_snapshots(opath, threads=10, view_angles=(112, 0, 0), overwrite=True)
+        cra.save_all_snapshots(
+            opath,
+            threads=10,
+            ascending_rotation_angle=1/200,
+            view_angles=(112, 0, 0),
+            overwrite=True,
+            transparent_background=True,
+        )
         cra.create_movie(opath)
 
