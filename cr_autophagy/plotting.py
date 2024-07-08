@@ -75,7 +75,8 @@ def save_snapshot(
         iteration: int,
         overwrite: bool = False,
         transparent_background: bool = False,
-        view_angles: tuple[float, float, float] | tuple[float, float] | tuple[float] = (0, 0, 0),
+        view_angles: tuple[float, float, float] = (0, 0, 0),
+        ascending_rotation_angle: float | int = 0,
         scale: float | None = None,
     ) -> pv.pyvista_ndarray | None:
     simulation_settings = get_simulation_settings(output_path)
@@ -106,6 +107,11 @@ def save_snapshot(
     if view_angles != (0, 0):
         from scipy.spatial.transform import Rotation
         middle = ds / 2.0
+        view_angles = (
+            view_angles[0] + ascending_rotation_angle * iteration,
+            view_angles[1],
+            view_angles[2]
+        )
         rotation_matrix = Rotation.from_euler('zyx', view_angles, degrees=True)
         position = middle + rotation_matrix.as_matrix().dot(position - middle)
     focal_point = 0.5 * ds
