@@ -178,7 +178,12 @@ def __save_snapshot_helper(args_kwargs):
     return save_snapshot(*args, **kwargs)
 
 
-def save_all_snapshots(output_path: Path, threads=1, show_bar=True, **kwargs):
+def save_all_snapshots(
+        output_path: Path,
+        threads=1,
+        show_bar=True,
+        **kwargs
+    ):
     if threads<=0:
         threads = os.cpu_count()
     output_iterations = [((output_path, iteration), kwargs) for iteration in get_all_iterations(output_path)]
