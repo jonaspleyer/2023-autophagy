@@ -198,8 +198,8 @@ def plot_with_angle(
         "temperature_cargo",
 
         "potential_strength_cargo_cargo",
-        "potential_strength_cargo_atg11w19",
-        "potential_strength_atg11w19_atg11w19",
+        # "potential_strength_cargo_atg11w19",
+        # "potential_strength_atg11w19_atg11w19",
 
         "interaction_range_cargo_cargo",
         "interaction_range_atg11w19_cargo",
