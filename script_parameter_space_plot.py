@@ -45,15 +45,15 @@ def _run_sim(
     simulation_settings.substitute_date = str("{:010}".format(n_run))
     simulation_settings.n_threads = n_threads
     simulation_settings.show_progressbar = False
-    simulation_settings.domain_size *= 2
-    simulation_settings.n_cells_atg11w19 = round(2 * simulation_settings.n_cells_atg11w19)
+    simulation_settings.domain_size *= 2.5
+    simulation_settings.n_cells_atg11w19 = round(1.75 * simulation_settings.n_cells_atg11w19)
     simulation_settings.save_interval *= 10
     # If in doubt change this back to 0.8 and take results
     simulation_settings.diffusion_atg11w19 *= 0.6
 
     factor = 1
     simulation_settings.t_max = 140 * cra.MINUTE
-    simulation_settings.dt *= 8 / factor
+    simulation_settings.dt *= 16 / factor
 
     simulation_settings.potential_strength_cargo_atg11w19 = nx_pot_ac[1]
     simulation_settings.potential_strength_atg11w19_atg11w19 = ny_pot_aa[1]
@@ -87,12 +87,20 @@ def plot_with_angle(
         # 3e-1,
         # 4e-1,
         5e-1,
-        # 6e-1,
+        6e-1,
         # 7e-1,
-        # 9.5e-1,
+        # 8e-1,
+        # 9e-1,
         1e0,
         # 1.05e0,
         1.1e0,
+        1.2e0,
+        1.3e0,
+        1.4e0,
+        1.5e0,
+        1.6e0,
+        # 1.8e0,
+        # 2.0e0,
         # 1.1e0,
         # 1.2e0,
     ])
@@ -112,7 +120,14 @@ def plot_with_angle(
         # 0.58,
         # 0.575,
         # 0.6,
-        0.62,
+        # 0.60,
+        # 0.62,
+        # 0.64,
+        # 0.66,
+        # 0.68,
+        0.70,
+        # 0.72,
+        # 0.74,
         # 0.625,
         # 0.65,
         # 0.675,
