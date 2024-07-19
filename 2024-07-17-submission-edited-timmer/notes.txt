@@ -1,0 +1,17 @@
+- explain parameter beta
+- label plot in appendix for potential
+- motivate parameter 4
+- soft spheres
+- doppelt so lang für text
+- sigma kleiner 1 oder größer eins erklären ("The meaning of")
+- interaction range ceta erklären
+- soft spheres instead of hard spheres
+- table M1 still has R11 instead of Atg11w19
+- change wording regularization zu "upper bound"
+- explain spatial cutoff
+- describe initial values better:
+    - where are cargos placed?
+    - Order: FIrst cargo, then atg11w19
+-possibly omit "json" word
+- omit words about "identical results"
+- brownian motion second derivative wrong
