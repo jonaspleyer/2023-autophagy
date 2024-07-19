@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"cr_autophagy_pyo3":[["impl&lt;__cr_private_Pos, __cr_private_Vel, __cr_private_For, __cr_private_Float&gt; Mechanics&lt;__cr_private_Pos, __cr_private_Vel, __cr_private_For, __cr_private_Float&gt; for <a class=\"struct\" href=\"cr_autophagy_pyo3/struct.Particle.html\" title=\"struct cr_autophagy_pyo3::Particle\">Particle</a><div class=\"where\">where\n    Brownian3D: Mechanics&lt;__cr_private_Pos, __cr_private_Vel, __cr_private_For, __cr_private_Float&gt;,</div>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
